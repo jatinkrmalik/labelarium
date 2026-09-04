@@ -1,0 +1,10 @@
+[
+  {
+    "id": "brother-pt-d220",
+    "brand": "Brother",
+    "model": "PT-D220",
+    "name": "P-touch PT-D220",
+    "tagline": "Home & Office Everyday Label Maker",
+    "data": "devices/brother-pt-d220/device.js"
+  }
+]
