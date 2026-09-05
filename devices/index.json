@@ -30,5 +30,45 @@
     "name": "M110",
     "tagline": "Bluetooth Portable Thermal Business Label Maker",
     "data": "devices/phomemo-m110/device.js"
+  },
+  {
+    "id": "brother-pt-p710bt",
+    "brand": "Brother",
+    "model": "PT-P710BT",
+    "name": "P-touch CUBE Plus PT-P710BT",
+    "tagline": "Bluetooth cube printer for phones and P-touch Editor",
+    "data": "devices/brother-pt-p710bt/device.js"
+  },
+  {
+    "id": "dymo-lm160",
+    "brand": "DYMO",
+    "model": "LM160",
+    "name": "LabelManager 160",
+    "tagline": "Portable Label Maker",
+    "data": "devices/dymo-lm160/device.js"
+  },
+  {
+    "id": "dymo-lm280",
+    "brand": "DYMO",
+    "model": "LabelManager 280",
+    "name": "LabelManager 280",
+    "tagline": "Rechargeable Portable Label Maker",
+    "data": "devices/dymo-lm280/device.js"
+  },
+  {
+    "id": "brady-m210",
+    "brand": "Brady",
+    "model": "M210",
+    "name": "Brady M210",
+    "tagline": "Portable Industrial Label Printer",
+    "data": "devices/brady-m210/device.js"
+  },
+  {
+    "id": "brady-m211",
+    "brand": "Brady",
+    "model": "M211",
+    "name": "M211 Label Printer",
+    "tagline": "Bluetooth portable printer \u00b7 Express Labels app",
+    "data": "devices/brady-m211/device.js"
   }
 ]
