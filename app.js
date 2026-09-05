@@ -123,10 +123,22 @@ async function render() {
   if (!route().q.q) window.scrollTo(0, 0);
 }
 
+// Theme: auto (follow device) → light → dark, remembered in localStorage.
+const THEMES = { auto: ['◐', 'Auto'], light: ['☼', 'Light'], dark: ['☾', 'Dark'] };
+function applyTheme() {
+  const t = store.get('theme', 'auto');
+  document.documentElement.dataset.theme = t;
+  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
+  document.querySelectorAll('meta[name=theme-color]').forEach(m => { m.removeAttribute('media'); m.content = dark ? '#191815' : '#efe7d6'; });
+}
+window.cycleTheme = () => { const order = ['auto', 'light', 'dark']; const t = store.get('theme', 'auto'); store.set('theme', order[(order.indexOf(t) + 1) % 3]); applyTheme(); render(); };
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
+const themeBtn = () => { const t = store.get('theme', 'auto'); const next = { auto: 'light', light: 'dark', dark: 'auto' }[t]; return `<button class="iconbtn theme" onclick="cycleTheme()" aria-label="Theme: ${THEMES[t][1]}. Switch to ${THEMES[next][1]}" title="Theme: ${THEMES[t][1]} · tap for ${THEMES[next][1]}">${THEMES[t][0]}</button>`; };
+
 function setTop(title, { back, sub, right = '' } = {}) {
   topbar.classList.toggle('home', !back);
   topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo"></span>'}
-    <div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}</div>`;
+    <div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}${themeBtn()}</div>`;
 }
 
 // ---------- home ----------
@@ -471,5 +483,6 @@ function drawTape(d, s) {
 }
 
 // ---------- boot ----------
+applyTheme();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(console.warn);
 render();
