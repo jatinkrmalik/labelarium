@@ -1,3 +1,4 @@
+// Labelarium — Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
 // Labelarium — vanilla JS, hash router, no build step.
 const $ = s => document.querySelector(s);
 const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
@@ -18,13 +19,14 @@ const cssq = s => String(s).replace(/"/g, "'"); // font stacks go inside style="
 
 let devices = [];
 const loaded = {};
+const SAFE_ID = /^[a-z0-9-]+$/;
 
 async function loadIndex() { devices = await (await fetch('devices/index.json')).json(); }
 
 async function loadDevice(id) {
   if (loaded[id]) return loaded[id];
   const meta = devices.find(d => d.id === id);
-  if (!meta) throw new Error('Unknown device ' + id);
+  if (!meta || !SAFE_ID.test(id)) throw new Error('Unknown label maker: ' + id);
   const raw = (await import('./' + meta.data)).default;
   return (loaded[id] = normalize(raw, meta.data.slice(0, meta.data.lastIndexOf('/') + 1)));
 }
@@ -103,7 +105,7 @@ function route() {
   const q = Object.fromEntries(new URLSearchParams(qs || ''));
   return { seg, q };
 }
-const go = (path, replace) => replace ? history.replaceState(null, '', '#' + path) & render() : (location.hash = path);
+const go = (path, replace) => { if (replace) { history.replaceState(null, '', '#' + path); return render(); } location.hash = path; };
 window.addEventListener('hashchange', render);
 
 async function render() {
@@ -115,9 +117,12 @@ async function render() {
     const d = await loadDevice(seg[1]);
     const section = seg[2] || 'home';
     const views = { home: viewDeviceHome, symbols: viewSymbols, frames: viewFrames, templates: viewTemplates, fonts: viewFonts, shortcuts: viewShortcuts, keyboard: viewKeyboard, howto: viewHowto, trouble: viewTrouble, preview: viewPreview, specs: viewSpecs };
-    (views[section] || viewDeviceHome)(d, seg.slice(3), q);
+    if (!views[section]) return go(`/d/${d.id}`, true);
+    views[section](d, seg.slice(3), q);
   } catch (e) {
-    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span></div>`;
+    setTop('Labelarium');
+    app.className = 'app';
+    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="#/">Back to all label makers</a></div>`;
     console.error(e);
   }
   if (!route().q.q) window.scrollTo(0, 0);
@@ -155,7 +160,7 @@ function renderHome() {
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
     ${favDevs.length ? `<h2>Pinned</h2><div class="devlist">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     ${brands.map(b => `<h2>${esc(b)}</h2><div class="devlist">${devices.filter(d => d.brand === b).map(card).join('')}</div>`).join('')}
-    <p class="footer">Have a different label maker? Request it at <a href="mailto:hello@labelarium.com?subject=Label%20maker%20request">hello@labelarium.com</a>.</p>`;
+    <p class="footer">Have a different label maker? Request it at <a href="mailto:hello@labelarium.com?subject=Label%20maker%20request">hello@labelarium.com</a>.<br>Open source under the <a href="LICENSE" target="_blank" rel="noopener">AGPL-3.0</a>. Labelarium is a trademark of its author.</p>`;
 }
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
@@ -169,7 +174,7 @@ const SECTIONS = [
   ['shortcuts', 'dia', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
   ['howto', 'lines', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
   ['trouble', 'cross', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
-  ['preview', 'tape', 'Label preview', 'Design a label, get the recipe'],
+  ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub) {
@@ -193,34 +198,36 @@ window.openMore = id => {
   openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="#/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
 };
 function searchBox(d, q) {
-  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
 window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `#/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
-  main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections"></div>`;
+  main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections" class="twocol"></div>`;
   if (q.q) renderResults(d, q.q, true); else renderSections(d);
   if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
   const saved = store.get('offline:' + d.id);
-  $('#sections').innerHTML = `<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div>
-    <h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
+  $('#sections').innerHTML = `<div class="col"><p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
+    <aside class="col"><h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
-    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div>`;
+    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
-  if (!q) { box.innerHTML = ''; sections.style.display = ''; if (!sections.innerHTML) renderSections(d); return; }
-  sections.style.display = 'none';
+  if (!q) { box.innerHTML = ''; sections.hidden = false; if (!sections.innerHTML) renderSections(d); return; }
+  sections.hidden = true;
   const res = search(d, q);
   if (!res.length) { box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<br><span class="small">Try a simpler word, e.g. “sign”, “star”, “tape”.</span></div>`; return; }
   const groups = {}; res.forEach(r => (groups[r.type] ||= []).push(r));
   const names = { symbol: 'Symbols', frame: 'Frames', template: 'Templates', howto: 'How-to', shortcut: 'Shortcuts', 'symbol-category': 'Symbol categories', font: 'Fonts', style: 'Styles', error: 'Error messages', problem: 'Problems & fixes', key: 'Keys' };
-  const hi = s => { const t = norm(q).split(/\s+/).filter(Boolean); let h = esc(s); t.forEach(w => { if (w.length > 1) h = h.replace(new RegExp(`(${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig'), '<mark>$1</mark>'); }); return h; };
+  const terms = norm(q).split(/\s+/).filter(w => w.length > 1).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  const re = terms.length ? new RegExp(`(${terms.join('|')})`, 'ig') : null;
+  const hi = s => re ? String(s).split(re).map((part, i) => i % 2 ? `<mark>${esc(part)}</mark>` : esc(part)).join('') : esc(s);
   let html = '';
   for (const type of Object.keys(names)) {
     const g = groups[type]; if (!g) continue;
@@ -385,7 +392,7 @@ function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
   const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
-  main.innerHTML = `<div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
+  main.innerHTML = `<div class="twocol"><div class="col"><div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
   <div class="card ctl" id="ctl">
     <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}"></label>
     <label class="full">Line 2 <span class="muted">(9 / 12 mm tape)</span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''}></label>
@@ -400,11 +407,11 @@ function viewPreview(d, _, q) {
     <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
     <label>Label length (mm, 0 = Auto)<input type="number" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
     <label>Mirror<div class="seg"><button data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
-  </div>
-  <div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+  </div></div>
+  <div class="col"><div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="row" style="margin-top:14px;gap:10px"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
     <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
-  <h2>Saved labels</h2><div id="saved"></div>`;
+  <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
   renderSaved(d);
   const ctl = $('#ctl');
@@ -418,7 +425,7 @@ function renderSaved(d) {
   const box = $('#saved'); if (!box) return;
   const list = store.get(savedKey(d.id), []);
   if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label” — it comes back with its full recipe.</p>'; return; }
-  box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark tape"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
+  box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark strip"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
 }
 window.saveLabel = id => {
   const d = loaded[id], s = store.get('preview:' + id, {});
