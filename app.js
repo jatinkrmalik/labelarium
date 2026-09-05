@@ -333,7 +333,7 @@ function viewShortcuts(d) {
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
-  main.innerHTML = `<div class="card img-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
+  main.innerHTML = `<div class="card kbd-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
     <h2>LCD indicators (1–7)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n <= 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>
     <h2>Keys (8–30)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n > 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`;
 }

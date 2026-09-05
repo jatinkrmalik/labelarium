@@ -1,12 +1,18 @@
 /* Labelarium — Neoclassical × Bauhaus.
    Neoclassical: ivory paper, Bodoni display type, hairline double rules, centred symmetry, small caps.
    Bauhaus: a shared-border grid, Futura labels, and three primary marks — red circle, blue square, yellow triangle. */
+/* Bundled open-licence fonts (SIL OFL 1.1, licences in /fonts): Bodoni Moda (display serif) and Jost (geometric sans). */
+@font-face { font-family: "Bodoni Moda"; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/bodoni-moda-400.woff2") format("woff2"); }
+@font-face { font-family: "Bodoni Moda"; font-style: italic; font-weight: 400; font-display: swap; src: url("fonts/bodoni-moda-400-italic.woff2") format("woff2"); }
+@font-face { font-family: Jost; font-style: normal; font-weight: 400; font-display: swap; src: url("fonts/jost-400.woff2") format("woff2"); }
+@font-face { font-family: Jost; font-style: normal; font-weight: 500; font-display: swap; src: url("fonts/jost-500.woff2") format("woff2"); }
+@font-face { font-family: Jost; font-style: normal; font-weight: 600; font-display: swap; src: url("fonts/jost-600.woff2") format("woff2"); }
 :root {
   --paper: #f3eee3; --paper-2: #faf7f0; --paper-3: #ebe4d4;
   --ink: #141414; --ink-2: #5a554c; --rule: #141414; --rule-soft: #cfc6b3;
   --red: #c8342a; --blue: #1f3f8f; --yellow: #e8b820; --lcd-bg: #e8b820; --lcd-ink: #141414;
-  --serif: "Bodoni 72", Didot, "New York", ui-serif, Georgia, "Times New Roman", serif;
-  --sans: Futura, "Century Gothic", "Avenir Next", "Trebuchet MS", "Helvetica Neue", sans-serif;
+  --serif: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
+  --sans: Jost, Futura, "Century Gothic", "Avenir Next", sans-serif;
   --mono: ui-monospace, Menlo, Consolas, monospace;
   color-scheme: light dark;
 }
@@ -17,7 +23,7 @@
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.5 var(--sans); padding-bottom: env(safe-area-inset-bottom); }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 15.5px/1.5 var(--sans); padding-bottom: env(safe-area-inset-bottom); }
 a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 button { font: inherit; color: inherit; }
 img { max-width: 100%; }
@@ -97,7 +103,7 @@ code { font-family: var(--mono); font-size: .85em; background: var(--paper-3); p
 .tile { background: var(--paper-2); padding: 18px 16px 16px; cursor: pointer; display: flex; flex-direction: column; gap: 6px; min-height: 118px; border: 0; border-right: 1px solid var(--rule); border-bottom: 1px solid var(--rule); text-align: left; }
 .tile:hover { background: var(--paper-3); }
 .tile .ico { height: 18px; display: flex; align-items: flex-end; margin-bottom: 8px; }
-.tile b { font: 400 1.25rem/1.1 var(--serif); }
+.tile b { font: 400 1.15rem/1.15 var(--serif); }
 .tile .n { font: 500 .62rem/1.5 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-2); }
 .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .pill { display: inline-block; font: 500 .6rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; padding: 4px 7px; border: 1px solid var(--rule); color: var(--ink); }
@@ -155,7 +161,9 @@ kbd.key.print { border-radius: 999px; padding: 6px 10px 5px; }
 .font-sample { font-size: 1.5rem; line-height: 1; margin-left: auto; white-space: nowrap; padding-left: 8px; }
 
 /* Keyboard */
-.kbd-img { display: block; width: 100%; height: auto; max-height: none; margin: 0; background: #fff; }
+.kbd-card { padding: 10px; background: #fff; }
+.kbd-card .kbd-img { display: block; width: 100%; height: auto; max-height: none; margin: 0; }
+@media (prefers-color-scheme: dark) { .kbd-card { background: var(--paper-2); } }
 .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 20px; font-size: .9rem; }
 .legend div { padding: 8px 0; border-bottom: 1px solid var(--rule-soft); }
 .legend b { display: inline-block; min-width: 28px; font: 400 1.05rem/1 var(--serif); color: var(--red); }

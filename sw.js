@@ -1,9 +1,10 @@
 // Labelarium service worker.
 // Shell files (html/js/css/json): network first, cache fallback — so updates land whenever you are online.
 // Everything else (images): cache first — so a device you "saved offline" never re-downloads.
-const VERSION = 'labelarium-v1';
+const VERSION = 'labelarium-v2';
 const SHELL = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest', 'devices/index.json',
-  'icons/icon-192.png', 'icons/icon-512.png'];
+  'icons/icon-192.png', 'icons/icon-512.png',
+  'fonts/bodoni-moda-400.woff2', 'fonts/bodoni-moda-400-italic.woff2', 'fonts/jost-400.woff2', 'fonts/jost-500.woff2', 'fonts/jost-600.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

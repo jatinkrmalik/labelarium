@@ -1,7 +1,9 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Labelarium · design concepts</title>
+<link rel="stylesheet" href="../style.css" media="not all">
 <style>
+@font-face{font-family:"Bodoni Moda";font-weight:400;src:url(../fonts/bodoni-moda-400.woff2) format("woff2")}@font-face{font-family:Jost;font-weight:400;src:url(../fonts/jost-400.woff2) format("woff2")}@font-face{font-family:Jost;font-weight:500;src:url(../fonts/jost-500.woff2) format("woff2")}
 :root{--ink:#111}
 body{margin:0;background:#d9d9d6;font:15px/1.5 -apple-system,system-ui,sans-serif;color:#222;padding:32px 28px 60px}
 h1{font:400 34px/1.1 "Bodoni 72",Didot,"New York",Georgia,serif;margin:0 0 6px}
@@ -40,16 +42,16 @@ h1{font:400 34px/1.1 "Bodoni 72",Didot,"New York",Georgia,serif;margin:0 0 6px}
 .p-frame img{max-height:40px;max-width:100%}
 .c1 .p-frame{border:1px solid #141414;background:#fbf9f4}.c2 .p-frame{border:2px solid #111}.c3 .p-frame{border:1px solid #8a8a86;background:#f4f4f2}.c4 .p-frame{border:2px solid #3d2e25;border-radius:10px}.c5 .p-frame{border:1px solid #d8cbb6;background:#fbf7ef}.c6 .p-frame{border:3px solid #000;box-shadow:4px 4px 0 #000}
 /* 1 — Neoclassical × Bauhaus */
-.c1{background:#f3eee3;color:#141414;font-family:Futura,"Century Gothic","Avenir Next",sans-serif}
+.c1{background:#f3eee3;color:#141414;font-family:Jost,Futura,"Century Gothic","Avenir Next",sans-serif}
 .c1 .p-top{flex-direction:column;gap:2px;padding-top:26px;border-bottom:1px solid #141414;position:relative}
 .c1 .p-top::after{content:"";position:absolute;left:18px;right:18px;bottom:3px;border-bottom:1px solid #141414}
-.c1 .p-title{font:400 30px/1 "Bodoni 72",Didot,"New York",Georgia,serif;letter-spacing:.01em}
+.c1 .p-title{font:400 30px/1 "Bodoni Moda","Bodoni 72",Didot,"New York",Georgia,serif;letter-spacing:.01em}
 .c1 .p-sub{margin:0;font-size:10px;letter-spacing:.28em;text-transform:uppercase;opacity:1}
 .c1 .p-logo{position:absolute;left:18px;top:26px;width:14px;height:14px;border-radius:50%;background:#c8342a}
 .c1 .p-search{border:1px solid #141414;border-radius:0;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-top:16px;background:#faf7f0}
 .c1 .p-tiles{gap:0;border:1px solid #141414;background:#141414}
 .c1 .p-tile{background:#f3eee3;margin:0;outline:1px solid #141414;outline-offset:-.5px;padding:16px 14px 14px}
-.c1 .p-tile b{font:400 19px/1.1 "Bodoni 72",Didot,"New York",Georgia,serif}
+.c1 .p-tile b{font:400 19px/1.1 "Bodoni Moda","Bodoni 72",Didot,"New York",Georgia,serif}
 .c1 .p-tile span{font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8}
 .c1 .sq{background:#1f3f8f}.c1 .ci{background:#c8342a;border-radius:50%}.c1 .tr{width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:18px solid #e8b820;background:none}.c1 .ln{height:4px;width:22px;background:#141414;margin-top:13px}
 .c1 h4{font-size:10px;letter-spacing:.28em;text-align:center;opacity:1;display:flex;align-items:center;gap:12px;white-space:nowrap}
