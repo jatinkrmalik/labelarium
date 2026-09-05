@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Labelarium · Neoclassical × Bauhaus, five readable variations</title>
+<style>
+@font-face{font-family:"Bodoni Moda";font-weight:400;src:url(../fonts/bodoni-moda-400.woff2) format("woff2")}
+@font-face{font-family:"Bodoni Moda";font-weight:400;font-style:italic;src:url(../fonts/bodoni-moda-400-italic.woff2) format("woff2")}
+@font-face{font-family:Jost;font-weight:400;src:url(../fonts/jost-400.woff2) format("woff2")}
+@font-face{font-family:Jost;font-weight:500;src:url(../fonts/jost-500.woff2) format("woff2")}
+@font-face{font-family:Jost;font-weight:600;src:url(../fonts/jost-600.woff2) format("woff2")}
+:root{--paper:#f3eee3;--plate:#fbf9f4;--ink:#141414;--ink2:#5a554c;--rule:#141414;--soft:#d9d1c0;--red:#c8342a;--blue:#1f3f8f;--yellow:#e8b820;--serif:"Bodoni Moda",Georgia,serif;--sans:Jost,"Century Gothic",sans-serif}
+body{margin:0;background:#cfcdc6;color:#1a1a1a;font:15px/1.5 var(--sans);padding:36px 32px 80px}
+h1{font:400 40px/1.05 var(--serif);margin:0 0 8px}
+.lead{max-width:820px;font-size:16px;color:#333;margin:0 0 10px}
+.lead b{color:#111}
+.scale{max-width:820px;background:#fbf9f4;border:1px solid #141414;padding:14px 18px;margin:18px 0 40px;font-size:14px}
+.scale b{display:block;font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.scale table{border-collapse:collapse;width:100%}
+.scale td{padding:4px 8px 4px 0;border-top:1px solid #d9d1c0;vertical-align:top}
+.scale td:first-child{font-weight:600;white-space:nowrap}
+.v{display:grid;grid-template-columns:375px minmax(520px,1fr);gap:28px;align-items:start;margin:0 0 60px;padding-top:26px;border-top:2px solid #141414}
+.v .cap{grid-column:1/-1;max-width:900px}
+.v .cap .n{display:inline-block;font:600 12px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;background:#141414;color:#fff;padding:6px 9px;margin-right:10px}
+.v .cap h2{display:inline;font:400 30px/1.1 var(--serif);margin:0}
+.v .cap p{margin:10px 0 0;font-size:15px;max-width:820px}
+.v .cap .fit{color:#111;font-weight:600}
+.phone{width:375px;height:760px;overflow:hidden;position:relative;box-shadow:0 24px 50px -22px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.12)}
+.tabwrap{width:100%;aspect-ratio:1000/640;position:relative;overflow:hidden;box-shadow:0 24px 50px -22px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.12)}
+.tablet{width:1000px;height:640px;position:absolute;left:0;top:0;transform-origin:0 0;overflow:hidden}
+.lbl{font:600 11px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:#444;margin:8px 0 0}
+
+/* ---------- shared mock skeleton (readable type scale applied everywhere) ---------- */
+.m{background:var(--paper);color:var(--ink);font:16px/1.45 var(--sans);height:100%;display:flex;flex-direction:column}
+.m .top{display:flex;align-items:center;gap:12px;padding:16px 18px 12px}
+.m .top .t{font:400 28px/1 var(--serif)}
+.m .top .meta{font:500 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-left:auto}
+.m .body{padding:0 18px 18px;flex:1;overflow:hidden}
+.m .search{display:flex;align-items:center;gap:10px;padding:13px 14px;font-size:16px;color:var(--ink2);margin:6px 0 16px;background:var(--plate);border:1px solid var(--rule)}
+.m .search::before{content:"⌕";font-size:18px;color:var(--ink)}
+.m .sec{margin:18px 0 10px;font:600 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.m .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m .tile{background:var(--plate);border:1px solid var(--rule);padding:14px 14px 12px;min-height:88px;display:flex;flex-direction:column;gap:4px}
+.m .tile .mk{width:14px;height:14px;margin-bottom:8px}
+.m .tile b{font:600 17px/1.2 var(--sans)}
+.m .tile span{font-size:13px;color:var(--ink2)}
+.mk.ci{background:var(--red);border-radius:50%}.mk.sq{background:var(--blue)}.mk.tr{width:0!important;height:0!important;background:none!important;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--yellow)}.mk.bar{height:4px!important;width:20px!important;background:var(--ink);margin-top:5px}
+.m .glyphs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.m .g{background:var(--plate);border:1px solid var(--rule);aspect-ratio:1;display:grid;place-items:center;position:relative;padding:8px 6px 18px}
+.m .g img{max-width:54%;max-height:54%}
+.m .g small{position:absolute;top:5px;left:7px;font:500 11px/1 var(--sans);color:var(--ink2)}
+.m .g em{position:absolute;bottom:6px;left:6px;right:6px;font:500 11px/1 var(--sans);font-style:normal;color:var(--ink2);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.m .step{margin-top:14px;font-size:15px;line-height:2.1}
+.m .step kbd{display:inline-block;font:600 12px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;padding:6px 8px;border:1px solid var(--rule);background:var(--plate);vertical-align:middle}
+.m .step i{font-style:normal;background:var(--yellow);padding:3px 7px;font:500 13px/1 ui-monospace,Menlo,monospace;vertical-align:middle}
+.m .tabs{display:none}
+.m .side{display:none}
+/* tablet layout: sidebar + content */
+.tablet .m{flex-direction:row}
+.tablet .m .side{display:flex;flex-direction:column;width:250px;flex:0 0 250px;padding:22px 20px;border-right:1px solid var(--rule)}
+.tablet .m .side .t{font:400 30px/1 var(--serif);margin-bottom:4px}
+.tablet .m .side .meta{font:500 12px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-bottom:22px}
+.tablet .m .side a{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--soft);font:500 15px/1 var(--sans);color:var(--ink);text-decoration:none}
+.tablet .m .side a .mk{width:12px;height:12px}
+.tablet .m .side a.on{color:var(--red)}
+.tablet .m .main{flex:1;display:flex;flex-direction:column;min-width:0}
+.tablet .m .top{display:none}
+.tablet .m .body{padding:26px 34px;columns:auto}
+.tablet .m .tiles{grid-template-columns:repeat(2,1fr)}
+.tablet .m .glyphs{grid-template-columns:repeat(4,1fr)}
+.tablet .m .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:34px;align-items:start}
+.tablet .m .body{overflow:hidden}
+
+/* ---------- A · Reading edition ---------- */
+.a .m .top{flex-direction:column;align-items:flex-start;gap:6px;padding-top:22px}
+.a .m .top .t{font-size:34px}
+.a .m .top .t::after{content:"";display:block;width:36px;border-top:3px solid var(--red);margin-top:10px}
+.a .m .top .meta{margin-left:0}
+.a .m .tile{border:1px solid var(--soft);box-shadow:0 1px 0 var(--soft)}
+.a .m .g{border-color:var(--soft)}
+.a .m .search{border-color:var(--soft)}
+
+/* ---------- B · Poster ---------- */
+.b .m .top{background:var(--ink);color:#fff;padding:16px 18px}
+.b .m .top .t{font:600 18px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase}
+.b .m .top .meta{color:var(--yellow)}
+.b .m .search{background:var(--plate);border:2px solid var(--ink)}
+.b .m .sec{background:var(--ink);color:#fff;padding:9px 12px;margin:16px -0 10px;letter-spacing:.14em}
+.b .m .tiles{grid-template-columns:1fr;gap:8px}
+.b .m .tile{flex-direction:row;align-items:center;gap:14px;min-height:0;padding:0 14px 0 0;border:2px solid var(--ink)}
+.b .m .tile .blk{width:56px;height:56px;display:grid;place-items:center;flex:0 0 56px}
+.b .m .tile .mk{margin:0}
+.b .m .tile:nth-child(1) .blk{background:var(--red)}.b .m .tile:nth-child(2) .blk{background:var(--blue)}.b .m .tile:nth-child(3) .blk{background:var(--yellow)}.b .m .tile:nth-child(4) .blk{background:var(--ink)}
+.b .m .tile .blk .mk{background:#fff}.b .m .tile:nth-child(3) .blk .mk{border-bottom-color:#fff}.b .m .tile:nth-child(3) .blk .mk.tr{border-bottom-color:#141414}
+.b .m .tile b{font-size:18px}
+.b .m .g{border:2px solid var(--ink)}
+.b .m .step kbd{border-width:2px;font-weight:600}
+.b .tablet .m .side{background:var(--ink);color:#fff;border-right:0}
+.b .tablet .m .side .t{font:600 18px/1.2 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.b .tablet .m .side .meta{color:var(--yellow)}
+.b .tablet .m .side a{color:#fff;border-top-color:#3a3a3a}
+.b .tablet .m .side a.on{color:var(--yellow)}
+.b .tablet .m .tiles{grid-template-columns:1fr}
+
+/* ---------- C · Plates ---------- */
+.c{--paper:#ece4d3}
+.c .m .top{flex-direction:column;gap:6px;padding:22px 18px 8px;text-align:center}
+.c .m .top .t{font-size:32px}
+.c .m .top .meta{margin:0}
+.c .m .search{margin-top:12px}
+.c .m .sec{text-align:center;display:flex;align-items:center;gap:12px}
+.c .m .sec::before,.c .m .sec::after{content:"";flex:1;border-top:1px solid var(--rule)}
+.c .m .tile,.c .m .g,.c .m .search{background:#fff;border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-6px}
+.c .m .tile{align-items:center;text-align:center;padding:18px 12px 14px}
+.c .m .tile .mk{margin-bottom:10px}
+.c .m .g{outline-offset:-5px}
+.c .tablet .m .side{background:#fff;border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-6px;margin:22px 0 22px 22px;padding:26px 24px}
+
+/* ---------- D · Ledger ---------- */
+.d .m .top{border-bottom:2px solid var(--ink);padding-bottom:12px}
+.d .m .search{border:0;border-bottom:1px solid var(--rule);background:transparent;padding-left:0}
+.d .m .sec{border-top:2px solid var(--ink);padding-top:10px;margin-top:14px}
+.d .m .tiles{grid-template-columns:1fr;gap:0}
+.d .m .tile{flex-direction:row;align-items:baseline;gap:14px;border:0;border-bottom:1px solid var(--soft);background:transparent;padding:10px 0;min-height:0}
+.d .m .tile .num{font:400 26px/1 var(--serif);color:var(--red);width:34px;flex:0 0 34px}
+.d .m .tile .mk{display:none}
+.d .m .tile b{font-size:17px;flex:1}
+.d .m .tile span{margin-left:auto;text-align:right;font-size:13px}
+.d .m .glyphs{gap:0;border-top:2px solid var(--ink)}
+.d .m .g{border:0;border-bottom:1px solid var(--soft);background:transparent}
+.d .m .g small{font:400 14px/1 var(--serif);color:var(--ink)}
+.d .tablet .m .side{border-right:0}
+.d .tablet .m .side a{border-top:1px solid var(--soft)}
+.d .tablet .m .side a::before{content:counter(n);counter-increment:n;font:400 18px/1 var(--serif);color:var(--red);width:24px}
+.d .tablet .m .side{counter-reset:n}
+.d .tablet .m .side a .mk{display:none}
+.d .tablet .m .tiles{grid-template-columns:1fr}
+
+/* ---------- E · Tabs & rail ---------- */
+.e .m .body{padding-bottom:84px}
+.e .m .top{padding-top:22px}
+.e .m .top .t{font-size:32px}
+.e .m .tabs{display:flex;position:absolute;left:0;right:0;bottom:0;background:var(--plate);border-top:1px solid var(--rule);padding:8px 6px 14px}
+.e .m .tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;font:500 11px/1 var(--sans);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);text-decoration:none;padding-top:6px}
+.e .m .tabs a .mk{width:14px;height:14px}
+.e .m .tabs a.on{color:var(--ink);font-weight:600}
+.e .m .tabs a .mk.ring{border:2px solid var(--ink);border-radius:50%;background:none}
+.e .m .tile{border:1px solid var(--soft)}
+.e .m .g{border-color:var(--soft)}
+.e .m .search{border-color:var(--soft)}
+.e .tablet .m .tabs{display:none}
+.e .tablet .m .side{width:112px;flex:0 0 112px;padding:22px 8px;align-items:center}
+.e .tablet .m .side .t{font-size:22px;margin-bottom:2px}
+.e .tablet .m .side .meta{display:none}
+.e .tablet .m .side a{flex-direction:column;gap:7px;border:0;font:500 10px/1.25 var(--sans);letter-spacing:.05em;text-transform:uppercase;text-align:center;padding:12px 0;color:var(--ink2);width:100%}
+.e .tablet .m .side a.on{color:var(--ink);font-weight:600}
+.e .tablet .m .side a .mk{width:16px;height:16px}
+.e .tablet .m .top{display:flex;padding:26px 34px 0}
+.e .tablet .m .top .t{font-size:34px}
+.e .tablet .m .body{padding-top:8px}
+</style></head><body>
+<h1>Neoclassical × Bauhaus, five readable variations</h1>
+<p class="lead">Same language, same paper and primaries. What changes is <b>how much Neoclassical detailing survives on a phone</b>: the current build leans on small caps, hairlines and a Didone serif at text sizes, which are print idioms. Every variation below applies the readable type scale first, then chooses a different structure for navigation and lists. Left: phone. Right: the same screen on a tablet or desktop.</p>
+<div class="scale"><b>The type scale every variation shares</b>
+<table>
+<tr><td>Body</td><td>Jost 16 px, line height 1.45. Currently 15.5 px with 10–11 px labels in many places.</td></tr>
+<tr><td>Labels / eyebrows</td><td>Jost 600 at 12 px, tracking .08em. Currently .6–.68 rem with .24–.30em tracking, which reads as decoration, not text.</td></tr>
+<tr><td>Serif</td><td>Bodoni Moda only at 28 px and above (page titles, ledger numerals). Never for tile titles or hints. Hairline serifs vanish below that.</td></tr>
+<tr><td>Keycaps</td><td>12 px Jost 600, tracking .04em, 8 px padding. Currently 10 px.</td></tr>
+<tr><td>Rules</td><td>One weight of ink rule per level. No shared-border lattices of 1 px lines inside cards on phones.</td></tr>
+<tr><td>Glyph names</td><td>11 px Jost. Currently 8 px uppercase, which is illegible.</td></tr>
+</table></div>
+<div id="root"></div>
+
+<template id="mock">
+<div class="m">
+  <nav class="side"><div class="t">PT-D220</div><div class="meta">Brother · P-touch</div>
+    <a class="on"><i class="mk ci"></i>Overview &amp; search</a><a><i class="mk bar"></i>Keyboard map</a><a><i class="mk ci"></i>Symbols</a><a><i class="mk sq"></i>Frames</a><a><i class="mk tr"></i>Templates</a><a><i class="mk sq"></i>Fonts &amp; styles</a><a><i class="mk bar"></i>Shortcuts</a><a><i class="mk ci"></i>How-to guides</a></nav>
+  <div class="main">
+  <div class="top"><span class="t">PT-D220</span><span class="meta">Brother</span></div>
+  <div class="body">
+    <div class="search">Search symbols, frames, guides…</div>
+    <div class="two">
+    <div>
+    <div class="sec">Browse</div>
+    <div class="tiles">
+      <div class="tile"><span class="blk"><i class="mk ci"></i></span><span class="num">01</span><b>Symbols</b><span>649 in 30 categories</span></div>
+      <div class="tile"><span class="blk"><i class="mk sq"></i></span><span class="num">02</span><b>Frames</b><span>99 designs, by number</span></div>
+      <div class="tile"><span class="blk"><i class="mk tr"></i></span><span class="num">03</span><b>Templates</b><span>15 text · 10 pattern</span></div>
+      <div class="tile"><span class="blk"><i class="mk bar"></i></span><span class="num">04</span><b>Shortcuts</b><span>22 key combos</span></div>
+    </div>
+    </div>
+    <div>
+    <div class="sec">Signs · shortcut key Space</div>
+    <div class="glyphs">
+      <div class="g"><small>1</small><img src="../devices/brother-pt-d220/img/symbols/signs-01.png" alt=""><em>Prohibited</em></div>
+      <div class="g"><small>3</small><img src="../devices/brother-pt-d220/img/symbols/signs-03.png" alt=""><em>Flammable</em></div>
+      <div class="g"><small>4</small><img src="../devices/brother-pt-d220/img/symbols/signs-04.png" alt=""><em>Warning</em></div>
+      <div class="g"><small>9</small><img src="../devices/brother-pt-d220/img/symbols/signs-09.png" alt=""><em>Recycle</em></div>
+      <div class="g"><small>13</small><img src="../devices/brother-pt-d220/img/symbols/signs-13.png" alt=""><em>Restroom</em></div>
+      <div class="g"><small>19</small><img src="../devices/brother-pt-d220/img/symbols/signs-19.png" alt=""><em>Wheelchair</em></div>
+      <div class="g"><small>25</small><img src="../devices/brother-pt-d220/img/symbols/signs-25.png" alt=""><em>No smoking</em></div>
+      <div class="g"><small>27</small><img src="../devices/brother-pt-d220/img/symbols/signs-27.png" alt=""><em>High voltage</em></div>
+    </div>
+    <div class="step"><kbd>Symbol</kbd> → <kbd>◀</kbd>/<kbd>▶</kbd> <i>Pictograph</i> → <kbd>OK</kbd> → <kbd>Space</kbd> → to 4 → <kbd>OK</kbd></div>
+    </div>
+    </div>
+  </div>
+  <nav class="tabs"><a class="on"><i class="mk ring"></i>Search</a><a><i class="mk ci"></i>Symbols</a><a><i class="mk sq"></i>Frames</a><a><i class="mk tr"></i>Templates</a><a><i class="mk bar"></i>More</a></nav>
+  </div>
+</div>
+</template>
+<script>
+const V=[
+ ['a','A','Reading edition','The current concept with the type scale fixed and the lattice removed: plates sit on paper with air between them, one red rule under the title, Bodoni only for the title. Least change, most gain.','Fits: people who like what we have but want to read it. Risk: quieter, less graphic.'],
+ ['b','B','Poster','Bauhaus-led. Black bars for the header and section labels, primary blocks as the nav, 2 px rules, Jost everywhere, Bodoni retired to the wordmark. Highest contrast of the five.','Fits: fast glancing in a garage or kitchen. Risk: loud; the primaries compete with the black-and-white glyph art in long lists.'],
+ ['c','C','Plates','Neoclassical-led. Museum wall labels: white plates with a double rule (2 px + hairline inset), centred headings, warm paper, lots of margin. Readable because everything sits on pure white.','Fits: the most “designed” feel while staying legible. Risk: uses vertical space generously; fewer items per phone screen.'],
+ ['d','D','Ledger','Horizontal rules only, like an index book: big serif numerals in red, one item per row, right-aligned counts. Vertical lines are gone, so the phone stops looking like a spreadsheet. Numbers double as the shortcut you type.','Fits: a tool that is mostly lists (frames, shortcuts, guides). Risk: glyph grids are less contained without vertical rules.'],
+ ['e','E','Tabs & rail','App structure: a bottom tab bar with the geometric marks on phones, which becomes a narrow left rail on tablet and desktop. Content is plates on paper. Thumb-reachable navigation; the browse grid disappears because the tabs are the grid.','Fits: daily use on a phone, installed as a PWA, without giving anything up on desktop. Risk: the marks must stay consistent everywhere, or the tabs stop being learnable.'],
+];
+const root=document.getElementById('root'),t=document.getElementById('mock');
+for(const [cls,letter,name,desc,fit] of V){
+  const sec=document.createElement('section');sec.className='v '+cls;
+  sec.innerHTML=`<div class="cap"><span class="n">${letter}</span><h2>${name}</h2><p>${desc}</p><p class="fit">${fit}</p></div>
+    <div><div class="phone"></div><p class="lbl">Phone · 375 px</p></div>
+    <div><div class="tabwrap"><div class="tablet"></div></div><p class="lbl">Tablet / desktop · 1000 px, scaled to fit</p></div>`;
+  sec.querySelector('.phone').appendChild(t.content.cloneNode(true));
+  sec.querySelector('.tablet').appendChild(t.content.cloneNode(true));
+  root.appendChild(sec);
+}
+function fit(){document.querySelectorAll('.tabwrap').forEach(w=>{const k=w.clientWidth/1000;w.querySelector('.tablet').style.transform=`scale(${k})`;});}
+fit();addEventListener('resize',fit);
+</script>
+</body></html>
