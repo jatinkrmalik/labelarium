@@ -16,6 +16,14 @@
     "data": "devices/brother-pt-d210/device.js"
   },
   {
+    "id": "brother-pt-d610bt",
+    "brand": "Brother",
+    "model": "PT-D610BT",
+    "name": "P-touch PT-D610BT",
+    "tagline": "Professional Label Maker with Bluetooth",
+    "data": "devices/brother-pt-d610bt/device.js"
+  },
+  {
     "id": "niimbot-d110",
     "brand": "NIIMBOT",
     "model": "D110",
