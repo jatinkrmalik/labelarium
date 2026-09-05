@@ -124,7 +124,7 @@ async function render() {
 }
 
 // Theme: auto (follow device) → light → dark, remembered in localStorage.
-const THEMES = { auto: ['◐', 'Auto'], light: ['☼', 'Light'], dark: ['☾', 'Dark'] };
+const THEMES = { auto: 'Auto', light: 'Light', dark: 'Dark' };
 function applyTheme() {
   const t = store.get('theme', 'auto');
   document.documentElement.dataset.theme = t;
@@ -133,7 +133,7 @@ function applyTheme() {
 }
 window.cycleTheme = () => { const order = ['auto', 'light', 'dark']; const t = store.get('theme', 'auto'); store.set('theme', order[(order.indexOf(t) + 1) % 3]); applyTheme(); render(); };
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-const themeBtn = () => { const t = store.get('theme', 'auto'); const next = { auto: 'light', light: 'dark', dark: 'auto' }[t]; return `<button class="iconbtn theme" onclick="cycleTheme()" aria-label="Theme: ${THEMES[t][1]}. Switch to ${THEMES[next][1]}" title="Theme: ${THEMES[t][1]} · tap for ${THEMES[next][1]}">${THEMES[t][0]}</button>`; };
+const themeBtn = () => { const t = store.get('theme', 'auto'); const next = { auto: 'light', light: 'dark', dark: 'auto' }[t]; return `<button class="iconbtn theme" onclick="cycleTheme()" aria-label="Theme: ${THEMES[t]}. Switch to ${THEMES[next]}" title="Theme: ${THEMES[t]} · tap for ${THEMES[next]}"><i class="tmark ${t}"></i></button>`; };
 
 function setTop(title, { back, sub, right = '' } = {}) {
   topbar.classList.toggle('home', !back);

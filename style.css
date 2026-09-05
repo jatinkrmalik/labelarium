@@ -28,8 +28,10 @@
 :root[data-theme="dark"] { --paper: #191815; --plate: #23211d; --plate-2: #2b2924; --ink: #efe8d8; --ink-2: #b1a996; --rule: #efe8d8; --soft: #3d3a33;
   --red: #e2503f; --blue: #7b98e8; --yellow: #f0c43a; }
 :root[data-theme="dark"] .kbd-img, :root[data-theme="dark"] .font-img, :root[data-theme="dark"] .img-card img { filter: invert(1) hue-rotate(180deg); }
-.iconbtn.theme { font-size: 17px; }
-.iconbtn.theme small { display: none; }
+.tmark { display: block; width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--ink); box-sizing: border-box; }
+.tmark.auto { background: linear-gradient(90deg, var(--ink) 50%, transparent 50%); }   /* follow the device */
+.tmark.light { background: radial-gradient(circle, var(--ink) 2.5px, transparent 3px); } /* ring with a dot */
+.tmark.dark { background: var(--ink); }                                                   /* solid disc */
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 var(--sans); }
