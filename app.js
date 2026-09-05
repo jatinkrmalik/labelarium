@@ -113,7 +113,7 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (seg[0] !== 'd') return renderHome();
+    if (seg[0] !== 'd') return renderHome(q);
     const d = await loadDevice(seg[1]);
     const section = seg[2] || 'home';
     const views = { home: viewDeviceHome, symbols: viewSymbols, frames: viewFrames, templates: viewTemplates, fonts: viewFonts, shortcuts: viewShortcuts, keyboard: viewKeyboard, howto: viewHowto, trouble: viewTrouble, preview: viewPreview, specs: viewSpecs };
@@ -147,21 +147,29 @@ function setTop(title, { back, sub, right = '' } = {}) {
 }
 
 // ---------- home ----------
-function renderHome() {
+function renderHome(q = {}) {
   setTop('Labelarium');
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
-  const card = dev => `<div class="card devcard link" onclick="location.hash='/d/${dev.id}'">
-      <div class="thumb"><span>${esc(dev.model)}</span></div>
-      <div><b>${esc(dev.brand)} ${esc(dev.name)}</b><div class="muted small">${esc(dev.tagline)}</div></div>
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button></div>`;
-  const favDevs = devices.filter(d => favs.includes(d.id));
+  const brand = q.brand || 'all';
   const brands = [...new Set(devices.map(d => d.brand))];
+  const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
+  const favDevs = devices.filter(d => favs.includes(d.id));
+  const card = dev => `<div class="card devtile link" onclick="location.hash='/d/${dev.id}'">
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
+      <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
+      <b>${esc(dev.brand)} ${esc(dev.name)}</b>
+      <div class="muted small">${esc(dev.tagline)}</div>
+    </div>`;
+  const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
-    ${favDevs.length ? `<h2>Pinned</h2><div class="devlist">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
-    ${brands.map(b => `<h2>${esc(b)}</h2><div class="devlist">${devices.filter(d => d.brand === b).map(card).join('')}</div>`).join('')}
+    ${favDevs.length ? `<h2>Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+    <h2>Label makers</h2>
+    <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+    <div class="devgrid">${list.map(card).join('')}</div>
     <p class="footer">Have a different label maker? Request it at <a href="mailto:hello@labelarium.com?subject=Label%20maker%20request">hello@labelarium.com</a>.<br>Open source under the <a href="LICENSE" target="_blank" rel="noopener">AGPL-3.0</a>. Labelarium is a trademark of its author.</p>`;
 }
+window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '#/' : `#/?brand=${encodeURIComponent(b)}`); render(); };
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
 // ---------- device home + search ----------
