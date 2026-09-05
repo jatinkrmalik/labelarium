@@ -155,7 +155,7 @@ function renderHome() {
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
     ${favDevs.length ? `<h2>Pinned</h2><div class="devlist">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     ${brands.map(b => `<h2>${esc(b)}</h2><div class="devlist">${devices.filter(d => d.brand === b).map(card).join('')}</div>`).join('')}
-    <p class="footer">Another label maker? Drop a folder into <code>devices/</code> and list it in <code>devices/index.json</code>.</p>`;
+    <p class="footer">Have a different label maker? Request it at <a href="mailto:hello@labelarium.com?subject=Label%20maker%20request">hello@labelarium.com</a>.</p>`;
 }
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
