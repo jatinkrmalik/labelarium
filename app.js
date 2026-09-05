@@ -140,10 +140,15 @@ window.cycleTheme = () => { const order = ['auto', 'light', 'dark']; const t = s
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 const themeBtn = () => { const t = store.get('theme', 'auto'); const next = { auto: 'light', light: 'dark', dark: 'auto' }[t]; return `<button class="iconbtn theme" onclick="cycleTheme()" aria-label="Theme: ${THEMES[t]}. Switch to ${THEMES[next]}" title="Theme: ${THEMES[t]} · tap for ${THEMES[next]}"><i class="tmark ${t}"></i></button>`; };
 
-function setTop(title, { back, sub, right = '' } = {}) {
+function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
-  topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo"></span>'}
-    <div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}${themeBtn()}</div>`;
+  const logo = back
+    ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>`
+    : '<span class="logo"></span>';
+  const deviceIcon = deviceId
+    ? `<img class="dev-top" src="icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
+    : '';
+  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}${themeBtn()}</div>`;
 }
 
 // ---------- home ----------
@@ -188,12 +193,12 @@ const SECTIONS = [
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
   const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
-  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
+  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
   const link = ([id, ico, name], short) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
-  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="#/" title="All label makers"><span class="logo"></span><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="#/" title="All label makers"><img class="dev-rail" src="icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
   app.className = 'app device';
