@@ -280,14 +280,65 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .hero-home .marks { display: flex; justify-content: center; gap: 12px; margin-top: 22px; }
 .devlist { display: grid; gap: 10px; }
 @media (min-width: 900px) { .devlist { grid-template-columns: 1fr 1fr; } }
-.devgrid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.devgrid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
 @media (min-width: 700px) { .devgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (min-width: 1100px) { .devgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
-.devtile.card.link { position: relative; display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 10px 10px 12px; aspect-ratio: 1; min-height: 0; cursor: pointer; text-align: left; }
-.devtile b { font: 600 14px/1.2 var(--sans); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.devtile .muted { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 11px; line-height: 1.3; }
-.devtile .dev-icon { flex: 1 1 auto; display: grid; place-items: center; min-height: 0; background: var(--plate-2); border: 1px solid var(--soft); padding: 6px; }
-.devtile .dev-icon img { width: 92%; max-width: none; max-height: 100%; height: auto; display: block; object-fit: contain; }
+.devtile.card.link {
+  position: relative;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) 2.4em 2.6em;
+  gap: 6px;
+  padding: 10px 10px 12px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  height: auto;
+  max-height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-align: left;
+  align-items: stretch;
+}
+.devtile b {
+  font: 600 14px/1.2 var(--sans);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin: 0;
+  min-height: 0;
+  height: 2.4em;
+}
+.devtile .muted {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: 11px;
+  line-height: 1.3;
+  margin: 0;
+  min-height: 0;
+  height: 2.6em;
+}
+.devtile .dev-icon {
+  min-height: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: var(--plate-2);
+  border: 1px solid var(--soft);
+  padding: 6px;
+  overflow: hidden;
+}
+.devtile .dev-icon img {
+  width: 92%;
+  height: 92%;
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  object-fit: contain;
+}
 .devtile .star { position: absolute; top: 8px; right: 8px; z-index: 1; margin: 0; border: 0; background: transparent; font-size: 18px; cursor: pointer; color: var(--ink); width: 32px; height: 32px; line-height: 1; }
 .devtile .star.on { color: var(--red); }
 .devcard { display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
