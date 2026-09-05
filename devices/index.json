@@ -22,5 +22,13 @@
     "name": "D110",
     "tagline": "Smart Label Printer (US SKU D110_M)",
     "data": "devices/niimbot-d110/device.js"
+  },
+  {
+    "id": "phomemo-m110",
+    "brand": "Phomemo",
+    "model": "M110",
+    "name": "M110",
+    "tagline": "Bluetooth Portable Thermal Business Label Maker",
+    "data": "devices/phomemo-m110/device.js"
   }
 ]
