@@ -348,4 +348,14 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .devcard .thumb span { position: relative; color: #141414; transform: rotate(-6deg); display: block; }
 .devcard .star { margin-left: auto; border: 0; background: transparent; font-size: 22px; cursor: pointer; color: var(--ink); width: 36px; height: 36px; }
 .devcard .star.on { color: var(--red); }
-.footer { color: var(--ink-2); font-size: 14px; text-align: center; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--soft); }
+.footer {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  color: var(--ink-2); font-size: 13px; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--soft);
+}
+.footer a { color: inherit; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; white-space: nowrap; }
+.footer .f-left { text-align: left; }
+.footer .f-mid { text-align: center; flex: 0 0 auto; }
+.footer .f-right { text-align: right; margin-left: auto; }
+@media (max-width: 520px) {
+  .footer { font-size: 12px; gap: 8px; }
+}

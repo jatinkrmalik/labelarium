@@ -172,7 +172,7 @@ function renderHome(q = {}) {
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     <div class="devgrid">${list.map(card).join('')}</div>
-    <p class="footer">Have a different label maker? Request it at <a href="mailto:hello@labelarium.com?subject=Label%20maker%20request">hello@labelarium.com</a>.<br>Open source under the <a href="LICENSE" target="_blank" rel="noopener">AGPL-3.0</a>.<br>Made by <a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">@jatinkrmalik</a></p>`;
+    <p class="footer"><a class="f-left" href="mailto:hello@labelarium.com?subject=Label%20maker%20request">Request a label maker</a><a class="f-mid" href="LICENSE" target="_blank" rel="noopener">AGPL-3.0</a><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>`;
 }
 window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '#/' : `#/?brand=${encodeURIComponent(b)}`); render(); };
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
