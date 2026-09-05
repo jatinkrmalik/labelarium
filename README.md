@@ -10,12 +10,18 @@ presses for the design you built.
 
 ## Design language
 
-Neoclassical × Bauhaus: ivory paper, Bodoni/New York display type, hairline double rules and centred
-small caps; a strict shared-border grid, Futura labels, and three primary marks (red circle, blue square,
-yellow triangle) as the only iconography. Type is bundled: Bodoni Moda and Jost (SIL OFL, licences in
-`fonts/`), subset to Latin as ~70 KB of woff2 so it renders identically on every platform. Light and dark. Responsive: compact single column on phones,
-sticky section sidebar plus wide content column from 900 px up. Six alternative directions are mocked
-side by side in `concepts/index.html` (open `/concepts/` on the dev server).
+Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content (see `concepts/v2.html`,
+variation E + C): warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
+Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
+section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
+rail. Light and dark. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
+Earlier explorations: `concepts/index.html` (six styles) and `concepts/v2.html` (five variations).
+
+## Label preview
+
+Design a label (tape, colour, fonts, style, frame, margins, length, mirror, two lines) and get the exact
+key-press recipe for the device. Steps tick off on tap. "Save this label" stores the design locally so it
+can be recalled with its recipe later.
 
 ## Run it
 
