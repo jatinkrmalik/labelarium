@@ -126,7 +126,7 @@ async function render() {
 function setTop(title, { back, sub, right = '' } = {}) {
   topbar.classList.toggle('home', !back);
   topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo"></span>'}
-    <div class="title">${esc(title)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}</div>`;
+    <div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}</div>`;
 }
 
 // ---------- home ----------
@@ -140,7 +140,7 @@ function renderHome() {
       <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button></div>`;
   const favDevs = devices.filter(d => favs.includes(d.id));
   const brands = [...new Set(devices.map(d => d.brand))];
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1>Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
     ${favDevs.length ? `<h2>Pinned</h2><div class="devlist">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     ${brands.map(b => `<h2>${esc(b)}</h2><div class="devlist">${devices.filter(d => d.brand === b).map(card).join('')}</div>`).join('')}
     <p class="footer">Another label maker? Drop a folder into <code>devices/</code> and list it in <code>devices/index.json</code>.</p>`;
@@ -149,28 +149,37 @@ window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.
 
 // ---------- device home + search ----------
 const SECTIONS = [
-  ['keyboard', 'bar', 'Keyboard map', 'Where every key is and what it does'],
+  ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
   ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
-  ['frames', 'sq-blue', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
+  ['frames', 'hollow', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
   ['templates', 'tr-yellow', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
-  ['fonts', 'ring', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
+  ['fonts', 'half', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
   ['shortcuts', 'dia', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
-  ['howto', 'half', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
-  ['trouble', 'sq-red', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
-  ['preview', 'ci-yellow', 'Label preview', 'Design a label, get the recipe'],
-  ['specs', 'ci-blue', 'Specs & tapes', 'Tape widths, limits, links'],
+  ['howto', 'lines', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
+  ['trouble', 'cross', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
+  ['preview', 'tape', 'Label preview', 'Design a label, get the recipe'],
+  ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
   const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
   const cur = route().seg[2] || 'home';
-  const nav = [['home', 'ci-red', 'Overview & search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])]
-    .map(([id, ico, name]) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i>${name}</a>`).join('');
-  app.className = 'app with-side';
-  app.innerHTML = `<nav class="side"><div class="dev"><b>${esc(d.model)}</b><span>${esc(d.brand)} · ${esc(d.name)}</span></div>${nav}</nav><section class="main" id="main"></section>`;
+  const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
+  const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
+  const link = ([id, ico, name], short) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="#/" title="All label makers"><span class="logo"></span><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
+  const tabIds = ['home', 'symbols', 'frames', 'preview'];
+  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
+  app.className = 'app device';
+  app.innerHTML = `${rail}<section class="main" id="main"></section>${tabs}`;
   main = $('#main');
 }
+window.openMore = id => {
+  const d = loaded[id], cur = route().seg[2] || 'home';
+  const rest = SECTIONS.filter(([sid]) => !['symbols', 'frames', 'preview'].includes(sid));
+  openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="#/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
+};
 function searchBox(d, q) {
   return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
@@ -187,7 +196,7 @@ function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
   const saved = store.get('offline:' + d.id);
   $('#sections').innerHTML = `<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div>
-    <h2>Quick tips</h2>${d.tips.map((t, i) => `<div class="card small" style="display:flex;gap:12px"><span style="font:400 1.1rem/1.3 var(--serif);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}
+    <h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div>`;
 }
@@ -323,13 +332,13 @@ function viewTemplates(d) {
 }
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
-  const list = (title, arr, menu) => `<h2>${title} <span class="muted small">— ${fmt(`[Font] → {${menu}} → [OK]`)}</span></h2><div class="fontlist">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
+  const list = (title, arr, menu) => `<h2>${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
   main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
     ${list('Fonts', d.fonts, 'Font')}${list('Sizes', d.sizes, 'Size')}${list('Widths', d.widths, 'Width')}${list('Styles', d.styles, 'Style')}${list('Alignment', d.alignments, 'Alignment')}`;
 }
 function viewShortcuts(d) {
   deviceTop(d, 'Shortcuts');
-  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p>${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}`;
+  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p><div class="list plate">${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}</div>`;
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
@@ -350,8 +359,8 @@ function viewTrouble(d) {
 function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
   main.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
-    <h2>Tape widths</h2>${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}
-    <h2>Links</h2>${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}`;
+    <h2>Tape widths</h2><div class="list plate">${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}</div>
+    <h2>Links</h2><div class="list plate">${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}</div>`;
 }
 
 // ---------- label preview / designer ----------
@@ -378,13 +387,34 @@ function viewPreview(d, _, q) {
     <label>Label length (mm, 0 = Auto)<input type="number" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
     <label>Mirror<div class="seg"><button data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
   </div>
-  <div class="card"><h3>Recipe: make this on the ${esc(d.model)}</h3><ol class="steps recipe" id="recipe"></ol><div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>`;
+  <div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+    <div class="row" style="margin-top:14px;gap:10px"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
+    <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
+  <h2>Saved labels</h2><div id="saved"></div>`;
+  $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
+  renderSaved(d);
   const ctl = $('#ctl');
   ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
   ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
   const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
   draw();
 }
+const savedKey = id => 'labels:' + id;
+function renderSaved(d) {
+  const box = $('#saved'); if (!box) return;
+  const list = store.get(savedKey(d.id), []);
+  if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label” — it comes back with its full recipe.</p>'; return; }
+  box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark tape"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
+}
+window.saveLabel = id => {
+  const d = loaded[id], s = store.get('preview:' + id, {});
+  const name = prompt('Name this label', s.text1 || 'My label'); if (!name) return;
+  const list = store.get(savedKey(id), []); list.unshift({ name, s, ts: Date.now() }); store.set(savedKey(id), list.slice(0, 50));
+  renderSaved(d);
+};
+window.loadLabel = (id, i) => { const l = store.get(savedKey(id), [])[i]; if (!l) return; store.set('preview:' + id, l.s); render(); window.scrollTo(0, 0); };
+window.deleteLabel = (id, i) => { const list = store.get(savedKey(id), []); if (!confirm(`Delete “${list[i]?.name}”?`)) return; list.splice(i, 1); store.set(savedKey(id), list); renderSaved(loaded[id]); };
+window.resetPreview = id => { localStorage.removeItem('lab:preview:' + id); render(); };
 function drawTape(d, s) {
   const PX = 9; // px per mm
   const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
