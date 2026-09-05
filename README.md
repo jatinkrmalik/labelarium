@@ -35,6 +35,12 @@ Installing as an app (and the offline cache) requires a secure context: `localho
 The whole thing is static files, so GitHub Pages / Netlify / Cloudflare Pages work as-is.
 On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
 
+## Deploy
+
+Everything is static. Push the repository to GitHub and enable Pages (root), or drop the folder on Netlify,
+Cloudflare Pages or any web server. HTTPS is required for installation and the offline cache; all three
+hosts provide it. No build step, no environment variables.
+
 ## Add another label maker
 
 1. Create `devices/<brand>-<model>/device.js` exporting one object — copy `devices/brother-pt-d220/device.js`
@@ -53,3 +59,11 @@ devices/index.json              list of label makers
 devices/brother-pt-d220/        device.js data + img/ assets cropped from the official user guide
 icons/                          PWA icons
 ```
+
+## Licence
+
+Code is licensed under the GNU Affero General Public License v3.0 — see `LICENSE`. In short: you may use,
+study, modify and share it, but if you run a modified version for others over a network you must offer
+them the modified source under the same licence. The name and marks are separate; see `TRADEMARK.md`.
+Bundled fonts are under the SIL Open Font License (`fonts/`). The Brother PT-D220 imagery in
+`devices/brother-pt-d220/img` is reproduced from the manufacturer's user guide for reference purposes.

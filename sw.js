@@ -1,3 +1,4 @@
+// Labelarium — Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
 // Labelarium service worker.
 // Shell files (html/js/css/json): network first, cache fallback — so updates land whenever you are online.
 // Everything else (images): cache first — so a device you "saved offline" never re-downloads.

@@ -14,7 +14,7 @@
   --serif: "Bodoni Moda", "Bodoni 72", Didot, Georgia, serif;
   --sans: Jost, Futura, "Century Gothic", "Avenir Next", sans-serif;
   --mono: ui-monospace, Menlo, Consolas, monospace;
-  --rail: 112px;
+  --rail: 112px; --content: 1320px;
   color-scheme: light dark;
 }
 /* Theme: html[data-theme] is "auto" (follow the device), "light" or "dark"; the toggle lives in the header. */
@@ -37,6 +37,9 @@ html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 var(--sans); }
 a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.search input:focus-visible { outline: none; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
 img { max-width: 100%; }
 h1, h2, h3 { margin: 0; font-weight: 400; line-height: 1.15; }
 h1 { font: 400 30px/1.05 var(--serif); }
@@ -77,6 +80,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .tabs a { flex: 1; padding: 6px 2px 2px; }
 .tabs a.on, .rail a.on { color: var(--ink); font-weight: 600; }
 .tabs a .mark, .rail a .mark { height: 18px; display: flex; align-items: flex-end; }
+/* Wide screens: one centred content container (--content) for header and main, offset by the rail. */
 @media (min-width: 900px) {
   .tabs { display: none; }
   .rail { display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; width: var(--rail); background: var(--paper); border-right: 1px solid var(--rule); padding: 18px 0 20px; overflow-y: auto; z-index: 30; }
@@ -85,15 +89,23 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
   .rail a { padding: 13px 6px; font-size: 10px; }
   .rail a.on { box-shadow: inset 3px 0 0 var(--red); }
   .rail a:hover { color: var(--ink); }
-  .topbar:not(.home), .app.device { margin-left: var(--rail); }
-  .topbar .inner, .app { max-width: 1100px; margin-left: auto; margin-right: auto; }
-  .topbar:not(.home) .inner { margin-left: var(--rail); }
-  .topbar:not(.home) .inner, .app.device { max-width: none; padding-left: 40px; padding-right: 40px; }
-  .app.device .main { max-width: 1020px; }
+  .topbar:not(.home), .app.device { padding-left: var(--rail); }
+  .topbar .inner, .app .main, .app:not(.device) { max-width: var(--content); margin-left: auto; margin-right: auto; padding-left: 40px; padding-right: 40px; }
+  .app.device { padding-right: 0; }
+  .app:not(.device) { padding-left: 40px; }
   .topbar:not(.home) .inner { padding-top: 30px; }
   .app { padding-bottom: 60px; }
   h1 { font-size: 36px; }
   h1.big { font-size: 60px; }
+}
+/* Very wide: two columns where the content has two natural halves */
+@media (min-width: 1200px) {
+  .twocol { display: grid; grid-template-columns: minmax(0, 3fr) minmax(360px, 2fr); gap: 0 28px; align-items: start; }
+  .twocol > .col { min-width: 0; }
+  .twocol > .col > h2:first-child, .twocol > .col > .card:first-child { margin-top: 0; }
+  .twocol .grid { grid-template-columns: repeat(3, 1fr); }
+  .twocol .ctl { grid-template-columns: repeat(3, 1fr); }
+}
 }
 
 /* Geometric marks: one shape per section */
@@ -107,7 +119,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .mark.dia { background: var(--yellow); transform: rotate(45deg) scale(.82); }        /* shortcuts */
 .mark.lines { width: 18px; background: linear-gradient(var(--ink) 0 2px, transparent 2px 7px, var(--ink) 7px 9px, transparent 9px 14px, var(--ink) 14px 16px); } /* how-to */
 .mark.cross { background: linear-gradient(var(--red), var(--red)) center / 3px 100% no-repeat, linear-gradient(var(--red), var(--red)) center / 100% 3px no-repeat; } /* troubleshooting */
-.mark.tape { width: 22px; height: 10px; background: var(--yellow); border: 1.5px solid var(--ink); } /* label preview */
+.mark.strip { width: 22px; height: 10px; background: var(--yellow); border: 1.5px solid var(--ink); } /* label preview */
 .mark.quarter { background: var(--blue); border-radius: 100% 0 0 0; }               /* specs */
 .mark.dots { width: 20px; background: radial-gradient(circle at 3px 8px, var(--ink) 2.5px, transparent 3px), radial-gradient(circle at 10px 8px, var(--ink) 2.5px, transparent 3px), radial-gradient(circle at 17px 8px, var(--ink) 2.5px, transparent 3px); } /* more */
 .mark.sq-blue { background: var(--blue); }                                           /* home hero trio only */
