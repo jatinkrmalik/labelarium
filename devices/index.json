@@ -6,5 +6,13 @@
     "name": "P-touch PT-D220",
     "tagline": "Home & Office Everyday Label Maker",
     "data": "devices/brother-pt-d220/device.js"
+  },
+  {
+    "id": "brother-pt-d210",
+    "brand": "Brother",
+    "model": "PT-D210",
+    "name": "P-touch PT-D210",
+    "tagline": "Easy-to-Use Label Maker",
+    "data": "devices/brother-pt-d210/device.js"
   }
 ]
