@@ -3,10 +3,18 @@
 Every symbol, frame, template and shortcut of your label maker — searchable, with pictures, offline.
 A zero-dependency progressive web app (plain HTML/CSS/JS, no build step).
 
-Currently covers the **Brother P-touch PT-D220**: 30 symbol categories (371 pictograph glyphs, each with
-a name, keywords and its position on the device), 99 frames + underline, 25 templates, 14 fonts, 11 styles,
-22 shortcuts, 25 how-to guides, every LCD error message, and a label previewer that writes the recipe of key
-presses for the design you built.
+Currently covers two Brother P-touch models:
+
+- **PT-D220**: 30 symbol categories (371 pictograph glyphs, each with a name, keywords and its position
+  on the device), 99 frames + underline, 25 templates, 14 fonts, 11 styles.
+- **PT-D210**: 27 symbol categories (311 pictograph glyphs, each with a name, keywords, a per-item crop
+  from the official D210 guide, and its position on the device), 99 frame slots on the sheet (01 is Off,
+  02 is underline), 27 templates (17 text + 10 pattern), 14 fonts, 10 styles (no I+Solid). Counted from
+  the D210 insertion sheet: 621 symbols (310 Basic including boxed/circled 1–99, plus 311 pictographs).
+  Brother lists 617.
+
+Both include 22 shortcuts, how-to guides, every LCD error message, and a label previewer that writes the
+recipe of key presses for the design you built.
 
 ## Design language
 
@@ -56,7 +64,8 @@ hosts provide it. No build step, no environment variables.
 index.html  app.js  style.css   app shell (hash router, search, views, previewer)
 sw.js  manifest.webmanifest     PWA: precached shell, cache-first runtime, "Save offline" per device
 devices/index.json              list of label makers
-devices/brother-pt-d220/        device.js data + img/ assets cropped from the official user guide
+devices/brother-pt-d220/        device.js data + img/ assets cropped from the official D220 user guide
+devices/brother-pt-d210/        device.js data + img/ assets cropped from the official D210 user guide
 icons/                          PWA icons
 ```
 
@@ -65,5 +74,6 @@ icons/                          PWA icons
 Code is licensed under the GNU Affero General Public License v3.0 — see `LICENSE`. In short: you may use,
 study, modify and share it, but if you run a modified version for others over a network you must offer
 them the modified source under the same licence. The name and marks are separate; see `TRADEMARK.md`.
-Bundled fonts are under the SIL Open Font License (`fonts/`). The Brother PT-D220 imagery in
-`devices/brother-pt-d220/img` is reproduced from the manufacturer's user guide for reference purposes.
+Bundled fonts are under the SIL Open Font License (`fonts/`). The Brother PT-D220 and PT-D210 imagery in
+`devices/brother-pt-d220/img` and `devices/brother-pt-d210/img` is reproduced from the manufacturer's user
+guides for reference purposes.
