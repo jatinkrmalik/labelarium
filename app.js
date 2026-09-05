@@ -1,0 +1,432 @@
+// Labelarium — vanilla JS, hash router, no build step.
+const $ = s => document.querySelector(s);
+const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
+const store = {
+  get(k, d) { try { return JSON.parse(localStorage.getItem('lab:' + k)) ?? d; } catch { return d; } },
+  set(k, v) { localStorage.setItem('lab:' + k, JSON.stringify(v)); },
+};
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const KEYCLASS = { OK: 'ok', Print: 'print' };
+// [Key] → keycap, {LCD text} → lcd chip, → arrows
+const fmt = s => esc(s)
+  .replace(/\[([^\]]+)\]/g, (_, k) => `<kbd class="key ${KEYCLASS[k] || ''}">${k}</kbd>`)
+  .replace(/\{([^}]+)\}/g, '<span class="lcd">$1</span>')
+  .replace(/→/g, '<span class="arrow">→</span>');
+const pad2 = n => String(n).padStart(2, '0');
+const cssq = s => String(s).replace(/"/g, "'"); // font stacks go inside style="…"
+
+let devices = [];
+const loaded = {};
+
+async function loadIndex() { devices = await (await fetch('devices/index.json')).json(); }
+
+async function loadDevice(id) {
+  if (loaded[id]) return loaded[id];
+  const meta = devices.find(d => d.id === id);
+  if (!meta) throw new Error('Unknown device ' + id);
+  const raw = (await import('./' + meta.data)).default;
+  return (loaded[id] = normalize(raw, meta.data.slice(0, meta.data.lastIndexOf('/') + 1)));
+}
+
+// Expand compact arrays into objects and build the search index.
+function normalize(d, base) {
+  d.base = base;
+  d.symbols.categories.forEach(c => {
+    c.items = (c.items || []).map(([name, kw, ch], i) => ({ n: i + 1, name, kw, ch, img: `${base}img/symbols/${c.id}-${pad2(i + 1)}.png`, cat: c }));
+    c.img = `${base}img/symbols/${c.id}.png`;
+  });
+  d.symbols.accented.image = base + d.symbols.accented.image;
+  d.frames.items = d.frames.items.map(([n, name, kw, wide]) => ({ n, name, kw, wide: !!wide, img: `${base}img/frames/${n}.png` }));
+  d.templates.text = d.templates.text.map(([n, name, kw, desc]) => ({ n, name, kw, desc, kind: 'text', img: `${base}img/templates/text-${pad2(n)}.png` }));
+  d.templates.pattern = d.templates.pattern.map(([n, name, kw, desc]) => ({ n, name, kw, desc, kind: 'pattern', img: `${base}img/templates/pattern-${pad2(n)}.png` }));
+  d.fonts = d.fonts.map(([name, img, desc, css, weight, style], i) => ({ n: i + 1, name, desc, css, weight, style, img: `${base}img/fonts/${img}` }));
+  for (const k of ['sizes', 'widths', 'styles', 'alignments']) d[k] = d[k].map(([name, img, factor]) => ({ name, factor, img: `${base}img/fonts/${img}` }));
+  d.keyboard.image = base + d.keyboard.image;
+  d.errors = d.errors.map(([msg, cause, fix]) => ({ msg, cause, fix }));
+  d.problems = d.problems.map(([problem, fix]) => ({ problem, fix }));
+
+  const idx = [];
+  const add = (type, title, kw, extra) => idx.push({ type, title, kw: kw || '', ...extra, _t: norm(title), _k: norm(kw || '') });
+  d.symbols.categories.forEach(c => {
+    add('symbol-category', `${c.name} symbols`, `${c.kw || ''} ${c.chars || ''} ${c.group}`, { cat: c });
+    c.items.forEach(it => add('symbol', it.name, it.kw, { item: it, sub: `${c.name} · #${it.n}` }));
+  });
+  d.frames.items.forEach(f => add('frame', `Frame ${f.n}: ${f.name}`, f.kw + (f.wide ? ' 12mm' : ''), { item: f }));
+  [...d.templates.text, ...d.templates.pattern].forEach(t => add('template', `${t.kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)}: ${t.name}`, `${t.kw} ${t.desc}`, { item: t }));
+  d.howto.forEach(h => add('howto', h.title, h.kw + ' ' + h.steps.join(' '), { item: h }));
+  d.shortcuts.forEach(s => add('shortcut', s.action, s.kw + ' ' + s.keys, { item: s }));
+  d.fonts.forEach(f => add('font', `${f.name} font`, f.desc, { item: f }));
+  d.styles.forEach(s => add('style', `${s.name} style`, 'style text effect', { item: s }));
+  d.errors.forEach(e => add('error', e.msg, e.cause + ' ' + e.fix, { item: e }));
+  d.problems.forEach(p => add('problem', p.problem, p.fix, { item: p }));
+  d.keyboard.legend.forEach(([n, name, desc]) => add('key', `${name} (key ${n})`, desc, { item: { n, name, desc } }));
+  d.index = idx;
+  return d;
+}
+
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+// ponytail: simple scored AND search with prefix + edit-distance-1 fuzz; swap for Fuse.js if it ever falls short
+function search(d, q) {
+  const terms = norm(q).split(/[^a-z0-9+&#@°%]+/).filter(Boolean);
+  if (!terms.length) return [];
+  const out = [];
+  for (const it of d.index) {
+    let score = 0;
+    for (const t of terms) {
+      if (it._t.includes(t)) score += it._t.startsWith(t) ? 6 : 4;
+      else if (it._k.includes(t)) score += 2;
+      else if (t.length >= 4 && (it._t + ' ' + it._k).split(/\s+/).some(w => w.startsWith(t.slice(0, -1)) || close(t, w))) score += 1;
+      else { score = -1; break; }
+    }
+    if (score >= 0) out.push({ it, score });
+  }
+  const rank = { symbol: 0, frame: 1, template: 2, howto: 3, shortcut: 4, 'symbol-category': 5, font: 6, style: 7, error: 8, problem: 9, key: 10 };
+  return out.sort((a, b) => b.score - a.score || rank[a.it.type] - rank[b.it.type]).map(r => r.it);
+}
+function close(a, b) { // Levenshtein distance <= 1
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0, j = 0, edits = 0;
+  while (i < a.length && j < b.length) {
+    if (a[i] === b[j]) { i++; j++; continue; }
+    if (++edits > 1) return false;
+    if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; }
+  }
+  return edits + (a.length - i) + (b.length - j) <= 1;
+}
+
+// ---------- router ----------
+function route() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [path, qs] = h.split('?');
+  const seg = path.split('/').filter(Boolean);
+  const q = Object.fromEntries(new URLSearchParams(qs || ''));
+  return { seg, q };
+}
+const go = (path, replace) => replace ? history.replaceState(null, '', '#' + path) & render() : (location.hash = path);
+window.addEventListener('hashchange', render);
+
+async function render() {
+  const { seg, q } = route();
+  sheet.open && sheet.close();
+  try {
+    if (!devices.length) await loadIndex();
+    if (seg[0] !== 'd') return renderHome();
+    const d = await loadDevice(seg[1]);
+    const section = seg[2] || 'home';
+    const views = { home: viewDeviceHome, symbols: viewSymbols, frames: viewFrames, templates: viewTemplates, fonts: viewFonts, shortcuts: viewShortcuts, keyboard: viewKeyboard, howto: viewHowto, trouble: viewTrouble, preview: viewPreview, specs: viewSpecs };
+    (views[section] || viewDeviceHome)(d, seg.slice(3), q);
+  } catch (e) {
+    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span></div>`;
+    console.error(e);
+  }
+  if (!route().q.q) window.scrollTo(0, 0);
+}
+
+function setTop(title, { back, sub, right = '' } = {}) {
+  topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo">ABC</span>'}
+    <div class="title">${esc(title)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}</div>`;
+}
+
+// ---------- home ----------
+function renderHome() {
+  setTop('Labelarium');
+  const favs = store.get('favs', []);
+  const card = dev => `<div class="card devcard link" onclick="location.hash='/d/${dev.id}'">
+      <div class="thumb">${esc(dev.model)}</div>
+      <div><b>${esc(dev.brand)} ${esc(dev.name)}</b><div class="muted small">${esc(dev.tagline)}</div></div>
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Favorite" onclick="event.stopPropagation();toggleFav('${dev.id}')">★</button></div>`;
+  const favDevs = devices.filter(d => favs.includes(d.id));
+  const brands = [...new Set(devices.map(d => d.brand))];
+  app.innerHTML = `<div class="hero-home"><h1>Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker — searchable, with pictures, offline.</p></div>
+    ${favDevs.length ? `<h2>★ My label makers</h2>${favDevs.map(card).join('')}` : '<p class="hint">Tap ★ on a label maker to pin it here.</p>'}
+    ${brands.map(b => `<h2>${esc(b)}</h2>${devices.filter(d => d.brand === b).map(card).join('')}`).join('')}
+    <p class="footer">Add another label maker by dropping a folder into <code>devices/</code> and listing it in <code>devices/index.json</code>.</p>`;
+}
+window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
+
+// ---------- device home + search ----------
+const SECTIONS = [
+  ['keyboard', '⌨️', 'Keyboard map', 'Where every key is and what it does'],
+  ['symbols', '☺', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
+  ['frames', '▭', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
+  ['templates', '🏷', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
+  ['fonts', '🅰', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
+  ['shortcuts', '⚡', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
+  ['howto', '📖', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
+  ['trouble', '🛠', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
+  ['preview', '🎨', 'Label preview', 'Design a label, get the recipe'],
+  ['specs', 'ℹ️', 'Specs & tapes', 'Tape widths, limits, links'],
+];
+function deviceTop(d, section, sub) {
+  const favs = store.get('favs', []);
+  const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Favorite" onclick="toggleFav('${d.id}')">★</button>`;
+  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
+}
+function searchBox(d, q) {
+  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" placeholder="Search: warning, arrow, gift, margin, mirror…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+}
+let searchTimer;
+window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `#/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
+
+function viewDeviceHome(d, _, q) {
+  deviceTop(d);
+  app.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections"></div>`;
+  if (q.q) renderResults(d, q.q, true); else renderSections(d);
+  if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+}
+function renderSections(d) {
+  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico">${ico}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
+  const saved = store.get('offline:' + d.id);
+  $('#sections').innerHTML = `<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div>
+    <h2>Quick tips</h2>${d.tips.map(t => `<div class="card small">💡 ${fmt(t)}</div>`).join('')}
+    <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
+    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div>`;
+}
+function renderResults(d, q, firstPaint) {
+  const box = $('#results'), sections = $('#sections');
+  if (!q) { box.innerHTML = ''; sections.style.display = ''; if (!sections.innerHTML) renderSections(d); return; }
+  sections.style.display = 'none';
+  const res = search(d, q);
+  if (!res.length) { box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<br><span class="small">Try a simpler word, e.g. “sign”, “star”, “tape”.</span></div>`; return; }
+  const groups = {}; res.forEach(r => (groups[r.type] ||= []).push(r));
+  const names = { symbol: 'Symbols', frame: 'Frames', template: 'Templates', howto: 'How-to', shortcut: 'Shortcuts', 'symbol-category': 'Symbol categories', font: 'Fonts', style: 'Styles', error: 'Error messages', problem: 'Problems & fixes', key: 'Keys' };
+  const hi = s => { const t = norm(q).split(/\s+/).filter(Boolean); let h = esc(s); t.forEach(w => { if (w.length > 1) h = h.replace(new RegExp(`(${w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'ig'), '<mark>$1</mark>'); }); return h; };
+  let html = '';
+  for (const type of Object.keys(names)) {
+    const g = groups[type]; if (!g) continue;
+    html += `<div class="result-h"><h2 style="margin:0">${names[type]}</h2><span class="cnt">${g.length}</span></div>`;
+    if (type === 'symbol') html += `<div class="symgrid">${g.slice(0, 60).map(r => glyphTile(d, r.item, true)).join('')}</div>`;
+    else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
+    else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
+    else if (type === 'symbol-category') html += g.map(r => catCard(d, r.cat)).join('');
+    else if (type === 'howto') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/howto/${r.item.id}'"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
+    else if (type === 'font') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'style') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></div>`).join('');
+    else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
+    else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
+    else if (type === 'key') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/keyboard'"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
+  }
+  box.innerHTML = html;
+}
+window.saveOffline = async id => {
+  const d = loaded[id], meta = devices.find(x => x.id === id);
+  const urls = [meta.data, d.keyboard.image, d.symbols.accented.image, ...d.symbols.categories.flatMap(c => [c.img, ...c.items.map(i => i.img)]),
+    ...d.frames.items.map(f => f.img), ...d.templates.text.map(t => t.img), ...d.templates.pattern.map(t => t.img), ...d.fonts.map(f => f.img),
+    ...['sizes', 'widths', 'styles', 'alignments'].flatMap(k => d[k].map(x => x.img))];
+  const btn = document.querySelector('#sections .btn'); if (btn) btn.textContent = 'Saving…';
+  try {
+    const reg = await navigator.serviceWorker?.ready;
+    if (!reg?.active) throw new Error('Service worker not available (needs https or localhost).');
+    await new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('Timed out')), 60000); navigator.serviceWorker.addEventListener('message', function h(e) { if (e.data?.type === 'precached') { clearTimeout(t); navigator.serviceWorker.removeEventListener('message', h); res(); } }); reg.active.postMessage({ type: 'precache', urls }); });
+    store.set('offline:' + id, true);
+  } catch (e) { alert('Could not save offline: ' + e.message); }
+  renderSections(d);
+};
+
+// ---------- tiles & sheets ----------
+function glyphTile(d, it, showName) {
+  return `<button class="glyph" onclick="openSymbol('${d.id}','${it.cat.id}',${it.n})" title="${esc(it.name)}"><span class="badge">${it.n}</span><img src="${it.img}" alt="${esc(it.name)}" loading="lazy">${showName ? `<span class="name">${esc(it.name)}</span>` : ''}</button>`;
+}
+function frameTile(d, f) {
+  return `<button class="frame" onclick="openFrame('${d.id}','${f.n}')"><span class="badge">${f.n === 'off' ? 'Off' : 'Frame'}</span>${f.wide ? '<span class="pill warn" style="position:absolute;right:8px;top:6px">12 mm</span>' : ''}<img class="frame-img" src="${f.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${f.n === 'off' ? '—' : f.n}</span><span>${esc(f.name)}</span></div></button>`;
+}
+function tplTile(d, t) {
+  return `<button class="frame" onclick="openTemplate('${d.id}','${t.kind}',${t.n})"><span class="badge">${t.kind === 'text' ? 'Text' : 'Pattern'}</span><img class="tpl-img" src="${t.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${pad2(t.n)}</span><span>${esc(t.name)}</span></div></button>`;
+}
+function catCard(d, c) {
+  const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
+  return `<div class="card link" onclick="location.hash='/d/${d.id}/symbols/${c.id}'"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></div>`;
+}
+function openSheet(html) {
+  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button>${html}</div>`;
+  sheet.showModal();
+}
+sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
+const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
+
+window.openSymbol = (id, catId, n) => {
+  const d = loaded[id], c = d.symbols.categories.find(x => x.id === catId), it = c.items[n - 1];
+  openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 style="margin:0">${esc(it.name)}</h2>
+    <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
+    <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
+    <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
+    <p style="margin-top:12px"><a href="#/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
+};
+window.openFrame = (id, n) => {
+  const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
+  const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
+  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 style="margin:0">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
+    ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
+    <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
+    <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
+    <p style="margin-top:12px"><a href="#/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
+};
+window.openTemplate = (id, kind, n) => {
+  const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
+  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 style="margin:0">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
+    <p><span class="pill warn">12 mm (0.47") tape only</span></p>
+    <h3 style="margin-top:14px">How to use</h3>${steps((kind === 'text' ? d.templates.textHowto : d.templates.patternHowto).map(s => s.replace('the design (number below)', `design number ${pad2(t.n)}`).replace('pick the pattern', `pick pattern ${pad2(t.n)}`)))}
+    <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>`);
+};
+
+// ---------- sections ----------
+function viewSymbols(d, [catId]) {
+  if (catId) return viewCategory(d, catId);
+  deviceTop(d, 'Symbols');
+  const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
+  app.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
+    <h2>Basic <span class="muted small">— text characters</span></h2>${grp('Basic')}
+    <h2>Pictograph <span class="muted small">— pictures</span></h2>${grp('Pictograph')}
+    <h2>Accented letters</h2><div class="card link" onclick="location.hash='/d/${d.id}/symbols/accented'"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></div>`;
+}
+function viewCategory(d, catId) {
+  if (catId === 'accented') {
+    const a = d.symbols.accented;
+    deviceTop(d, 'Accented letters');
+    app.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2><div class="card img-card"><img src="${a.image}" alt="Accented characters table"></div>
+      <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
+    return;
+  }
+  const c = d.symbols.categories.find(x => x.id === catId);
+  if (!c) return viewSymbols(d, []);
+  deviceTop(d, c.name);
+  const how = steps(['Press [Symbol].', `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump straight to {${c.name}} (or [◀] / [▶] to it) → [OK].`, '[◀] / [▶] to the symbol (numbers below = position) → [OK].']);
+  let body;
+  if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
+  else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
+  app.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
+}
+function viewFrames(d, _, q) {
+  deviceTop(d, 'Frames');
+  const filter = q.f || 'all';
+  const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
+  const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="history.replaceState(null,'','#/d/${d.id}/frames?f=${id}');render()">${label}</button>`;
+  app.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
+    <div class="chips">${chip('all', 'All 100')}${chip('basic', 'Boxes & lines (0–17)')}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
+    <div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>`;
+}
+function viewTemplates(d) {
+  deviceTop(d, 'Templates');
+  app.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
+    <h2>Text label templates <span class="muted small">— your text, their layout</span></h2><div class="card"><h3>How</h3>${steps(d.templates.textHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.text.map(t => tplTile(d, t)).join('')}</div>
+    <h2>Pattern label templates <span class="muted small">— decorative tape, no text</span></h2><div class="card"><h3>How</h3>${steps(d.templates.patternHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.pattern.map(t => tplTile(d, t)).join('')}</div>`;
+}
+function viewFonts(d) {
+  deviceTop(d, 'Fonts & styles');
+  const list = (title, arr, menu) => `<h2>${title} <span class="muted small">— ${fmt(`[Font] → {${menu}} → [OK]`)}</span></h2><div class="fontlist">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
+  app.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
+    ${list('Fonts', d.fonts, 'Font')}${list('Sizes', d.sizes, 'Size')}${list('Widths', d.widths, 'Width')}${list('Styles', d.styles, 'Style')}${list('Alignment', d.alignments, 'Alignment')}`;
+}
+function viewShortcuts(d) {
+  deviceTop(d, 'Shortcuts');
+  app.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p>${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}`;
+}
+function viewKeyboard(d) {
+  deviceTop(d, 'Keyboard map');
+  app.innerHTML = `<div class="card img-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
+    <h2>LCD indicators (1–7)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n <= 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>
+    <h2>Keys (8–30)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n > 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`;
+}
+function viewHowto(d, [topic]) {
+  deviceTop(d, 'How-to guides');
+  app.innerHTML = `<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
+  if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
+}
+function viewTrouble(d) {
+  deviceTop(d, 'Troubleshooting');
+  app.innerHTML = `<h2>Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
+    <h2>What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
+}
+function viewSpecs(d) {
+  deviceTop(d, 'Specs & tapes');
+  app.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
+    <h2>Tape widths</h2>${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}
+    <h2>Links</h2>${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}`;
+}
+
+// ---------- label preview / designer ----------
+const TAPES = [['White · black text', '#ffffff', '#111'], ['Yellow · black text', '#f5c400', '#111'], ['Clear · black text', 'rgba(255,255,255,.35)', '#111'], ['Red · black text', '#e53935', '#111'],
+  ['Blue · black text', '#3f7fd6', '#111'], ['Green · black text', '#3aa655', '#111'], ['Black · white text', '#151515', '#fff'], ['White · red text', '#ffffff', '#d32f2f'], ['White · blue text', '#ffffff', '#1e4fbf'], ['Fluorescent orange · black', '#ff7a1a', '#111'], ['Silver · black text', '#c9ccd1', '#111']];
+const MARGINS = { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 };
+function viewPreview(d, _, q) {
+  deviceTop(d, 'Label preview');
+  const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
+  const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
+  app.innerHTML = `<div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
+  <div class="card ctl" id="ctl">
+    <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}"></label>
+    <label class="full">Line 2 <span class="muted">(9 / 12 mm tape)</span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''}></label>
+    <label>Tape width<select data-k="tape">${d.tapes.map(t => `<option value="${t.mm}" ${t.mm === +s.tape ? 'selected' : ''}>${t.mm} mm (${t.in})</option>`).join('')}</select></label>
+    <label>Tape colour<select data-k="color">${TAPES.map((t, i) => `<option value="${i}" ${i === +s.color ? 'selected' : ''}>${t[0]}</option>`).join('')}</select></label>
+    <label>Font<select data-k="font">${opt(d.fonts, s.font)}</select></label>
+    <label>Size<select data-k="size">${opt(d.sizes, s.size)}</select></label>
+    <label>Width<select data-k="width">${opt(d.widths, s.width)}</select></label>
+    <label>Style<select data-k="style">${opt(d.styles, s.style)}</select></label>
+    <label>Alignment<select data-k="align">${opt(d.alignments, s.align)}</select></label>
+    <label>Frame<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : f.n + ' · ' + f.name}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>
+    <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+    <label>Label length (mm, 0 = Auto)<input type="number" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
+    <label>Mirror<div class="seg"><button data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
+  </div>
+  <div class="card"><h3>Recipe: make this on the ${esc(d.model)}</h3><ol class="steps recipe" id="recipe"></ol><div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>`;
+  const ctl = $('#ctl');
+  ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
+  ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
+  const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
+  draw();
+}
+function drawTape(d, s) {
+  const PX = 9; // px per mm
+  const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
+  const frame = d.frames.items.find(f => String(f.n) === String(s.frame));
+  const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
+  const printH = (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX; // printable height in px
+  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (frame && frame.n !== 'off' && frame.n !== 0 ? 1.25 : 1));
+  const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
+  const ink = tape[2];
+  let fx = '';
+  if (/Outline/.test(style)) fx = `color:transparent;-webkit-text-stroke:1.5px ${ink};`;
+  else if (/Shadow/.test(style)) fx = `color:transparent;-webkit-text-stroke:1.5px ${ink};text-shadow:3px 3px 0 ${ink};`;
+  else if (/Solid/.test(style)) fx = `text-shadow:2px 2px 0 ${tape[1]},4px 4px 0 ${ink};`;
+  const alignCss = ['flex-start', 'center', 'flex-end', 'stretch'][s.align];
+  const vertical = style === 'Vertical';
+  const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
+  const marginMm = MARGINS[s.margin];
+  let frameCss = '', frameImg = '';
+  if (frame && frame.n !== 'off') {
+    if (frame.n === 0) frameCss = 'text-decoration:underline;';
+    else if (frame.n === 1) frameCss = `border-top:2px solid ${ink};border-bottom:2px solid ${ink};padding:2px 6px;`;
+    else if (frame.n === 2) frameCss = `border:2px solid ${ink};border-radius:8px;padding:2px 10px;`;
+    else frameImg = `<img class="frameimg" src="${frame.img}" alt="">`;
+  }
+  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${width});transform-origin:center;padding:0 ${frameImg ? Math.round(fontPx * 1.6) : 4}px">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  const el = $('#tape');
+  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${frameImg}${txt}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
+  const t = el.firstElementChild;
+  // scaleX does not affect layout, so widen the box by hand
+  const inner = t.querySelector('.txt'); const w = inner.getBoundingClientRect().width;
+  if (width !== 1) inner.style.margin = `0 ${(w * width - w) / 2}px`;
+  const totalMm = Math.round(t.getBoundingClientRect().width / PX);
+  const over = s.length && totalMm > s.length;
+  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
+  // recipe
+  const r = [];
+  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape — frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
+  r.push(`Type “${s.text1}”${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
+  if (s.font) r.push(`[Font] → {Font} → [OK] → [◀] / [▶] to {${font.name}} → [OK].`);
+  if (s.size) r.push(`[Font] → {Size} → [OK] → {${d.sizes[s.size].name}} → [OK].`);
+  if (s.width) r.push(`[Font] → {Width} → [OK] → {${d.widths[s.width].name}} → [OK].`);
+  if (s.style) r.push(`[Font] → {Style} → [OK] → {${style}} → [OK].`);
+  if (s.align !== 1) r.push(`[Font] → {Alignment} → [OK] → {${d.alignments[s.align].name}} → [OK].`);
+  if (frame && frame.n !== 'off') r.push(`[Frame] → type ${String(frame.n).split('').map(x => `[${x}]`).join(' ')} → [OK].`);
+  if (s.margin !== 'Full') r.push(`[Label] → {Margin} → [OK] → {${s.margin}} → [OK].`);
+  if (s.length) r.push(`[Label] → {Label Length} → [OK] → [◀] / [▶] to ${s.length} mm → [OK].`);
+  if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK] → {Mirror Print?} → [OK]. Use clear tape.`);
+  else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
+  $('#recipe').innerHTML = r.map(x => `<li>${fmt(x)}</li>`).join('');
+}
+
+// ---------- boot ----------
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(console.warn);
+render();
