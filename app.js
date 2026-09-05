@@ -331,11 +331,13 @@ function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
   const filter = q.f || 'all';
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
-  const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="history.replaceState(null,'','#/d/${d.id}/frames?f=${id}');render()">${label}</button>`;
+  const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
   main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
     <div class="chips">${chip('all', 'All 100')}${chip('basic', 'Boxes & lines (0–17)')}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
     <div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>`;
 }
+// Filter chips: swap the query string in place and re-render without losing the scroll position.
+window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(null, '', `#/d/${id}/frames?f=${f}`); render().then(() => requestAnimationFrame(() => window.scrollTo(0, y))); };
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
   main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>

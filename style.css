@@ -170,7 +170,7 @@ kbd.key.print { border-radius: 999px; padding: 7px 11px 6px; }
 .framelist { display: grid; gap: 0; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); padding: 10px; }
 .frame { position: relative; background: var(--plate); padding: 28px 14px 14px; cursor: pointer; border: 0; border-right: 1px solid var(--soft); border-bottom: 1px solid var(--soft); text-align: left; display: flex; flex-direction: column; gap: 10px; }
 .frame:hover { background: var(--plate-2); }
-.frame-img, .tpl-img { display: block; max-height: 46px; margin: 0 auto; background: #fff; padding: 4px 10px; box-sizing: content-box; max-width: calc(100% - 20px); }
+.frame-img, .tpl-img { display: block; height: 46px; width: auto; max-width: calc(100% - 20px); object-fit: contain; margin: 0 auto; background: #fff; padding: 4px 10px; box-sizing: content-box; }
 .frame .lbl { font-size: 13px; color: var(--ink-2); display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
 .frame .num { font: 600 18px/1 var(--sans); color: var(--ink); }
 
