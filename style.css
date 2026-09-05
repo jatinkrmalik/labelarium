@@ -188,7 +188,7 @@ kbd.key.print { border-radius: 999px; padding: 7px 11px 6px; }
 .symgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(84px, 1fr)); gap: 0; padding: 10px; }
 .glyph { position: relative; background: var(--plate); aspect-ratio: 1; display: grid; place-items: center; cursor: pointer; border: 0; border-right: 1px solid var(--soft); border-bottom: 1px solid var(--soft); padding: 14px 6px 22px; }
 .glyph:hover { background: var(--plate-2); }
-.glyph img { max-height: 40px; max-width: 56px; background: #fff; padding: 3px; box-sizing: content-box; }
+.glyph img { max-height: 40px; max-width: 56px; width: auto; height: auto; object-fit: contain; object-position: center; background: #fff; padding: 3px; box-sizing: content-box; }
 .glyph .ch { font-size: 30px; line-height: 1; }
 .glyph .name { position: absolute; bottom: 6px; left: 5px; right: 5px; font: 500 11px/1 var(--sans); color: var(--ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .img-card img { display: block; margin: 6px auto; max-height: 120px; }
@@ -216,9 +216,9 @@ kbd.key.print { border-radius: 999px; padding: 7px 11px 6px; }
 
 /* Keyboard: phone-sized preview, tap the plate to open the zoom sheet */
 button.kbd-card, button.img-card.zoomable { display: block; width: 100%; text-align: inherit; cursor: zoom-in; padding: 14px 14px 10px; }
-.kbd-card .kbd-img, .kbd-card img { display: block; width: 100%; max-width: 360px; max-height: min(42vh, 280px); height: auto; object-fit: contain; margin: 0 auto; }
+.kbd-card .kbd-img, .kbd-card img { display: block; width: auto; max-width: 100%; max-height: min(42vh, 280px); height: auto; object-fit: contain; object-position: center; margin: 0 auto; }
 .kbd-hint { display: block; text-align: center; margin-top: 8px; font: 500 12px/1.3 var(--sans); color: var(--ink-2); letter-spacing: .04em; text-transform: uppercase; }
-.img-card.zoomable img { max-height: 120px; }
+.img-card.zoomable img { max-height: 120px; max-width: 100%; width: auto; height: auto; object-fit: contain; object-position: center; }
 .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0 24px; }
 .legend div { padding: 10px 0; border-bottom: 1px solid var(--soft); }
 .legend div:last-child { border-bottom: 0; }
@@ -244,7 +244,7 @@ details .body { padding: 0 0 14px; }
 .sheet .inner { padding: 14px 18px 30px; overflow: auto; max-height: 88vh; }
 .sheet .grab { width: 36px; height: 2px; background: var(--rule); margin: 0 auto 16px; }
 .sheet .hero { display: grid; place-items: center; padding: 22px; margin-bottom: 14px; }
-.sheet .hero img { max-height: 90px; background: #fff; padding: 8px 14px; box-sizing: content-box; }
+.sheet .hero img { max-height: 120px; max-width: 100%; width: auto; height: auto; object-fit: contain; object-position: center; background: #fff; padding: 8px 14px; box-sizing: content-box; }
 .sheet .hero .ch { font-size: 56px; }
 .sheet .close { position: absolute; right: 14px; top: 14px; }
 .sheet h2.t { display: block; font: 400 28px/1.15 var(--serif); letter-spacing: 0; text-transform: none; text-align: left; margin: 0; color: var(--ink); }
@@ -269,7 +269,7 @@ details .body { padding: 0 0 14px; }
 .tape { position: relative; margin: 0 auto; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-shadow: 0 1px 0 rgba(0,0,0,.25); }
 .tape .txt { display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; }
 .tape .line { line-height: 1.05; }
-.tape .frameimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: fill; opacity: .9; }
+.tape .frameimg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center; opacity: .9; }
 .tape.mirror .txt { transform: scaleX(-1); }
 .tape .dots { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dotted rgba(0,0,0,.4); }
 .ctl { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 14px; margin-top: 10px; min-width: 0; }
@@ -345,16 +345,17 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   place-items: center;
   background: var(--plate-2);
   border: 1px solid var(--soft);
-  padding: 6px;
+  padding: 8px;
   overflow: hidden;
 }
 .devtile .dev-icon img {
-  width: 92%;
-  height: 92%;
+  width: auto;
+  height: auto;
   max-width: 100%;
   max-height: 100%;
   display: block;
   object-fit: contain;
+  object-position: center;
 }
 .devtile .star { position: absolute; top: 8px; right: 8px; z-index: 1; margin: 0; border: 0; background: transparent; font-size: 18px; cursor: pointer; color: var(--ink); width: 32px; height: 32px; line-height: 1; }
 .devtile .star.on { color: var(--red); }
