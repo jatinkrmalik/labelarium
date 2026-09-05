@@ -85,7 +85,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .iconbtn:hover { background: var(--plate-2); }
 .iconbtn.fav { color: var(--red); }
 .logo { width: 14px; height: 14px; border-radius: 50%; background: var(--red); flex: 0 0 auto; }
-.topbar .dev-top { width: 48px; height: 48px; flex: 0 0 auto; object-fit: contain; background: var(--plate); border: 1.5px solid var(--rule); padding: 3px; }
+.topbar .dev-top { width: 48px; height: 48px; flex: 0 0 auto; object-fit: contain; object-position: center; background: var(--plate); border: 1.5px solid var(--rule); padding: 5px; box-sizing: border-box; }
 /* Phone device header: actions on row 1, title on its own row so words do not split. */
 @media (max-width: 600px) {
   .topbar:not(.home) .inner { flex-wrap: wrap; }
@@ -93,7 +93,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
   .topbar:not(.home) .top-right { order: 2; }
   .topbar:not(.home) .dev-top { width: 40px; height: 40px; }
 }
-.rail .dev-rail { width: 40px; height: 40px; object-fit: contain; display: block; background: var(--plate); border: 1.5px solid var(--rule); padding: 3px; }
+.rail .dev-rail { width: 40px; height: 40px; object-fit: contain; object-position: center; display: block; background: var(--plate); border: 1.5px solid var(--rule); padding: 5px; box-sizing: border-box; }
 .rail { display: none; }
 .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; display: flex; background: var(--plate); border-top: 2px solid var(--rule); padding: 8px 4px calc(10px + env(safe-area-inset-bottom)); }
 .tabs a, .rail a { display: grid; grid-template-rows: 18px auto; justify-items: center; align-items: end; gap: 7px; text-decoration: none; color: var(--ink-2); font: 500 11px/1.2 var(--sans); letter-spacing: .04em; text-transform: uppercase; text-align: center; }
@@ -310,7 +310,7 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   height: auto;
   max-height: 100%;
   min-height: 0;
-  overflow: hidden;
+  overflow: visible;
   box-sizing: border-box;
   margin-top: 0;
   cursor: pointer;
@@ -345,8 +345,8 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   place-items: center;
   background: var(--plate-2);
   border: 1px solid var(--soft);
-  padding: 8px;
-  overflow: hidden;
+  padding: 14px;
+  overflow: visible;
 }
 .devtile .dev-icon img {
   width: auto;
@@ -356,6 +356,9 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   display: block;
   object-fit: contain;
   object-position: center;
+  /* keep stroke/art off the clip edge even if SVG art is flush */
+  padding: 4%;
+  box-sizing: border-box;
 }
 .devtile .star { position: absolute; top: 8px; right: 8px; z-index: 1; margin: 0; border: 0; background: transparent; font-size: 18px; cursor: pointer; color: var(--ink); width: 32px; height: 32px; line-height: 1; }
 .devtile .star.on { color: var(--red); }
