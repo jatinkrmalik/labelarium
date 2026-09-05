@@ -14,5 +14,13 @@
     "name": "P-touch PT-D210",
     "tagline": "Easy-to-Use Label Maker",
     "data": "devices/brother-pt-d210/device.js"
+  },
+  {
+    "id": "niimbot-d110",
+    "brand": "NIIMBOT",
+    "model": "D110",
+    "name": "D110",
+    "tagline": "Smart Label Printer (US SKU D110_M)",
+    "data": "devices/niimbot-d110/device.js"
   }
 ]
