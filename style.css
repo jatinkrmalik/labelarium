@@ -10,7 +10,7 @@
   :root { --bg: #0b1020; --surface: #151b2e; --surface-2: #1d2540; --text: #e5e7eb; --muted: #9ca3af;
     --line: #273048; --accent: #818cf8; --accent-soft: #1e2350; --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px -8px rgba(0,0,0,.6);
     --key-bg: linear-gradient(#2a3350, #1b2238); --key-line: #3b4567; }
-  .img-card img, .glyph img, .frame-img, .tpl-img, .font-img, .kbd-img { filter: invert(1) hue-rotate(180deg); }
+  .img-card img, .font-img, .kbd-img { filter: invert(1) hue-rotate(180deg); }
 }
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -83,7 +83,7 @@ kbd.key.print { border-radius: 999px; background: linear-gradient(#fff,#dfe3ea);
 /* Symbols */
 .symgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr)); gap: 8px; }
 .glyph { position: relative; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); aspect-ratio: 1; display: grid; place-items: center; cursor: pointer; border: 0; padding: 8px; }
-.glyph img { max-height: 40px; max-width: 56px; }
+.glyph img { max-height: 40px; max-width: 56px; background: #fff; border-radius: 6px; padding: 3px; box-sizing: content-box; }
 .glyph .ch { font-size: 30px; line-height: 1; }
 .glyph .name { position: absolute; bottom: 4px; left: 4px; right: 4px; font-size: .58rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
 .img-card img { display: block; margin: 6px auto; max-height: 120px; }
@@ -93,7 +93,9 @@ kbd.key.print { border-radius: 999px; background: linear-gradient(#fff,#dfe3ea);
 /* Frames & templates */
 .framelist { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
 .frame { position: relative; background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); padding: 22px 12px 10px; cursor: pointer; border: 0; text-align: left; display: flex; flex-direction: column; gap: 6px; }
-.frame-img, .tpl-img { display: block; max-height: 46px; margin: 0 auto; }
+.frame-img, .tpl-img { display: block; max-height: 46px; margin: 0 auto; background: #fff; border-radius: 4px; padding: 4px 8px; box-sizing: content-box; max-width: calc(100% - 16px); }
+.sheet .hero img { background: #fff; border-radius: 6px; padding: 8px 12px; }
+.chars .c, .lcd { font-family: ui-monospace, SFMono-Regular, Menlo, "Apple Symbols", "Segoe UI Symbol", monospace; }
 .frame .lbl { font-size: .78rem; color: var(--muted); display: flex; justify-content: space-between; align-items: center; }
 .frame .num { font-weight: 800; font-size: 1.1rem; color: var(--text); }
 
