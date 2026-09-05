@@ -14,5 +14,13 @@
     "name": "P-touch PT-D210",
     "tagline": "Easy-to-Use Label Maker",
     "data": "devices/brother-pt-d210/device.js"
+  },
+  {
+    "id": "phomemo-m110",
+    "brand": "Phomemo",
+    "model": "M110",
+    "name": "M110",
+    "tagline": "Bluetooth Portable Thermal Business Label Maker",
+    "data": "devices/phomemo-m110/device.js"
   }
 ]
