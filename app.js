@@ -45,6 +45,9 @@ function normalize(d, base) {
   d.fonts = d.fonts.map(([name, img, desc, css, weight, style], i) => ({ n: i + 1, name, desc, css, weight, style, img: `${base}img/fonts/${img}` }));
   for (const k of ['sizes', 'widths', 'styles', 'alignments']) d[k] = d[k].map(([name, img, factor]) => ({ name, factor, img: `${base}img/fonts/${img}` }));
   d.keyboard.image = base + d.keyboard.image;
+  if (d.frames.overview) d.frames.overview = base + d.frames.overview;
+  if (d.templates.textOverview) d.templates.textOverview = base + d.templates.textOverview;
+  if (d.templates.patternOverview) d.templates.patternOverview = base + d.templates.patternOverview;
   d.errors = d.errors.map(([msg, cause, fix]) => ({ msg, cause, fix }));
   d.problems = d.problems.map(([problem, fix]) => ({ problem, fix }));
 
@@ -167,7 +170,7 @@ window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.
 // ---------- device home + search ----------
 const SECTIONS = [
   ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
-  ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
+  ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.total != null ? d.symbols.total : d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
   ['frames', 'hollow', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
   ['templates', 'tr-yellow', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
   ['fonts', 'half', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
@@ -263,16 +266,16 @@ window.saveOffline = async id => {
 
 // ---------- tiles & sheets ----------
 function glyphTile(d, it, showName) {
-  return `<button class="glyph" onclick="openSymbol('${d.id}','${it.cat.id}',${it.n})" title="${esc(it.name)}"><span class="badge">${it.n}</span><img src="${it.img}" alt="${esc(it.name)}" loading="lazy">${showName ? `<span class="name">${esc(it.name)}</span>` : ''}</button>`;
+  return `<button class="glyph" onclick="openSymbol('${d.id}','${it.cat.id}',${it.n})" title="${esc(it.name)}"><span class="badge">${it.n}</span><img src="${it.img}" alt="${esc(it.name)}" loading="lazy" onerror="this.hidden=1;const n=this.nextElementSibling;if(n&&n.classList.contains('ch'))n.hidden=0">${it.ch ? `<span class="ch" hidden>${esc(it.ch)}</span>` : ''}${showName ? `<span class="name">${esc(it.name)}</span>` : ''}</button>`;
 }
 function frameTile(d, f) {
-  return `<button class="frame" onclick="openFrame('${d.id}','${f.n}')"><span class="badge">${f.n === 'off' ? 'Off' : 'Frame'}</span>${f.wide ? '<span class="pill warn" style="position:absolute;right:8px;top:6px">12 mm</span>' : ''}<img class="frame-img" src="${f.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${f.n === 'off' ? '—' : f.n}</span><span>${esc(f.name)}</span></div></button>`;
+  return `<button class="frame" onclick="openFrame('${d.id}','${f.n}')"><span class="badge">${f.n === 'off' ? 'Off' : 'Frame'}</span>${f.wide ? '<span class="pill warn" style="position:absolute;right:8px;top:6px">12 mm</span>' : ''}${d.frames.itemCrops === false ? '' : `<img class="frame-img" src="${f.img}" alt="" loading="lazy">`}<div class="lbl"><span class="num">${f.n === 'off' ? '—' : f.n}</span><span>${esc(f.name)}</span></div></button>`;
 }
 function tplTile(d, t) {
-  return `<button class="frame" onclick="openTemplate('${d.id}','${t.kind}',${t.n})"><span class="badge">${t.kind === 'text' ? 'Text' : 'Pattern'}</span><img class="tpl-img" src="${t.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${pad2(t.n)}</span><span>${esc(t.name)}</span></div></button>`;
+  return `<button class="frame" onclick="openTemplate('${d.id}','${t.kind}',${t.n})"><span class="badge">${t.kind === 'text' ? 'Text' : 'Pattern'}</span>${d.templates.itemCrops === false ? '' : `<img class="tpl-img" src="${t.img}" alt="" loading="lazy">`}<div class="lbl"><span class="num">${pad2(t.n)}</span><span>${esc(t.name)}</span></div></button>`;
 }
 function catCard(d, c) {
-  const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
+  const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px" onerror="this.remove()">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
   return `<div class="card link" onclick="location.hash='/d/${d.id}/symbols/${c.id}'"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></div>`;
 }
 function openSheet(html) {
@@ -284,7 +287,7 @@ const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).joi
 
 window.openSymbol = (id, catId, n) => {
   const d = loaded[id], c = d.symbols.categories.find(x => x.id === catId), it = c.items[n - 1];
-  openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 class="t">${esc(it.name)}</h2>
+  openSheet(`<div class="hero"><img src="${it.img}" alt="" onerror="this.hidden=1;const n=this.nextElementSibling;if(n&&n.classList.contains('ch'))n.hidden=0">${it.ch ? `<span class="ch" hidden>${esc(it.ch)}</span>` : ''}</div><h2 class="t">${esc(it.name)}</h2>
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
     <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
     <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
@@ -293,7 +296,7 @@ window.openSymbol = (id, catId, n) => {
 window.openFrame = (id, n) => {
   const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
   const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
-  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
+  openSheet(`${d.frames.itemCrops === false ? '' : `<div class="hero"><img src="${f.img}" alt=""></div>`}<h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
     <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
@@ -301,7 +304,7 @@ window.openFrame = (id, n) => {
 };
 window.openTemplate = (id, kind, n) => {
   const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
-  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
+  openSheet(`${d.templates.itemCrops === false ? '' : `<div class="hero"><img src="${t.img}" alt=""></div>`}<h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
     <p><span class="pill warn">12 mm (0.47") tape only</span></p>
     <h3 style="margin-top:14px">How to use</h3>${steps((kind === 'text' ? d.templates.textHowto : d.templates.patternHowto).map(s => s.replace('the design (number below)', `design number ${pad2(t.n)}`).replace('pick the pattern', `pick pattern ${pad2(t.n)}`)))}
     <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>`);
@@ -330,26 +333,32 @@ function viewCategory(d, catId) {
   deviceTop(d, c.name);
   const how = steps(['Press [Symbol].', `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump straight to {${c.name}} (or [◀] / [▶] to it) → [OK].`, '[◀] / [▶] to the symbol (numbers below = position) → [OK].']);
   let body;
-  if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
-  else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
+  const manual = `<div class="manual"><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt="" onerror="this.closest('.manual')?.remove()"></div></div>`;
+  if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div>${manual}`;
+  else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div>${manual}`;
   main.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
 }
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
   const filter = q.f || 'all';
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
+  const boxMin = Math.min(...d.frames.items.filter(f => f.n !== 'off' && f.n <= 17).map(f => f.n));
   const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
+  const overview = d.frames.overview ? `<h2>As printed in the manual</h2><div class="card img-card full"><img src="${d.frames.overview}" alt="Frame catalog from the official guide"></div>` : '';
   main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
-    <div class="chips">${chip('all', 'All 100')}${chip('basic', 'Boxes & lines (0–17)')}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
+    ${overview}
+    <div class="chips">${chip('all', `All ${d.frames.items.length}`)}${chip('basic', `Boxes & lines (${boxMin}–17)`)}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
     <div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>`;
 }
 // Filter chips: swap the query string in place and re-render without losing the scroll position.
 window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(null, '', `#/d/${id}/frames?f=${f}`); render().then(() => requestAnimationFrame(() => window.scrollTo(0, y))); };
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
+  const textOv = d.templates.textOverview ? `<h2>As printed in the manual</h2><div class="card img-card full"><img src="${d.templates.textOverview}" alt="Text template catalog from the official guide"></div>` : '';
+  const patOv = d.templates.patternOverview ? `<h2>As printed in the manual</h2><div class="card img-card full"><img src="${d.templates.patternOverview}" alt="Pattern template catalog from the official guide"></div>` : '';
   main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
-    <h2>Text label templates <span class="muted small">— your text, their layout</span></h2><div class="card"><h3>How</h3>${steps(d.templates.textHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.text.map(t => tplTile(d, t)).join('')}</div>
-    <h2>Pattern label templates <span class="muted small">— decorative tape, no text</span></h2><div class="card"><h3>How</h3>${steps(d.templates.patternHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.pattern.map(t => tplTile(d, t)).join('')}</div>`;
+    <h2>Text label templates <span class="muted small">— your text, their layout</span></h2><div class="card"><h3>How</h3>${steps(d.templates.textHowto)}</div>${textOv}<div class="framelist" style="margin-top:10px">${d.templates.text.map(t => tplTile(d, t)).join('')}</div>
+    <h2>Pattern label templates <span class="muted small">— decorative tape, no text</span></h2><div class="card"><h3>How</h3>${steps(d.templates.patternHowto)}</div>${patOv}<div class="framelist" style="margin-top:10px">${d.templates.pattern.map(t => tplTile(d, t)).join('')}</div>`;
 }
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');

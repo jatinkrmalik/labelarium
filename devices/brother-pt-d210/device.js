@@ -127,6 +127,7 @@ export default {
   fontNote: 'The printed size depends on tape width, number of characters and lines. When characters hit the minimum size the device silently switches to a small Helsinki-based font so the label still fits. PT-D210 has 10 styles (no I+Solid).',
 
   symbols: {
+    total: 617,
     howto: [
       'Press [Symbol].',
       'Use [◀] / [▶] to choose {History}, {Basic} or {Pictograph}, then [OK]. (History = your last 7 symbols; no categories inside it.)',
@@ -440,6 +441,8 @@ export default {
   },
 
   frames: {
+    overview: 'img/frames/_overview.png',
+    itemCrops: false,
     howto: [
       'Press [Frame].',
       'Use [◀] / [▶] to browse, or simply type the frame number with the digit keys.',
@@ -557,6 +560,9 @@ export default {
     ],
   },
   templates: {
+    textOverview: 'img/templates/_text-overview.png',
+    patternOverview: 'img/templates/_pattern-overview.png',
+    itemCrops: false,
     notes: [
       'Templates need 12 mm (0.47") tape and cannot be edited or saved to memory. Max 50 characters.',
       'Text templates: no label length setting and no copies. Pattern templates: no text and no preview.',
