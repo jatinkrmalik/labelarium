@@ -276,10 +276,20 @@ function catCard(d, c) {
   return `<div class="card link" onclick="location.hash='/d/${d.id}/symbols/${c.id}'"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></div>`;
 }
 function openSheet(html) {
+  sheet.classList.remove('zoom');
   sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button>${html}</div>`;
   sheet.showModal();
 }
+function zoomable(src, alt, extraClass) {
+  return `<button type="button" class="${extraClass} zoomable" data-src="${esc(src)}" data-alt="${esc(alt)}" onclick="openZoom(this.dataset.src, this.dataset.alt)"><img src="${esc(src)}" alt="${esc(alt)}"><span class="kbd-hint">Tap to zoom</span></button>`;
+}
+window.openZoom = (src, alt) => {
+  sheet.classList.add('zoom');
+  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button><div class="zoom-hero"><img src="${esc(src)}" alt="${esc(alt)}"></div></div>`;
+  sheet.showModal();
+};
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
+sheet.addEventListener('close', () => sheet.classList.remove('zoom'));
 const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
 
 window.openSymbol = (id, catId, n) => {
@@ -321,7 +331,7 @@ function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters');
-    main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2><div class="card img-card"><img src="${a.image}" alt="Accented characters table"></div>
+    main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
       <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
@@ -330,8 +340,8 @@ function viewCategory(d, catId) {
   deviceTop(d, c.name);
   const how = steps(['Press [Symbol].', `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump straight to {${c.name}} (or [◀] / [▶] to it) → [OK].`, '[◀] / [▶] to the symbol (numbers below = position) → [OK].']);
   let body;
-  if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
-  else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
+  if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
+  else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
   main.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
 }
 function viewFrames(d, _, q) {
@@ -363,7 +373,7 @@ function viewShortcuts(d) {
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
-  main.innerHTML = `<div class="card kbd-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
+  main.innerHTML = `${zoomable(d.keyboard.image, 'Keyboard and LCD diagram', 'card kbd-card')}
     <h2>LCD indicators (1–7)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n <= 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>
     <h2>Keys (8–30)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n > 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`;
 }
