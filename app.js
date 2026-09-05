@@ -148,7 +148,15 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
-  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}${themeBtn()}</div>`;
+  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div><div class="top-right">${right}${themeBtn()}</div></div>`;
+}
+
+function deviceLabel(dev) {
+  const brand = dev.brand || '', name = dev.name || '';
+  if (!brand) return name;
+  const n = name.toLowerCase(), b = brand.toLowerCase();
+  if (n === b || n.startsWith(b + ' ')) return name;
+  return `${brand} ${name}`;
 }
 
 // ---------- home ----------
@@ -163,7 +171,7 @@ function renderHome(q = {}) {
   const card = dev => `<div class="card devtile link" onclick="location.hash='/d/${dev.id}'">
       <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
       <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <b>${esc(dev.brand)} ${esc(dev.name)}</b>
+      <b>${esc(deviceLabel(dev))}</b>
       <div class="muted small">${esc(dev.tagline)}</div>
     </div>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
@@ -298,11 +306,12 @@ function zoomable(src, alt, extraClass) {
 }
 window.openZoom = (src, alt) => {
   sheet.classList.add('zoom');
+  sheet.classList.toggle('photo', /\.jpe?g$/i.test(src));
   sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button><div class="zoom-hero"><img src="${esc(src)}" alt="${esc(alt)}"></div></div>`;
   sheet.showModal();
 };
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
-sheet.addEventListener('close', () => sheet.classList.remove('zoom'));
+sheet.addEventListener('close', () => sheet.classList.remove('zoom', 'photo'));
 const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
 
 window.openSymbol = (id, catId, n) => {
@@ -360,19 +369,33 @@ function viewCategory(d, catId) {
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
   const filter = q.f || 'all';
+  const numbered = d.frames.items.filter(f => f.n !== 'off' && Number.isFinite(+f.n));
+  const hasBasic = numbered.some(f => +f.n <= 17);
+  const hasPictures = numbered.some(f => +f.n > 17);
+  const hasWide = d.frames.items.some(f => f.wide);
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
   const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
+  const chips = [chip('all', 'All')];
+  if (hasBasic && hasPictures) {
+    chips.push(chip('basic', 'Boxes & lines (0–17)'));
+    chips.push(chip('pictures', 'With pictures (18–99)'));
+  }
+  if (hasWide) chips.push(chip('wide', '12 mm only'));
+  const chipRow = chips.length > 1 ? `<div class="chips">${chips.join('')}</div>` : '';
   main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
-    <div class="chips">${chip('all', 'All 100')}${chip('basic', 'Boxes & lines (0–17)')}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
-    <div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>`;
+    ${chipRow}
+    ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
 }
 // Filter chips: swap the query string in place and re-render without losing the scroll position.
 window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(null, '', `#/d/${id}/frames?f=${f}`); render().then(() => requestAnimationFrame(() => window.scrollTo(0, y))); };
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
+  const block = (title, sub, howto, items) => items.length
+    ? `<h2>${title} <span class="muted small">— ${sub}</span></h2><div class="card"><h3>How</h3>${steps(howto)}</div><div class="framelist" style="margin-top:10px">${items.map(t => tplTile(d, t)).join('')}</div>`
+    : '';
   main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
-    <h2>Text label templates <span class="muted small">— your text, their layout</span></h2><div class="card"><h3>How</h3>${steps(d.templates.textHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.text.map(t => tplTile(d, t)).join('')}</div>
-    <h2>Pattern label templates <span class="muted small">— decorative tape, no text</span></h2><div class="card"><h3>How</h3>${steps(d.templates.patternHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.pattern.map(t => tplTile(d, t)).join('')}</div>`;
+    ${block('Text label templates', 'your text, their layout', d.templates.textHowto, d.templates.text)}
+    ${block('Pattern label templates', 'decorative tape, no text', d.templates.patternHowto, d.templates.pattern)}`;
 }
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
@@ -386,9 +409,14 @@ function viewShortcuts(d) {
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
-  main.innerHTML = `${zoomable(d.keyboard.image, 'Keyboard and LCD diagram', 'card kbd-card')}
-    <h2>LCD indicators (1–7)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n <= 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>
-    <h2>Keys (8–30)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n > 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`;
+  const low = d.keyboard.legend.filter(([n]) => n <= 7);
+  const high = d.keyboard.legend.filter(([n]) => n > 7);
+  const photo = /\.jpe?g$/i.test(d.keyboard.image);
+  const band = (arr, label) => arr.length
+    ? `<h2>${label} (${arr[0][0]}–${arr[arr.length - 1][0]})</h2><div class="card legend">${arr.map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`
+    : '';
+  main.innerHTML = `${zoomable(d.keyboard.image, 'Diagram', photo ? 'card kbd-card kbd-photo' : 'card kbd-card')}
+    ${band(low, 'Callouts')}${band(high, 'Callouts')}`;
 }
 function viewHowto(d, [topic]) {
   deviceTop(d, 'How-to guides');
