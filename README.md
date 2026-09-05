@@ -12,7 +12,8 @@ presses for the design you built.
 
 Neoclassical × Bauhaus: ivory paper, Bodoni/New York display type, hairline double rules and centred
 small caps; a strict shared-border grid, Futura labels, and three primary marks (red circle, blue square,
-yellow triangle) as the only iconography. Light and dark. Responsive: compact single column on phones,
+yellow triangle) as the only iconography. Type is bundled: Bodoni Moda and Jost (SIL OFL, licences in
+`fonts/`), subset to Latin as ~70 KB of woff2 so it renders identically on every platform. Light and dark. Responsive: compact single column on phones,
 sticky section sidebar plus wide content column from 900 px up. Six alternative directions are mocked
 side by side in `concepts/index.html` (open `/concepts/` on the dev server).
 
