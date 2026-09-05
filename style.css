@@ -155,7 +155,7 @@ kbd.key.print { border-radius: 999px; padding: 6px 10px 5px; }
 .font-sample { font-size: 1.5rem; line-height: 1; margin-left: auto; white-space: nowrap; padding-left: 8px; }
 
 /* Keyboard */
-.kbd-img { width: 100%; }
+.kbd-img { display: block; width: 100%; height: auto; max-height: none; margin: 0; background: #fff; }
 .legend { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 20px; font-size: .9rem; }
 .legend div { padding: 8px 0; border-bottom: 1px solid var(--rule-soft); }
 .legend b { display: inline-block; min-width: 28px; font: 400 1.05rem/1 var(--serif); color: var(--red); }
