@@ -8,6 +8,14 @@ a name, keywords and its position on the device), 99 frames + underline, 25 temp
 22 shortcuts, 25 how-to guides, every LCD error message, and a label previewer that writes the recipe of key
 presses for the design you built.
 
+## Design language
+
+Neoclassical × Bauhaus: ivory paper, Bodoni/New York display type, hairline double rules and centred
+small caps; a strict shared-border grid, Futura labels, and three primary marks (red circle, blue square,
+yellow triangle) as the only iconography. Light and dark. Responsive: compact single column on phones,
+sticky section sidebar plus wide content column from 900 px up. Six alternative directions are mocked
+side by side in `concepts/index.html` (open `/concepts/` on the dev server).
+
 ## Run it
 
 ```bash

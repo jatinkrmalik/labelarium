@@ -1,6 +1,7 @@
 // Labelarium — vanilla JS, hash router, no build step.
 const $ = s => document.querySelector(s);
 const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
+let main = app; // device views render into the main column; home renders into the app root
 const store = {
   get(k, d) { try { return JSON.parse(localStorage.getItem('lab:' + k)) ?? d; } catch { return d; } },
   set(k, v) { localStorage.setItem('lab:' + k, JSON.stringify(v)); },
@@ -123,62 +124,70 @@ async function render() {
 }
 
 function setTop(title, { back, sub, right = '' } = {}) {
-  topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo">ABC</span>'}
+  topbar.classList.toggle('home', !back);
+  topbar.innerHTML = `<div class="inner">${back ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>` : '<span class="logo"></span>'}
     <div class="title">${esc(title)}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${right}</div>`;
 }
 
 // ---------- home ----------
 function renderHome() {
   setTop('Labelarium');
+  app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const card = dev => `<div class="card devcard link" onclick="location.hash='/d/${dev.id}'">
-      <div class="thumb">${esc(dev.model)}</div>
+      <div class="thumb"><span>${esc(dev.model)}</span></div>
       <div><b>${esc(dev.brand)} ${esc(dev.name)}</b><div class="muted small">${esc(dev.tagline)}</div></div>
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Favorite" onclick="event.stopPropagation();toggleFav('${dev.id}')">★</button></div>`;
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button></div>`;
   const favDevs = devices.filter(d => favs.includes(d.id));
   const brands = [...new Set(devices.map(d => d.brand))];
-  app.innerHTML = `<div class="hero-home"><h1>Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker — searchable, with pictures, offline.</p></div>
-    ${favDevs.length ? `<h2>★ My label makers</h2>${favDevs.map(card).join('')}` : '<p class="hint">Tap ★ on a label maker to pin it here.</p>'}
-    ${brands.map(b => `<h2>${esc(b)}</h2>${devices.filter(d => d.brand === b).map(card).join('')}`).join('')}
-    <p class="footer">Add another label maker by dropping a folder into <code>devices/</code> and listing it in <code>devices/index.json</code>.</p>`;
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1>Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
+    ${favDevs.length ? `<h2>Pinned</h2><div class="devlist">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+    ${brands.map(b => `<h2>${esc(b)}</h2><div class="devlist">${devices.filter(d => d.brand === b).map(card).join('')}</div>`).join('')}
+    <p class="footer">Another label maker? Drop a folder into <code>devices/</code> and list it in <code>devices/index.json</code>.</p>`;
 }
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
 // ---------- device home + search ----------
 const SECTIONS = [
-  ['keyboard', '⌨️', 'Keyboard map', 'Where every key is and what it does'],
-  ['symbols', '☺', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
-  ['frames', '▭', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
-  ['templates', '🏷', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
-  ['fonts', '🅰', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
-  ['shortcuts', '⚡', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
-  ['howto', '📖', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
-  ['trouble', '🛠', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
-  ['preview', '🎨', 'Label preview', 'Design a label, get the recipe'],
-  ['specs', 'ℹ️', 'Specs & tapes', 'Tape widths, limits, links'],
+  ['keyboard', 'bar', 'Keyboard map', 'Where every key is and what it does'],
+  ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
+  ['frames', 'sq-blue', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
+  ['templates', 'tr-yellow', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
+  ['fonts', 'ring', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
+  ['shortcuts', 'dia', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
+  ['howto', 'half', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
+  ['trouble', 'sq-red', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
+  ['preview', 'ci-yellow', 'Label preview', 'Design a label, get the recipe'],
+  ['specs', 'ci-blue', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
-  const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Favorite" onclick="toggleFav('${d.id}')">★</button>`;
+  const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
+  const cur = route().seg[2] || 'home';
+  const nav = [['home', 'ci-red', 'Overview & search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])]
+    .map(([id, ico, name]) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i>${name}</a>`).join('');
+  app.className = 'app with-side';
+  app.innerHTML = `<nav class="side"><div class="dev"><b>${esc(d.model)}</b><span>${esc(d.brand)} · ${esc(d.name)}</span></div>${nav}</nav><section class="main" id="main"></section>`;
+  main = $('#main');
 }
 function searchBox(d, q) {
-  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" placeholder="Search: warning, arrow, gift, margin, mirror…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
 window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `#/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
-  app.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections"></div>`;
+  main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections"></div>`;
   if (q.q) renderResults(d, q.q, true); else renderSections(d);
   if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function renderSections(d) {
-  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico">${ico}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
+  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
   const saved = store.get('offline:' + d.id);
   $('#sections').innerHTML = `<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div>
-    <h2>Quick tips</h2>${d.tips.map(t => `<div class="card small">💡 ${fmt(t)}</div>`).join('')}
+    <h2>Quick tips</h2>${d.tips.map((t, i) => `<div class="card small" style="display:flex;gap:12px"><span style="font:400 1.1rem/1.3 var(--serif);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}
     <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div>`;
 }
@@ -194,7 +203,7 @@ function renderResults(d, q, firstPaint) {
   let html = '';
   for (const type of Object.keys(names)) {
     const g = groups[type]; if (!g) continue;
-    html += `<div class="result-h"><h2 style="margin:0">${names[type]}</h2><span class="cnt">${g.length}</span></div>`;
+    html += `<div class="result-h"><h2>${names[type]}</h2><span class="cnt">${g.length}</span></div>`;
     if (type === 'symbol') html += `<div class="symgrid">${g.slice(0, 60).map(r => glyphTile(d, r.item, true)).join('')}</div>`;
     else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
     else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
@@ -247,7 +256,7 @@ const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).joi
 
 window.openSymbol = (id, catId, n) => {
   const d = loaded[id], c = d.symbols.categories.find(x => x.id === catId), it = c.items[n - 1];
-  openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 style="margin:0">${esc(it.name)}</h2>
+  openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 class="t">${esc(it.name)}</h2>
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
     <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
     <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
@@ -256,7 +265,7 @@ window.openSymbol = (id, catId, n) => {
 window.openFrame = (id, n) => {
   const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
   const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
-  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 style="margin:0">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
+  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
     <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
@@ -264,7 +273,7 @@ window.openFrame = (id, n) => {
 };
 window.openTemplate = (id, kind, n) => {
   const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
-  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 style="margin:0">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
+  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
     <p><span class="pill warn">12 mm (0.47") tape only</span></p>
     <h3 style="margin-top:14px">How to use</h3>${steps((kind === 'text' ? d.templates.textHowto : d.templates.patternHowto).map(s => s.replace('the design (number below)', `design number ${pad2(t.n)}`).replace('pick the pattern', `pick pattern ${pad2(t.n)}`)))}
     <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>`);
@@ -275,7 +284,7 @@ function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
-  app.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
+  main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
     <h2>Basic <span class="muted small">— text characters</span></h2>${grp('Basic')}
     <h2>Pictograph <span class="muted small">— pictures</span></h2>${grp('Pictograph')}
     <h2>Accented letters</h2><div class="card link" onclick="location.hash='/d/${d.id}/symbols/accented'"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></div>`;
@@ -284,7 +293,7 @@ function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters');
-    app.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2><div class="card img-card"><img src="${a.image}" alt="Accented characters table"></div>
+    main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2><div class="card img-card"><img src="${a.image}" alt="Accented characters table"></div>
       <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
@@ -295,52 +304,52 @@ function viewCategory(d, catId) {
   let body;
   if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
   else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2><div class="card img-card"><img src="${c.img}" alt=""></div>`;
-  app.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
+  main.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
 }
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
   const filter = q.f || 'all';
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
   const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="history.replaceState(null,'','#/d/${d.id}/frames?f=${id}');render()">${label}</button>`;
-  app.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
+  main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
     <div class="chips">${chip('all', 'All 100')}${chip('basic', 'Boxes & lines (0–17)')}${chip('pictures', 'With pictures (18–99)')}${chip('wide', '12 mm only')}</div>
     <div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>`;
 }
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
-  app.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
+  main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
     <h2>Text label templates <span class="muted small">— your text, their layout</span></h2><div class="card"><h3>How</h3>${steps(d.templates.textHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.text.map(t => tplTile(d, t)).join('')}</div>
     <h2>Pattern label templates <span class="muted small">— decorative tape, no text</span></h2><div class="card"><h3>How</h3>${steps(d.templates.patternHowto)}</div><div class="framelist" style="margin-top:10px">${d.templates.pattern.map(t => tplTile(d, t)).join('')}</div>`;
 }
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
   const list = (title, arr, menu) => `<h2>${title} <span class="muted small">— ${fmt(`[Font] → {${menu}} → [OK]`)}</span></h2><div class="fontlist">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
-  app.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
+  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
     ${list('Fonts', d.fonts, 'Font')}${list('Sizes', d.sizes, 'Size')}${list('Widths', d.widths, 'Width')}${list('Styles', d.styles, 'Style')}${list('Alignment', d.alignments, 'Alignment')}`;
 }
 function viewShortcuts(d) {
   deviceTop(d, 'Shortcuts');
-  app.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p>${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}`;
+  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p>${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}`;
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
-  app.innerHTML = `<div class="card img-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
+  main.innerHTML = `<div class="card img-card"><img class="kbd-img" src="${d.keyboard.image}" alt="Keyboard and LCD diagram"></div>
     <h2>LCD indicators (1–7)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n <= 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>
     <h2>Keys (8–30)</h2><div class="card legend">${d.keyboard.legend.filter(([n]) => n > 7).map(([n, name, desc]) => `<div><b>${n}</b> <strong>${esc(name)}</strong><div class="muted small">${fmt(desc)}</div></div>`).join('')}</div>`;
 }
 function viewHowto(d, [topic]) {
   deviceTop(d, 'How-to guides');
-  app.innerHTML = `<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
+  main.innerHTML = `<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
   if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
 }
 function viewTrouble(d) {
   deviceTop(d, 'Troubleshooting');
-  app.innerHTML = `<h2>Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
+  main.innerHTML = `<h2>Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
     <h2>What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
 }
 function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
-  app.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
+  main.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
     <h2>Tape widths</h2>${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}
     <h2>Links</h2>${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}`;
 }
@@ -353,7 +362,7 @@ function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
   const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
-  app.innerHTML = `<div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
+  main.innerHTML = `<div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
   <div class="card ctl" id="ctl">
     <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}"></label>
     <label class="full">Line 2 <span class="muted">(9 / 12 mm tape)</span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''}></label>
@@ -407,7 +416,11 @@ function drawTape(d, s) {
   // scaleX does not affect layout, so widen the box by hand
   const inner = t.querySelector('.txt'); const w = inner.getBoundingClientRect().width;
   if (width !== 1) inner.style.margin = `0 ${(w * width - w) / 2}px`;
-  const totalMm = Math.round(t.getBoundingClientRect().width / PX);
+  const tapeW = t.getBoundingClientRect().width, tapeH = s.tape * PX;
+  const totalMm = Math.round(tapeW / PX);
+  // shrink to fit the phone: real size when it fits, scaled down otherwise
+  const avail = el.parentElement.clientWidth - 28, k = Math.min(1, avail / tapeW);
+  el.className = 'tapefit'; el.style.width = `${tapeW * k}px`; el.style.height = `${tapeH * k}px`; t.style.transform = `scale(${k})`;
   const over = s.length && totalMm > s.length;
   $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
   // recipe
