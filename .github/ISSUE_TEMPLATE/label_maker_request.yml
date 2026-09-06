@@ -1,0 +1,47 @@
+name: Request a label maker
+description: Ask for support for another label-maker model
+title: "[Label maker] "
+labels: ["enhancement", "label-maker-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Want Labelarium to cover a device that is not in the catalog yet? Fill this in with as much as you have.
+  - type: input
+    id: brand
+    attributes:
+      label: Brand
+      description: Manufacturer name.
+      placeholder: e.g. Brother, DYMO, Brady
+    validations:
+      required: true
+  - type: input
+    id: model
+    attributes:
+      label: Model
+      description: Exact model name or number.
+      placeholder: e.g. PT-D220, LabelManager 160
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it would be useful
+      description: Who uses this maker, and what you want to look up (symbols, frames, shortcuts, preview, …).
+    validations:
+      required: true
+  - type: textarea
+    id: manuals
+    attributes:
+      label: Links to manuals
+      description: Official user guide, insertion sheet, or support pages with symbol/frame catalogs.
+      placeholder: https://
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: Extra notes
+      description: Anything else that would help (region variants, firmware, photos of the LCD). Optional.
+    validations:
+      required: false
