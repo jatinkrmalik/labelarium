@@ -113,6 +113,15 @@ fonts/                          bundled Bodoni Moda + Jost (SIL OFL)
 If Labelarium is useful, [buy me a coffee on GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
 Want another model in the catalog? [Request a label maker](https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml) via Issues.
 
+## Community
+
+PRs and new device packs are welcome. Start with [CONTRIBUTING](CONTRIBUTING.md)
+(draft first, official manuals only). We follow a
+[code of conduct](CODE_OF_CONDUCT.md). Vulnerabilities go to
+[SECURITY](SECURITY.md), not a public issue. Everyday bugs and requests live in
+[Issues](https://github.com/jatinkrmalik/labelarium/issues). Coffee still lives
+on [Sponsors](https://github.com/sponsors/jatinkrmalik).
+
 ## Licence
 
 Code is licensed under the GNU Affero General Public License v3.0. See `LICENSE`. In short: you may use,
