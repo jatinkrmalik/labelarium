@@ -413,7 +413,7 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 }
 .footer a { color: inherit; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; white-space: nowrap; }
 .footer .f-left { justify-self: start; text-align: left; }
-.footer .f-mid { justify-self: center; text-align: center; }
+.footer .f-mid { justify-self: center; text-align: center; white-space: nowrap; }
 .footer .f-right { justify-self: end; text-align: right; }
 @media (max-width: 520px) {
   .footer { font-size: 12px; gap: 6px 8px; }
