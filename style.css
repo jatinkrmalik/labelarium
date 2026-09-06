@@ -40,6 +40,24 @@
 .tmark.dark { background: var(--ink); }                                                   /* solid disc */
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
+
+/* Scrollbar: thin geometric strip — paper track, ink thumb, square ends (Bauhaus, not iOS pill). */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ink) var(--plate-2);
+}
+*::-webkit-scrollbar { width: 8px; height: 8px; }
+*::-webkit-scrollbar-track {
+  background: var(--plate-2);
+  border-left: 1px solid var(--soft);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--ink);
+  border: 2px solid var(--plate-2);
+}
+*::-webkit-scrollbar-thumb:hover { background: var(--red); }
+*::-webkit-scrollbar-corner { background: var(--plate-2); }
+
 body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.45 var(--sans); }
 a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; }
 button { font: inherit; color: inherit; }
@@ -351,9 +369,9 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 }
 .devtile .dev-icon img {
   position: absolute;
-  inset: 12px;
-  width: calc(100% - 24px);
-  height: calc(100% - 24px);
+  inset: 6px;
+  width: calc(100% - 12px);
+  height: calc(100% - 12px);
   max-width: none;
   max-height: none;
   margin: 0;
@@ -362,6 +380,21 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   object-fit: contain;
   object-position: center;
   box-sizing: border-box;
+}
+/* Phone / 2-col: icons are the major visual — fill the well harder */
+@media (max-width: 699px) {
+  .devtile.card.link {
+    grid-template-rows: minmax(0, 1fr) 2.2em 2.2em;
+    gap: 4px;
+    padding: 8px 8px 10px;
+  }
+  .devtile b { font-size: 13px; height: 2.2em; }
+  .devtile .muted { font-size: 10px; height: 2.2em; }
+  .devtile .dev-icon img {
+    inset: 2px;
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+  }
 }
 .devtile .star { position: absolute; top: 8px; right: 8px; z-index: 1; margin: 0; border: 0; background: transparent; font-size: 18px; cursor: pointer; color: var(--ink); width: 32px; height: 32px; line-height: 1; }
 .devtile .star.on { color: var(--red); }
