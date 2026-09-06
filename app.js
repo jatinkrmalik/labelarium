@@ -729,19 +729,27 @@ function drawTape(d, s) {
 // Capture the prompt immediately; only show the bar after a few distinct device screens.
 let deferredInstall = null;
 const INSTALL_SCREENS = 3;
+const INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 const isStandaloneApp = () => window.matchMedia('(display-mode: standalone)').matches
   || window.matchMedia('(display-mode: fullscreen)').matches
   || window.navigator.standalone === true;
 const isIosDevice = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
   || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
+// Old builds hid forever on dismiss via install-hide. Convert once to a 7-day snooze.
+if (store.get('install-hide', false) === true) {
+  store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
+  try { localStorage.removeItem('lab:install-hide'); } catch {}
+}
+
 function hideInstallBar(persist) {
   const bar = document.getElementById('install-bar');
   if (bar) bar.hidden = true;
-  if (persist) store.set('install-hide', true);
+  if (persist) store.set('install-done', true);
 }
 function showInstallBar(kind) {
-  if (isStandaloneApp() || store.get('install-hide', false)) return;
+  if (isStandaloneApp() || store.get('install-done', false)) return;
+  if (Date.now() < store.get('install-hide-until', 0)) return;
   let bar = document.getElementById('install-bar');
   if (!bar) {
     bar = document.createElement('div');
@@ -750,10 +758,10 @@ function showInstallBar(kind) {
     document.body.prepend(bar);
   }
   if (kind === 'ios') {
-    bar.innerHTML = `<p>Add Labelarium to your Home Screen: tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+    bar.innerHTML = `<p>Add Labelarium to your Home Screen to use it locally, even offline. Tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
       <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
   } else {
-    bar.innerHTML = `<p>Install Labelarium as an app on this phone.</p>
+    bar.innerHTML = `<p>Install Labelarium on your phone. Use it locally, even offline.</p>
       <button class="btn" type="button" onclick="acceptInstall()">Install</button>
       <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
   }
@@ -775,7 +783,10 @@ function maybeShowInstallBar() {
   if (deferredInstall) showInstallBar('chrome');
   else if (isIosDevice()) showInstallBar('ios');
 }
-window.dismissInstall = () => hideInstallBar(true);
+window.dismissInstall = () => {
+  hideInstallBar(false);
+  store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
+};
 window.acceptInstall = async () => {
   if (!deferredInstall) return;
   deferredInstall.prompt();
