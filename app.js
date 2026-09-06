@@ -316,16 +316,19 @@ async function render() {
   if (!route().q.q) window.scrollTo(0, 0);
 }
 
+const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 38" width="56" height="38" aria-hidden="true" focusable="false"><g transform="rotate(-26 28 19)"><rect x="-16" y="8" width="88" height="22" fill="#e8b820"/><rect x="-16" y="8" width="88" height="3" fill="#141414"/><rect x="-16" y="27" width="88" height="3" fill="#141414"/><text x="28" y="24" text-anchor="middle" font-family="Jost,Futura,'Century Gothic',sans-serif" font-weight="700" font-size="13" fill="#141414">ABC</text></g></svg>`;
+
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
   const logo = back
     ? `<a class="iconbtn" href="${esc(back)}" aria-label="Back">‹</a>`
-    : '<span class="logo"></span>';
+    : TAPE_MARK;
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
   const actions = right ? `<div class="top-right">${right}</div>` : '';
-  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
+  const titleClass = back ? 'title' : 'title sr-only';
+  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="${titleClass}"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
 }
 
 function deviceLabel(dev) {
