@@ -108,6 +108,10 @@ docs/screenshots/               phone product shots for this README
 fonts/                          bundled Bodoni Moda + Jost (SIL OFL)
 ```
 
+## Support
+
+If Labelarium is useful, [sponsor it on GitHub](https://github.com/sponsors/jatinkrmalik).
+
 ## Licence
 
 Code is licensed under the GNU Affero General Public License v3.0. See `LICENSE`. In short: you may use,
