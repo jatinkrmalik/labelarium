@@ -78,6 +78,10 @@ Open <http://localhost:8321>. On a phone on the same Wi-Fi use `http://<your-com
 
 Installing as an app (and the offline cache) requires a secure context: `localhost`, or any HTTPS host.
 The whole thing is static files, so GitHub Pages / Netlify / Cloudflare Pages work as-is.
+Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages
+serves `404.html` (a copy of the app shell) for those paths; keep it in sync with `index.html`.
+Python's built-in server does not: after the first load, in-app links still work, but a
+refresh on a deep path 404s unless the host rewrites to the shell.
 On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
 
 ## Deploy
@@ -99,10 +103,13 @@ hosts provide it. No build step, no environment variables.
 ## Layout
 
 ```
-index.html  app.js  style.css   app shell (hash router, search, views, previewer)
+index.html  app.js  style.css   app shell (History API router, search, views, previewer)
+404.html                        GitHub Pages SPA fallback (keep in sync with index.html)
+robots.txt  sitemap.xml         crawlers; path URLs on labelarium.com
 sw.js  manifest.webmanifest     PWA: precached shell, cache-first runtime, "Save offline" per device
 devices/index.json              list of label makers
 devices/<id>/                   device.js data + img/ assets from the official guide
+icons/og.png                    Open Graph image (1200×630); optional source icons/og.svg
 icons/devices/                  homepage / rail printer SVGs
 docs/screenshots/               phone product shots for this README
 fonts/                          bundled Bodoni Moda + Jost (SIL OFL)

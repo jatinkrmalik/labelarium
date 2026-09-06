@@ -1,5 +1,5 @@
 // Labelarium — Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
-// Labelarium — vanilla JS, hash router, no build step.
+// Labelarium — vanilla JS, History API router, no build step.
 const $ = s => document.querySelector(s);
 const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
 let main = app; // device views render into the main column; home renders into the app root
@@ -21,7 +21,7 @@ let devices = [];
 const loaded = {};
 const SAFE_ID = /^[a-z0-9-]+$/;
 
-async function loadIndex() { devices = await (await fetch('devices/index.json')).json(); }
+async function loadIndex() { devices = await (await fetch('/devices/index.json')).json(); }
 
 async function loadDevice(id) {
   if (loaded[id]) return loaded[id];
@@ -33,6 +33,7 @@ async function loadDevice(id) {
 
 // Expand compact arrays into objects and build the search index.
 function normalize(d, base) {
+  if (base && base[0] !== '/') base = '/' + base;
   d.base = base;
   d.symbols.categories.forEach(c => {
     c.items = (c.items || []).map(([name, kw, ch], i) => ({ n: i + 1, name, kw, ch, img: `${base}img/symbols/${c.id}-${pad2(i + 1)}.png`, cat: c }));
@@ -97,32 +98,217 @@ function close(a, b) { // Levenshtein distance <= 1
   return edits + (a.length - i) + (b.length - j) <= 1;
 }
 
-// ---------- router ----------
+// ---------- router (History API) ----------
+const SITE = 'https://labelarium.com';
+const OG_IMAGE = SITE + '/icons/og.png';
+const HOME_TITLE = 'Labelarium';
+const HOME_DESC = 'Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.';
+
 function route() {
-  const h = location.hash.replace(/^#\/?/, '');
-  const [path, qs] = h.split('?');
+  let path = location.pathname || '/';
+  if (path.length > 1 && path.endsWith('/')) {
+    path = path.replace(/\/+$/, '') || '/';
+    history.replaceState(null, '', path + location.search);
+  }
   const seg = path.split('/').filter(Boolean);
-  const q = Object.fromEntries(new URLSearchParams(qs || ''));
-  return { seg, q };
+  const q = Object.fromEntries(new URLSearchParams(location.search));
+  return { seg, q, path };
 }
-const go = (path, replace) => { if (replace) { history.replaceState(null, '', '#' + path); return render(); } location.hash = path; };
-window.addEventListener('hashchange', render);
+function go(path, replace) {
+  const next = path.startsWith('/') ? path : '/' + String(path).replace(/^#\/?/, '');
+  if (replace) history.replaceState(null, '', next);
+  else history.pushState(null, '', next);
+  return render();
+}
+window.go = go;
+
+function migrateHash() {
+  const h = location.hash;
+  if (!h || h === '#') return;
+  if (!/^#\//.test(h) && h !== '#/') return;
+  const here = location.pathname || '/';
+  if (here !== '/') return;
+  const raw = h.replace(/^#\/?/, '');
+  const [p, qs] = raw.split('?');
+  const segs = (p || '').split('/').filter(Boolean);
+  const path = segs.length ? '/' + segs.join('/') : '/';
+  history.replaceState(null, '', path + (qs ? '?' + qs : ''));
+}
+
+function isAppHref(url) {
+  return url.origin === location.origin && (url.pathname === '/' || url.pathname.startsWith('/d/'));
+}
+document.addEventListener('click', e => {
+  if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const a = e.target.closest('a[href]');
+  if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
+  let url;
+  try { url = new URL(a.getAttribute('href'), location.origin); } catch { return; }
+  if (!isAppHref(url)) return;
+  e.preventDefault();
+  const next = url.pathname + url.search;
+  if (next === location.pathname + location.search) return;
+  history.pushState(null, '', next);
+  render();
+});
+window.addEventListener('popstate', () => render());
+
+function setMeta(key, content, attr = 'name') {
+  let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+  if (!el) {
+    el = document.createElement('meta');
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute('content', content);
+}
+function applySeo(title, desc, path, jsonld) {
+  document.title = title;
+  const url = SITE + (path === '/' ? '/' : path);
+  let canon = document.head.querySelector('link[rel="canonical"]');
+  if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
+  canon.href = url;
+  setMeta('description', desc);
+  setMeta('og:title', title, 'property');
+  setMeta('og:description', desc, 'property');
+  setMeta('og:url', url, 'property');
+  setMeta('og:image', OG_IMAGE, 'property');
+  setMeta('twitter:title', title);
+  setMeta('twitter:description', desc);
+  setMeta('twitter:image', OG_IMAGE);
+  const ld = document.getElementById('jsonld');
+  if (ld && jsonld) ld.textContent = JSON.stringify(jsonld);
+}
+function countSymbols(d) {
+  return d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : (c.chars ? c.chars.split(' ').length : 0))), 0);
+}
+function packSummary(d) {
+  const bits = [];
+  const nCat = d.symbols.categories.length;
+  const nSym = countSymbols(d);
+  if (nCat && nSym) bits.push(`${nSym} symbols in ${nCat} categories`);
+  const nFrames = d.frames.items.filter(f => f.n !== 'off').length;
+  if (nFrames) bits.push(`${nFrames} frames`);
+  const nTpl = d.templates.text.length + d.templates.pattern.length;
+  if (nTpl) bits.push(`${nTpl} templates`);
+  if (d.fonts.length > 1) bits.push(`${d.fonts.length} fonts`);
+  else if (d.fonts.length === 1 && d.fonts[0].name && !/app|print master|express labels|p-touch editor|niimbot/i.test(d.fonts[0].name))
+    bits.push(`${d.fonts[0].name} typeface`);
+  if (d.styles.length > 1) bits.push(`${d.styles.length} styles`);
+  if (d.shortcuts.length) bits.push(`${d.shortcuts.length} shortcuts`);
+  if (d.howto.length) bits.push(`${d.howto.length} how-to guides`);
+  return bits.join(', ');
+}
+function webPageLd(title, desc, url, extra = {}) {
+  return { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description: desc, url, isPartOf: { '@type': 'WebApplication', name: 'Labelarium', url: SITE + '/' }, image: OG_IMAGE, ...extra };
+}
+function homeJsonLd() {
+  return {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'WebApplication', '@id': SITE + '/#app', name: 'Labelarium', url: SITE + '/', description: HOME_DESC,
+        applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', browserRequirements: 'Requires JavaScript',
+        isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+        license: 'https://www.gnu.org/licenses/agpl-3.0.html', image: OG_IMAGE,
+        author: { '@type': 'Person', name: 'Jatin Malik', url: 'https://x.com/jatinkrmalik' },
+      },
+      {
+        '@type': 'ItemList', name: 'Supported label makers', numberOfItems: devices.length,
+        itemListElement: devices.map((d, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/d/' + d.id, name: deviceLabel(d) })),
+      },
+    ],
+  };
+}
+function applyHomeSeo(q) {
+  const brand = q.brand;
+  if (brand && devices.some(d => d.brand === brand)) {
+    const names = devices.filter(d => d.brand === brand).map(d => d.name).join(', ');
+    applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, '/', homeJsonLd());
+    return;
+  }
+  applySeo(HOME_TITLE, HOME_DESC, '/', homeJsonLd());
+}
+function applyDeviceSeo(d, section, rest) {
+  const label = deviceLabel(d);
+  const model = d.model;
+  const about = { '@type': 'Product', name: label, brand: d.brand, model: d.model };
+  const page = (title, desc, path) => applySeo(title, desc, path, webPageLd(title, desc, SITE + path, { about }));
+  if (!section || section === 'home') {
+    const sum = packSummary(d);
+    page(`${label} · Labelarium`, sum ? `${label}: ${d.tagline}. ${sum}. Searchable, with pictures, offline.` : `${label}: ${d.tagline}. Searchable, with pictures, offline.`, `/d/${d.id}`);
+    return;
+  }
+  if (section === 'keyboard') return page(`Keyboard map · ${model} · Labelarium`, `Controls on the ${label}: ${d.keyboard.legend.length} callouts, with a tap-to-zoom diagram.`, `/d/${d.id}/keyboard`);
+  if (section === 'symbols') {
+    const catId = rest[0];
+    if (catId === 'accented') return page(`Accented letters · ${model} · Labelarium`, `Accent key table for the ${label}.`, `/d/${d.id}/symbols/accented`);
+    if (catId) {
+      const c = d.symbols.categories.find(x => x.id === catId);
+      if (c) {
+        const n = c.items.length || (c.chars ? c.chars.split(' ').length : 0);
+        return page(`${c.name} symbols · ${model} · Labelarium`, `${c.name} (${c.group}) on the ${label}: ${n} symbols, with insert steps.`, `/d/${d.id}/symbols/${c.id}`);
+      }
+    }
+    const nCat = d.symbols.categories.length, nSym = countSymbols(d);
+    return page(`Symbols · ${model} · Labelarium`, nCat ? `Symbol catalog for the ${label}: ${nSym} entries in ${nCat} categories, with on-device steps.` : `No on-device symbol catalog is published for the ${label} in this pack.`, `/d/${d.id}/symbols`);
+  }
+  if (section === 'frames') {
+    const n = d.frames.items.filter(f => f.n !== 'off').length;
+    return page(`Frames · ${model} · Labelarium`, n ? `Frames on the ${label}: ${n} designs, numbered as on the device.` : `No on-device frame sheet is published for the ${label} in this pack.`, `/d/${d.id}/frames`);
+  }
+  if (section === 'templates') {
+    const nText = d.templates.text.length, nPat = d.templates.pattern.length;
+    return page(`Templates · ${model} · Labelarium`, (nText + nPat) ? `Templates on the ${label}: ${nText} text, ${nPat} pattern.` : `No on-device template library is published for the ${label} in this pack.`, `/d/${d.id}/templates`);
+  }
+  if (section === 'fonts') {
+    const nF = d.fonts.length, nS = d.styles.length;
+    const desc = nF > 1
+      ? `Type on the ${label}: ${nF} fonts, ${nS} styles, plus size, width and alignment.`
+      : `Type settings for the ${label}${d.fontNote ? ': ' + String(d.fontNote).split('.')[0] + '.' : '.'}`;
+    return page(`Fonts & styles · ${model} · Labelarium`, desc, `/d/${d.id}/fonts`);
+  }
+  if (section === 'shortcuts') return page(`Shortcuts · ${model} · Labelarium`, `${d.shortcuts.length} key combos and hidden tricks on the ${label}.`, `/d/${d.id}/shortcuts`);
+  if (section === 'howto') {
+    const topic = rest[0];
+    const h = topic && d.howto.find(x => x.id === topic);
+    if (h) return page(`${h.title} · ${model} · Labelarium`, `${h.title} on the ${label}.`, `/d/${d.id}/howto/${h.id}`);
+    return page(`How-to guides · ${model} · Labelarium`, `${d.howto.length} step-by-step guides for the ${label}.`, `/d/${d.id}/howto`);
+  }
+  if (section === 'trouble') {
+    const desc = (d.errors.length || d.problems.length)
+      ? `LCD messages and fixes for the ${label}: ${d.errors.length} messages, ${d.problems.length} problems.`
+      : `Troubleshooting notes for the ${label}.`;
+    return page(`Troubleshooting · ${model} · Labelarium`, desc, `/d/${d.id}/trouble`);
+  }
+  if (section === 'preview') return page(`Label preview · ${model} · Labelarium`, `Design a label for the ${label} and get the key-press recipe.`, `/d/${d.id}/preview`);
+  if (section === 'specs') return page(`Specs & tapes · ${model} · Labelarium`, `Tape widths, limits and official links for the ${label}.`, `/d/${d.id}/specs`);
+}
 
 async function render() {
   const { seg, q } = route();
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (seg[0] !== 'd') return renderHome(q);
+    if (!seg.length) { applyHomeSeo(q); return renderHome(q); }
+    if (seg[0] !== 'd' || !seg[1]) {
+      applySeo('Not found · Labelarium', 'That page is not in Labelarium.', '/');
+      setTop('Not found', { back: '/' });
+      app.className = 'app';
+      app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
+      return;
+    }
     const d = await loadDevice(seg[1]);
     const section = seg[2] || 'home';
     const views = { home: viewDeviceHome, symbols: viewSymbols, frames: viewFrames, templates: viewTemplates, fonts: viewFonts, shortcuts: viewShortcuts, keyboard: viewKeyboard, howto: viewHowto, trouble: viewTrouble, preview: viewPreview, specs: viewSpecs };
     if (!views[section]) return go(`/d/${d.id}`, true);
+    applyDeviceSeo(d, section, seg.slice(3));
     views[section](d, seg.slice(3), q);
   } catch (e) {
-    setTop('Labelarium');
+    setTop('Labelarium', { back: '/' });
+    applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', '/');
     app.className = 'app';
-    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="#/">Back to all label makers</a></div>`;
+    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="/">Back to all label makers</a></div>`;
     console.error(e);
   }
   if (!route().q.q) window.scrollTo(0, 0);
@@ -131,10 +317,10 @@ async function render() {
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
   const logo = back
-    ? `<button class="iconbtn" onclick="location.hash='${back}'" aria-label="Back">‹</button>`
+    ? `<a class="iconbtn" href="${esc(back)}" aria-label="Back">‹</a>`
     : '<span class="logo"></span>';
   const deviceIcon = deviceId
-    ? `<img class="dev-top" src="icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
+    ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
   const actions = right ? `<div class="top-right">${right}</div>` : '';
   topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
@@ -157,10 +343,12 @@ function renderHome(q = {}) {
   const brands = [...new Set(devices.map(d => d.brand))];
   const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
   const favDevs = devices.filter(d => favs.includes(d.id));
-  const card = dev => `<div class="card devtile link" onclick="location.hash='/d/${dev.id}'">
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
-      <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
+  const card = dev => `<div class="card devtile link">
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
+      <a class="devtile-hit" href="/d/${dev.id}">
+      <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt=""></div>
       <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
+      </a>
     </div>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
@@ -170,7 +358,7 @@ function renderHome(q = {}) {
     <div class="devgrid">${list.map(card).join('')}</div>
     <p class="footer"><a class="f-left" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a> · <a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>`;
 }
-window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '#/' : `#/?brand=${encodeURIComponent(b)}`); render(); };
+window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '/' : '/?brand=' + encodeURIComponent(b)); render(); };
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
 // ---------- device home + search ----------
@@ -189,12 +377,12 @@ const SECTIONS = [
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
   const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
-  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: star + (section ? `<button class="iconbtn" aria-label="Search" onclick="location.hash='/d/${d.id}'">⌕</button>` : '') });
+  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: star + (section ? `<a class="iconbtn" href="/d/${d.id}" aria-label="Search">⌕</a>` : '') });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
-  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="#/" title="All label makers"><img class="dev-rail" src="icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
   app.className = 'app device';
@@ -204,13 +392,13 @@ function deviceTop(d, section, sub) {
 window.openMore = id => {
   const d = loaded[id], cur = route().seg[2] || 'home';
   const rest = SECTIONS.filter(([sid]) => !['symbols', 'frames', 'preview'].includes(sid));
-  openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="#/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
+  openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
 };
 function searchBox(d, q) {
   return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
-window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `#/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
+window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
@@ -219,7 +407,7 @@ function viewDeviceHome(d, _, q) {
   if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function renderSections(d) {
-  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
+  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   $('#sections').innerHTML = `<div class="col"><p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
     <aside class="col"><h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
@@ -245,13 +433,13 @@ function renderResults(d, q, firstPaint) {
     else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
     else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
     else if (type === 'symbol-category') html += g.map(r => catCard(d, r.cat)).join('');
-    else if (type === 'howto') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/howto/${r.item.id}'"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'howto') html += g.map(r => `<a class="card link" href="/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></a>`).join('');
     else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
-    else if (type === 'font') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
-    else if (type === 'style') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></div>`).join('');
+    else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'style') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></a>`).join('');
     else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
     else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
-    else if (type === 'key') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/keyboard'"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
   }
   box.innerHTML = html;
 }
@@ -282,7 +470,7 @@ function tplTile(d, t) {
 }
 function catCard(d, c) {
   const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
-  return `<div class="card link" onclick="location.hash='/d/${d.id}/symbols/${c.id}'"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></div>`;
+  return `<a class="card link" href="/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></a>`;
 }
 function openSheet(html) {
   sheet.classList.remove('zoom');
@@ -308,7 +496,7 @@ window.openSymbol = (id, catId, n) => {
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
     <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
     <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
-    <p style="margin-top:12px"><a href="#/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
+    <p style="margin-top:12px"><a href="/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
 };
 window.openFrame = (id, n) => {
   const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
@@ -317,7 +505,7 @@ window.openFrame = (id, n) => {
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
     <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
-    <p style="margin-top:12px"><a href="#/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
+    <p style="margin-top:12px"><a href="/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
 };
 window.openTemplate = (id, kind, n) => {
   const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
@@ -335,7 +523,7 @@ function viewSymbols(d, [catId]) {
   main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
     <h2>Basic <span class="muted small">— text characters</span></h2>${grp('Basic')}
     <h2>Pictograph <span class="muted small">— pictures</span></h2>${grp('Pictograph')}
-    <h2>Accented letters</h2><div class="card link" onclick="location.hash='/d/${d.id}/symbols/accented'"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></div>`;
+    <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
 }
 function viewCategory(d, catId) {
   if (catId === 'accented') {
@@ -375,7 +563,7 @@ function viewFrames(d, _, q) {
     ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
 }
 // Filter chips: swap the query string in place and re-render without losing the scroll position.
-window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(null, '', `#/d/${id}/frames?f=${f}`); render().then(() => requestAnimationFrame(() => window.scrollTo(0, y))); };
+window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(null, '', `/d/${id}/frames?f=${f}`); render().then(() => requestAnimationFrame(() => window.scrollTo(0, y))); };
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
   const block = (title, sub, howto, items) => items.length
@@ -534,5 +722,6 @@ function drawTape(d, s) {
 
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(console.warn);
+migrateHash();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(console.warn);
 render();
