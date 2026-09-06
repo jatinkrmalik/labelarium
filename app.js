@@ -168,7 +168,7 @@ function renderHome(q = {}) {
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     <div class="devgrid">${list.map(card).join('')}</div>
-    <p class="footer"><a class="f-left" href="mailto:hello@labelarium.com?subject=Label%20maker%20request">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Sponsor</a> · <a href="LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>`;
+    <p class="footer"><a class="f-left" href="mailto:hello@labelarium.com?subject=Label%20maker%20request">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a> · <a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>`;
 }
 window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '#/' : `#/?brand=${encodeURIComponent(b)}`); render(); };
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
