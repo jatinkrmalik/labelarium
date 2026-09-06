@@ -137,15 +137,8 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
     ? `<img class="dev-top" src="icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
   const actions = right ? `<div class="top-right">${right}</div>` : '';
-  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
-}
-
-function deviceLabel(dev) {
-  const brand = dev.brand || '', name = dev.name || '';
-  if (!brand) return name;
-  const n = name.toLowerCase(), b = brand.toLowerCase();
-  if (n === b || n.startsWith(b + ' ')) return name;
-  return `${brand} ${name}`;
+  const heading = back ? `<h1>${esc(title)}</h1>` : `<p class="brand-word">${esc(title)}</p>`;
+  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title">${heading}${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
 }
 
 // ---------- home ----------
@@ -157,16 +150,19 @@ function renderHome(q = {}) {
   const brands = [...new Set(devices.map(d => d.brand))];
   const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
   const favDevs = devices.filter(d => favs.includes(d.id));
-  const card = dev => `<div class="card devtile link" onclick="location.hash='/d/${dev.id}'">
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
-      <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
+  const card = dev => `<div class="devtile-wrap">
+      <a class="card devtile link" href="#/d/${dev.id}">
+        <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
+        <div class="dev-copy"><b>${esc(dev.model)}</b><div class="muted">${esc(dev.brand)}${dev.tagline ? ' · ' + esc(dev.tagline) : ''}</div></div>
+      </a>
+      <button type="button" class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin from home' : 'Pin to home'}" aria-pressed="${favs.includes(dev.id) ? 'true' : 'false'}" title="Pin to home" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
     </div>`;
-  const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
+  const chip = (id, label) => `<button type="button" class="chip ${brand === id ? 'on' : ''}" aria-pressed="${brand === id ? 'true' : 'false'}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
-    ${favDevs.length ? `<h2>Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+    ${favDevs.length ? `<h2>Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers</h2>
-    <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+    ${favDevs.length ? '' : '<p class="hint">Tap ○ on a tile to pin it above this list.</p>'}
+    <div class="chips-wrap"><div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div></div>
     <div class="devgrid">${list.map(card).join('')}</div>
     <p class="footer"><a class="f-left" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a> · <a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>`;
 }
@@ -196,7 +192,7 @@ function deviceTop(d, section, sub) {
   const link = ([id, ico, name], short) => `<a href="#/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="#/" title="All label makers"><img class="dev-rail" src="icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
-  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
+  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="openMore('${d.id}')"><i class="mark dots"></i><span>More</span></button></nav>`;
   app.className = 'app device';
   app.innerHTML = `${rail}<section class="main" id="main"></section>${tabs}`;
   main = $('#main');
@@ -207,24 +203,25 @@ window.openMore = id => {
   openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="#/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
 };
 function searchBox(d, q) {
-  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+  return `<div class="search"><span class="mag" aria-hidden="true">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
 window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `#/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
-  main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections" class="twocol"></div>`;
+  main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections"></div>`;
   if (q.q) renderResults(d, q.q, true); else renderSections(d);
   if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
 }
 function renderSections(d) {
-  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<button class="tile" onclick="location.hash='/d/${d.id}/${id}'"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></button>`).join('');
+  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="#/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
-  $('#sections').innerHTML = `<div class="col"><p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
+  $('#sections').innerHTML = `<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p>
+    <div class="twocol"><div class="col"><h2>Sections</h2><div class="grid">${tiles}</div></div>
     <aside class="col"><h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
-    <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
-    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
+    <div class="card offline-card"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
+    <button type="button" class="btn ${saved ? 'ghost' : ''}" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside></div>`;
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
@@ -245,13 +242,13 @@ function renderResults(d, q, firstPaint) {
     else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
     else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
     else if (type === 'symbol-category') html += g.map(r => catCard(d, r.cat)).join('');
-    else if (type === 'howto') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/howto/${r.item.id}'"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'howto') html += g.map(r => `<a class="card link" href="#/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></a>`).join('');
     else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
-    else if (type === 'font') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
-    else if (type === 'style') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/fonts'"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></div>`).join('');
+    else if (type === 'font') html += g.map(r => `<a class="card link" href="#/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'style') html += g.map(r => `<a class="card link" href="#/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></a>`).join('');
     else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
     else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
-    else if (type === 'key') html += g.map(r => `<div class="card link" onclick="location.hash='/d/${d.id}/keyboard'"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></div>`).join('');
+    else if (type === 'key') html += g.map(r => `<a class="card link" href="#/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
   }
   box.innerHTML = html;
 }
@@ -282,7 +279,7 @@ function tplTile(d, t) {
 }
 function catCard(d, c) {
   const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
-  return `<div class="card link" onclick="location.hash='/d/${d.id}/symbols/${c.id}'"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></div>`;
+  return `<a class="card link" href="#/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></a>`;
 }
 function openSheet(html) {
   sheet.classList.remove('zoom');
@@ -307,7 +304,7 @@ window.openSymbol = (id, catId, n) => {
   openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 class="t">${esc(it.name)}</h2>
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
     <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
-    <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
+    <div class="note">Recently used? Pick <b>History</b> instead. It keeps your last 7 symbols.</div>
     <p style="margin-top:12px"><a href="#/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
 };
 window.openFrame = (id, n) => {
@@ -316,7 +313,7 @@ window.openFrame = (id, n) => {
   openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
-    <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
+    <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> Press [OK] to print without it.</div>
     <p style="margin-top:12px"><a href="#/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
 };
 window.openTemplate = (id, kind, n) => {
@@ -333,16 +330,16 @@ function viewSymbols(d, [catId]) {
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
   main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
-    <h2>Basic <span class="muted small">— text characters</span></h2>${grp('Basic')}
-    <h2>Pictograph <span class="muted small">— pictures</span></h2>${grp('Pictograph')}
-    <h2>Accented letters</h2><div class="card link" onclick="location.hash='/d/${d.id}/symbols/accented'"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></div>`;
+    <h2>Basic <span class="muted small">· text characters</span></h2>${grp('Basic')}
+    <h2>Pictograph <span class="muted small">· pictures</span></h2>${grp('Pictograph')}
+    <h2>Accented letters</h2><a class="card link" href="#/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
 }
 function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters');
     main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
-      <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
+      <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--soft)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
   const c = d.symbols.categories.find(x => x.id === catId);
@@ -362,14 +359,14 @@ function viewFrames(d, _, q) {
   const hasPictures = numbered.some(f => +f.n > 17);
   const hasWide = d.frames.items.some(f => f.wide);
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
-  const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
+  const chip = (id, label) => `<button type="button" class="chip ${filter === id ? 'on' : ''}" aria-pressed="${filter === id ? 'true' : 'false'}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
   const chips = [chip('all', 'All')];
   if (hasBasic && hasPictures) {
     chips.push(chip('basic', 'Boxes & lines (0–17)'));
     chips.push(chip('pictures', 'With pictures (18–99)'));
   }
   if (hasWide) chips.push(chip('wide', '12 mm only'));
-  const chipRow = chips.length > 1 ? `<div class="chips">${chips.join('')}</div>` : '';
+  const chipRow = chips.length > 1 ? `<div class="chips-wrap"><div class="chips">${chips.join('')}</div></div>` : '';
   main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
     ${chipRow}
     ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
@@ -379,7 +376,7 @@ window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(n
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
   const block = (title, sub, howto, items) => items.length
-    ? `<h2>${title} <span class="muted small">— ${sub}</span></h2><div class="card"><h3>How</h3>${steps(howto)}</div><div class="framelist" style="margin-top:10px">${items.map(t => tplTile(d, t)).join('')}</div>`
+    ? `<h2>${title} <span class="muted small">· ${sub}</span></h2><div class="card"><h3>How</h3>${steps(howto)}</div><div class="framelist" style="margin-top:10px">${items.map(t => tplTile(d, t)).join('')}</div>`
     : '';
   main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
     ${block('Text label templates', 'your text, their layout', d.templates.textHowto, d.templates.text)}
@@ -420,7 +417,7 @@ function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
   main.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
     <h2>Tape widths</h2><div class="list plate">${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}</div>
-    <h2>Links</h2><div class="list plate">${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}</div>`;
+    <h2>Links</h2><div class="list plate">${d.links.map(([t, u]) => `<a class="card link" href="${esc(u)}" target="_blank" rel="noopener"><b>${esc(t)}</b><span class="chev">↗</span></a>`).join('')}</div>`;
 }
 
 // ---------- label preview / designer ----------
@@ -463,7 +460,7 @@ const savedKey = id => 'labels:' + id;
 function renderSaved(d) {
   const box = $('#saved'); if (!box) return;
   const list = store.get(savedKey(d.id), []);
-  if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label” — it comes back with its full recipe.</p>'; return; }
+  if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label”. It comes back with its full recipe.</p>'; return; }
   box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark strip"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
 }
 window.saveLabel = id => {
@@ -514,10 +511,10 @@ function drawTape(d, s) {
   const avail = el.parentElement.clientWidth - 28, k = Math.min(1, avail / tapeW);
   el.className = 'tapefit'; el.style.width = `${tapeW * k}px`; el.style.height = `${tapeH * k}px`; t.style.transform = `scale(${k})`;
   const over = s.length && totalMm > s.length;
-  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
+  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
   // recipe
   const r = [];
-  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape — frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
+  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
   r.push(`Type “${s.text1}”${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
   if (s.font) r.push(`[Font] → {Font} → [OK] → [◀] / [▶] to {${font.name}} → [OK].`);
   if (s.size) r.push(`[Font] → {Size} → [OK] → {${d.sizes[s.size].name}} → [OK].`);
