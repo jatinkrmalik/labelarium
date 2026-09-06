@@ -721,8 +721,58 @@ function drawTape(d, s) {
   $('#recipe').innerHTML = r.map(x => `<li>${fmt(x)}</li>`).join('');
 }
 
+// ---------- install (PWA) ----------
+// Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
+// iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
+let deferredInstall = null;
+const isStandaloneApp = () => window.matchMedia('(display-mode: standalone)').matches
+  || window.matchMedia('(display-mode: fullscreen)').matches
+  || window.navigator.standalone === true;
+const isIosDevice = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+function hideInstallBar(persist) {
+  const bar = document.getElementById('install-bar');
+  if (bar) bar.hidden = true;
+  if (persist) store.set('install-hide', true);
+}
+function showInstallBar(kind) {
+  if (isStandaloneApp() || store.get('install-hide', false)) return;
+  let bar = document.getElementById('install-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'install-bar';
+    bar.className = 'install-bar';
+    document.body.prepend(bar);
+  }
+  if (kind === 'ios') {
+    bar.innerHTML = `<p>Add Labelarium to your Home Screen: tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
+  } else {
+    bar.innerHTML = `<p>Install Labelarium as an app on this phone.</p>
+      <button class="btn" type="button" onclick="acceptInstall()">Install</button>
+      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
+  }
+  bar.hidden = false;
+}
+window.dismissInstall = () => hideInstallBar(true);
+window.acceptInstall = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } catch {}
+  deferredInstall = null;
+  hideInstallBar(true);
+};
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  showInstallBar('chrome');
+});
+window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
+
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
 migrateHash();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(console.warn);
+if (isIosDevice() && !isStandaloneApp()) showInstallBar('ios');
 render();
