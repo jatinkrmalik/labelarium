@@ -1,0 +1,49 @@
+name: Bug report
+description: Something in Labelarium is broken or looks wrong
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. A short, reproducible note is enough.
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What you saw, including any error text.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How to get the same result.
+      placeholder: |
+        1. Open …
+        2. Tap …
+        3. See …
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: What should have happened instead.
+    validations:
+      required: true
+  - type: input
+    id: device-browser
+    attributes:
+      label: Device / browser
+      description: Phone or desktop, OS, and browser (or “installed PWA”).
+      placeholder: e.g. iPhone 15, Safari 18
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Optional. Paste or attach images that show the problem.
+    validations:
+      required: false
