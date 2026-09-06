@@ -143,6 +143,8 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 /* Section tiles: 2×5 fills ten sections with no widow. */
 .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 .tile { padding: 16px 16px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; min-height: 118px; text-align: left; }
+a.tile, a.card.link, a.iconbtn, a.devtile-hit { text-decoration: none; color: inherit; }
+a.iconbtn { display: inline-flex; }
 .tile:hover { background: var(--plate-2); }
 .tile .ico { height: 18px; display: flex; align-items: flex-end; margin-bottom: 10px; }
 .tile b { font: 600 17px/1.2 var(--sans); }
@@ -311,9 +313,8 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 @media (min-width: 1100px) { .devgrid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 .devtile.card.link {
   position: relative;
-  display: grid;
-  grid-template-rows: minmax(0, 1fr) auto;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
   padding: 10px 10px 12px;
   width: 100%;
   aspect-ratio: 1 / 1;
@@ -323,9 +324,16 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   overflow: hidden;
   box-sizing: border-box;
   margin-top: 0;
-  cursor: pointer;
   text-align: center;
   align-items: stretch;
+}
+.devtile-hit {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
 }
 .devtile .dev-copy {
   padding: 0 10px 2px;
@@ -389,9 +397,9 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 /* Phone / 2-col: keep the square icon well dominant; caption sits inset from the double rule */
 @media (max-width: 699px) {
   .devtile.card.link {
-    gap: 6px;
     padding: 8px 8px 10px;
   }
+  .devtile-hit { gap: 6px; }
   .devtile .dev-copy { padding: 0 8px 2px; }
   .devtile b { font-size: 14px; line-height: 1.2; height: 2.4em; }
   .devtile .muted { font-size: 12px; line-height: 1.3; height: 2.6em; }
@@ -415,6 +423,12 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .footer .f-left { justify-self: start; text-align: left; }
 .footer .f-mid { justify-self: center; text-align: center; white-space: nowrap; }
 .footer .f-right { justify-self: end; text-align: right; }
+.footer-legal {
+  max-width: 920px; margin: 8px auto 0; padding: 0 4px 8px;
+  font-size: 11px; line-height: 1.45; color: var(--ink-2); text-align: center;
+}
+.footer-legal a { color: inherit; text-decoration: underline; text-decoration-color: var(--soft); text-underline-offset: 2px; }
+
 @media (max-width: 520px) {
   .footer { font-size: 12px; gap: 6px 8px; }
 }
