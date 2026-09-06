@@ -88,6 +88,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .topbar .dev-top { width: 48px; height: 48px; flex: 0 0 auto; object-fit: contain; object-position: center; background: var(--plate); border: 1.5px solid var(--rule); padding: 5px; box-sizing: border-box; }
 /* Phone device header: actions on row 1, title on its own row so words do not split. */
 @media (max-width: 600px) {
+  .topbar.home .inner { justify-content: center; }
   .topbar:not(.home) .inner { flex-wrap: wrap; }
   .topbar:not(.home) .title { flex: 1 1 100%; order: 3; }
   .topbar:not(.home) .top-right { order: 2; }
