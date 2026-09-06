@@ -129,6 +129,12 @@ PRs and new device packs are welcome. Start with [CONTRIBUTING](CONTRIBUTING.md)
 [Issues](https://github.com/jatinkrmalik/labelarium/issues). Coffee still lives
 on [Sponsors](https://github.com/sponsors/jatinkrmalik).
 
+## Trademarks
+
+Brother, DYMO, NIIMBOT, Brady, Phomemo, and related product names and logos belong to their
+respective owners. Labelarium is unofficial and not affiliated with those companies. See
+[`TRADEMARK.md`](TRADEMARK.md).
+
 ## Licence
 
 Code is licensed under the GNU Affero General Public License v3.0. See `LICENSE`. In short: you may use,
