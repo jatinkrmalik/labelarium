@@ -319,10 +319,13 @@ async function render() {
   if (!route().q.q) window.scrollTo(0, 0);
 }
 
-const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 38" width="56" height="38" aria-hidden="true" focusable="false"><g transform="rotate(-26 28 19)"><rect x="-16" y="8" width="88" height="22" fill="#e8b820"/><rect x="-16" y="8" width="88" height="3" fill="#141414"/><rect x="-16" y="27" width="88" height="3" fill="#141414"/><text x="28" y="24" text-anchor="middle" font-family="Jost,Futura,'Century Gothic',sans-serif" font-weight="700" font-size="13" fill="#141414">ABC</text></g></svg>`;
+// Diagonal ABC tape. viewBox is sized for rotate(-26) of the 88×22 strip so nothing is clipped.
+const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="-22 -16 100 70" width="57" height="40" overflow="visible" aria-hidden="true" focusable="false"><g transform="rotate(-26 28 19)"><rect x="-16" y="8" width="88" height="22" fill="#e8b820"/><rect x="-16" y="8" width="88" height="3" fill="#141414"/><rect x="-16" y="27" width="88" height="3" fill="#141414"/><text x="28" y="24" text-anchor="middle" font-family="Jost,Futura,'Century Gothic',sans-serif" font-weight="700" font-size="13" fill="#141414">ABC</text></g></svg>`;
 
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
+  if (back) topbar.removeAttribute('aria-label');
+  else topbar.setAttribute('aria-label', 'Labelarium');
   const logo = back
     ? `<a class="iconbtn" href="${esc(back)}" aria-label="Back">‹</a>`
     : TAPE_MARK;
@@ -330,8 +333,11 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
     ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
   const actions = right ? `<div class="top-right">${right}</div>` : '';
-  const titleClass = back ? 'title' : 'title sr-only';
-  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="${titleClass}"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
+  const titleHtml = back
+    ? `<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>`
+    : '';
+  const innerLabel = back ? '' : ' aria-label="Labelarium"';
+  topbar.innerHTML = `<div class="inner"${innerLabel}>${logo}${deviceIcon}${titleHtml}${actions}</div>`;
 }
 
 function deviceLabel(dev) {
