@@ -423,6 +423,12 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .footer .f-left { justify-self: start; text-align: left; }
 .footer .f-mid { justify-self: center; text-align: center; white-space: nowrap; }
 .footer .f-right { justify-self: end; text-align: right; }
+.footer-legal {
+  max-width: 920px; margin: 8px auto 0; padding: 0 4px 8px;
+  font-size: 11px; line-height: 1.45; color: var(--ink-2); text-align: center;
+}
+.footer-legal a { color: inherit; text-decoration: underline; text-decoration-color: var(--soft); text-underline-offset: 2px; }
+
 @media (max-width: 520px) {
   .footer { font-size: 12px; gap: 6px 8px; }
 }
