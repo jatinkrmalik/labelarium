@@ -110,7 +110,7 @@ fonts/                          bundled Bodoni Moda + Jost (SIL OFL)
 
 ## Support
 
-If Labelarium is useful, [sponsor it on GitHub](https://github.com/sponsors/jatinkrmalik).
+If Labelarium is useful, [buy me a coffee on GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
 
 ## Licence
 
