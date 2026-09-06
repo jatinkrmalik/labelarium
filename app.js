@@ -290,12 +290,13 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (!seg.length) { applyHomeSeo(q); return renderHome(q); }
+    if (!seg.length) { applyHomeSeo(q); renderHome(q); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applySeo('Not found · Labelarium', 'That page is not in Labelarium.', '/');
       setTop('Not found', { back: '/' });
       app.className = 'app';
       app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
+      maybeShowInstallBar();
       return;
     }
     const d = await loadDevice(seg[1]);
@@ -304,6 +305,7 @@ async function render() {
     if (!views[section]) return go(`/d/${d.id}`, true);
     applyDeviceSeo(d, section, seg.slice(3));
     views[section](d, seg.slice(3), q);
+    maybeShowInstallBar();
   } catch (e) {
     setTop('Labelarium', { back: '/' });
     applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', '/');
@@ -720,6 +722,84 @@ function drawTape(d, s) {
   else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
   $('#recipe').innerHTML = r.map(x => `<li>${fmt(x)}</li>`).join('');
 }
+
+// ---------- install (PWA) ----------
+// Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
+// iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
+// Capture the prompt immediately; only show the bar after a few distinct device screens.
+let deferredInstall = null;
+const INSTALL_SCREENS = 3;
+const INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+const isStandaloneApp = () => window.matchMedia('(display-mode: standalone)').matches
+  || window.matchMedia('(display-mode: fullscreen)').matches
+  || window.navigator.standalone === true;
+const isIosDevice = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
+  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+// Old builds hid forever on dismiss via install-hide. Convert once to a 7-day snooze.
+if (store.get('install-hide', false) === true) {
+  store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
+  try { localStorage.removeItem('lab:install-hide'); } catch {}
+}
+
+function hideInstallBar(persist) {
+  const bar = document.getElementById('install-bar');
+  if (bar) bar.hidden = true;
+  if (persist) store.set('install-done', true);
+}
+function showInstallBar(kind) {
+  if (isStandaloneApp() || store.get('install-done', false)) return;
+  if (Date.now() < store.get('install-hide-until', 0)) return;
+  let bar = document.getElementById('install-bar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'install-bar';
+    bar.className = 'install-bar';
+    document.body.prepend(bar);
+  }
+  if (kind === 'ios') {
+    bar.innerHTML = `<p>Add Labelarium to your Home Screen to use it locally, even offline. Tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
+      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
+  } else {
+    bar.innerHTML = `<p>Install Labelarium on your phone. Use it locally, even offline.</p>
+      <button class="btn" type="button" onclick="acceptInstall()">Install</button>
+      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
+  }
+  bar.hidden = false;
+}
+function noteInstallScreen() {
+  if (store.get('install-ready', false)) return;
+  const path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  if (!/^\/d\/[^/]+/.test(path)) return;
+  const seen = store.get('install-screens', []);
+  if (seen.includes(path)) return;
+  seen.push(path);
+  store.set('install-screens', seen);
+  if (seen.length >= INSTALL_SCREENS) store.set('install-ready', true);
+}
+function maybeShowInstallBar() {
+  noteInstallScreen();
+  if (!store.get('install-ready', false)) return;
+  if (deferredInstall) showInstallBar('chrome');
+  else if (isIosDevice()) showInstallBar('ios');
+}
+window.dismissInstall = () => {
+  hideInstallBar(false);
+  store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
+};
+window.acceptInstall = async () => {
+  if (!deferredInstall) return;
+  deferredInstall.prompt();
+  try { await deferredInstall.userChoice; } catch {}
+  deferredInstall = null;
+  hideInstallBar(true);
+};
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstall = e;
+  maybeShowInstallBar();
+});
+window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
 
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
