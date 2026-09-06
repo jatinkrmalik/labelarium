@@ -290,12 +290,13 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (!seg.length) { applyHomeSeo(q); return renderHome(q); }
+    if (!seg.length) { applyHomeSeo(q); renderHome(q); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applySeo('Not found · Labelarium', 'That page is not in Labelarium.', '/');
       setTop('Not found', { back: '/' });
       app.className = 'app';
       app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
+      maybeShowInstallBar();
       return;
     }
     const d = await loadDevice(seg[1]);
@@ -304,6 +305,7 @@ async function render() {
     if (!views[section]) return go(`/d/${d.id}`, true);
     applyDeviceSeo(d, section, seg.slice(3));
     views[section](d, seg.slice(3), q);
+    maybeShowInstallBar();
   } catch (e) {
     setTop('Labelarium', { back: '/' });
     applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', '/');
@@ -724,7 +726,9 @@ function drawTape(d, s) {
 // ---------- install (PWA) ----------
 // Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
 // iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
+// Capture the prompt immediately; only show the bar after a few distinct device screens.
 let deferredInstall = null;
+const INSTALL_SCREENS = 3;
 const isStandaloneApp = () => window.matchMedia('(display-mode: standalone)').matches
   || window.matchMedia('(display-mode: fullscreen)').matches
   || window.navigator.standalone === true;
@@ -755,6 +759,22 @@ function showInstallBar(kind) {
   }
   bar.hidden = false;
 }
+function noteInstallScreen() {
+  if (store.get('install-ready', false)) return;
+  const path = (location.pathname || '/').replace(/\/+$/, '') || '/';
+  if (!/^\/d\/[^/]+/.test(path)) return;
+  const seen = store.get('install-screens', []);
+  if (seen.includes(path)) return;
+  seen.push(path);
+  store.set('install-screens', seen);
+  if (seen.length >= INSTALL_SCREENS) store.set('install-ready', true);
+}
+function maybeShowInstallBar() {
+  noteInstallScreen();
+  if (!store.get('install-ready', false)) return;
+  if (deferredInstall) showInstallBar('chrome');
+  else if (isIosDevice()) showInstallBar('ios');
+}
 window.dismissInstall = () => hideInstallBar(true);
 window.acceptInstall = async () => {
   if (!deferredInstall) return;
@@ -766,7 +786,7 @@ window.acceptInstall = async () => {
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstall = e;
-  showInstallBar('chrome');
+  maybeShowInstallBar();
 });
 window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
 
@@ -774,5 +794,4 @@ window.addEventListener('appinstalled', () => { deferredInstall = null; hideInst
 try { localStorage.removeItem('lab:theme'); } catch {}
 migrateHash();
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(console.warn);
-if (isIosDevice() && !isStandaloneApp()) showInstallBar('ios');
 render();
