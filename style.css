@@ -69,8 +69,10 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .card.link .img-card img { max-height: 22px; width: auto; }
 
 /* Layout */
-.app { padding: 0 16px 108px; }
+.app { padding: 0 16px 56px; }
 .app .main { min-width: 0; }
+.app.device { padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+.app.device .main { padding-bottom: 8px; }
 .topbar .inner { display: flex; align-items: center; gap: 12px; padding: 22px 16px 10px; }
 .topbar .title { flex: 1; min-width: 0; }
 .topbar .title h1 { font-size: 28px; overflow-wrap: break-word; }
@@ -415,23 +417,73 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .devcard .thumb span { position: relative; color: #141414; transform: rotate(-6deg); display: block; }
 .devcard .star { margin-left: auto; border: 0; background: transparent; font-size: 22px; cursor: pointer; color: var(--ink); width: 36px; height: 36px; }
 .devcard .star.on { color: var(--red); }
-.footer {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center; gap: 8px 12px;
-  color: var(--ink-2); font-size: 13px; margin-top: 40px; padding-top: 14px; border-top: 1px solid var(--soft);
+/* Document-flow footer: stacked link list on a phone, calm three-column on a desk. */
+.site-foot {
+  margin-top: 40px;
+  padding-top: 16px;
+  padding-bottom: 8px;
+  border-top: 1px solid var(--soft);
 }
-.footer a { color: inherit; text-decoration: underline; text-decoration-color: var(--red); text-underline-offset: 3px; white-space: nowrap; }
-.footer .f-left { justify-self: start; text-align: left; }
-.footer .f-mid { justify-self: center; text-align: center; white-space: nowrap; }
-.footer .f-right { justify-self: end; text-align: right; }
+.footer {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: 13px;
+}
+.footer a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--red);
+  text-underline-offset: 3px;
+}
+.footer .f-mid {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+.footer .sep { display: none; }
 .footer-legal {
-  max-width: 920px; margin: 8px auto 0; padding: 0 4px 8px;
-  font-size: 11px; line-height: 1.45; color: var(--ink-2); text-align: center;
+  max-width: 36em;
+  margin: 12px 0 0;
+  padding: 0;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-align: left;
 }
 .footer-legal a { color: inherit; text-decoration: underline; text-decoration-color: var(--soft); text-underline-offset: 2px; }
 
-@media (max-width: 520px) {
-  .footer { font-size: 12px; gap: 6px 8px; }
+@media (min-width: 600px) {
+  .footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    gap: 8px 12px;
+  }
+  .footer a { white-space: nowrap; }
+  .footer .f-left { justify-self: start; text-align: left; }
+  .footer .f-mid {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    justify-self: center;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .footer .sep { display: inline; }
+  .footer .f-right { justify-self: end; text-align: right; }
+  .footer-legal {
+    max-width: 920px;
+    margin: 8px auto 0;
+    padding: 0 4px 8px;
+    text-align: center;
+  }
 }
 
 /* PWA install bar: Chrome beforeinstallprompt, or iOS Add to Home Screen hint. */

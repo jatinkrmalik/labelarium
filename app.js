@@ -290,12 +290,13 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (!seg.length) { applyHomeSeo(q); renderHome(q); maybeShowInstallBar(); return; }
+    if (!seg.length) { applyHomeSeo(q); renderHome(q); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applySeo('Not found · Labelarium', 'That page is not in Labelarium.', '/');
       setTop('Not found', { back: '/' });
       app.className = 'app';
       app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
+      ensureFooter(app);
       maybeShowInstallBar();
       return;
     }
@@ -305,12 +306,14 @@ async function render() {
     if (!views[section]) return go(`/d/${d.id}`, true);
     applyDeviceSeo(d, section, seg.slice(3));
     views[section](d, seg.slice(3), q);
+    ensureFooter(main);
     maybeShowInstallBar();
   } catch (e) {
     setTop('Labelarium', { back: '/' });
     applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', '/');
     app.className = 'app';
     app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="/">Back to all label makers</a></div>`;
+    ensureFooter(app);
     console.error(e);
   }
   if (!route().q.q) window.scrollTo(0, 0);
@@ -339,6 +342,18 @@ function deviceLabel(dev) {
   return `${brand} ${name}`;
 }
 
+// Document-flow site footer. Not sticky: lives at the end of the page content.
+function siteFooter() {
+  return `<footer class="site-foot">
+    <p class="footer"><a class="f-left" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><span class="sep" aria-hidden="true"> · </span><a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>
+    <p class="footer-legal">Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. Labelarium is unofficial and not affiliated. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
+  </footer>`;
+}
+function ensureFooter(el) {
+  if (!el || el.querySelector(':scope > .site-foot')) return;
+  el.insertAdjacentHTML('beforeend', siteFooter());
+}
+
 // ---------- home ----------
 function renderHome(q = {}) {
   setTop('Labelarium');
@@ -361,8 +376,7 @@ function renderHome(q = {}) {
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     <div class="devgrid">${list.map(card).join('')}</div>
-    <p class="footer"><a class="f-left" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a> · <a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>
-    <p class="footer-legal">Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. Labelarium is unofficial and not affiliated. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>`;
+    ${siteFooter()}`;
 }
 window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '/' : '/?brand=' + encodeURIComponent(b)); render(); };
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
