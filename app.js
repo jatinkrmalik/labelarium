@@ -128,18 +128,6 @@ async function render() {
   if (!route().q.q) window.scrollTo(0, 0);
 }
 
-// Theme: auto (follow device) → light → dark, remembered in localStorage.
-const THEMES = { auto: 'Auto', light: 'Light', dark: 'Dark' };
-function applyTheme() {
-  const t = store.get('theme', 'auto');
-  document.documentElement.dataset.theme = t;
-  const dark = t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches);
-  document.querySelectorAll('meta[name=theme-color]').forEach(m => { m.removeAttribute('media'); m.content = dark ? '#191815' : '#efe7d6'; });
-}
-window.cycleTheme = () => { const order = ['auto', 'light', 'dark']; const t = store.get('theme', 'auto'); store.set('theme', order[(order.indexOf(t) + 1) % 3]); applyTheme(); render(); };
-matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
-const themeBtn = () => { const t = store.get('theme', 'auto'); const next = { auto: 'light', light: 'dark', dark: 'auto' }[t]; return `<button class="iconbtn theme" onclick="cycleTheme()" aria-label="Theme: ${THEMES[t]}. Switch to ${THEMES[next]}" title="Theme: ${THEMES[t]} · tap for ${THEMES[next]}"><i class="tmark ${t}"></i></button>`; };
-
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
   const logo = back
@@ -148,7 +136,8 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
-  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div><div class="top-right">${right}${themeBtn()}</div></div>`;
+  const actions = right ? `<div class="top-right">${right}</div>` : '';
+  topbar.innerHTML = `<div class="inner">${logo}${deviceIcon}<div class="title"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${esc(sub)}</span>` : ''}</div>${actions}</div>`;
 }
 
 function deviceLabel(dev) {
@@ -171,8 +160,7 @@ function renderHome(q = {}) {
   const card = dev => `<div class="card devtile link" onclick="location.hash='/d/${dev.id}'">
       <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="event.stopPropagation();toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
       <div class="dev-icon"><img src="icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <b>${esc(deviceLabel(dev))}</b>
-      <div class="muted small">${esc(dev.tagline)}</div>
+      <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
     </div>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
@@ -545,6 +533,6 @@ function drawTape(d, s) {
 }
 
 // ---------- boot ----------
-applyTheme();
+try { localStorage.removeItem('lab:theme'); } catch {}
 if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(console.warn);
 render();

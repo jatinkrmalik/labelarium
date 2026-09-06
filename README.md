@@ -17,7 +17,6 @@ Phone UI (iPhone frame). Hard-refresh after install if you already had an older 
   <img src="docs/screenshots/phone-d220-keyboard.png" width="200" alt="PT-D220 keyboard map">
   <img src="docs/screenshots/phone-d220-preview.png" width="200" alt="PT-D220 label preview with HOME">
   <img src="docs/screenshots/phone-dymo-lm160.png" width="200" alt="DYMO LabelManager 160 device home">
-  <img src="docs/screenshots/phone-home-dark.png" width="200" alt="Labelarium home in dark mode">
 </p>
 
 | Shot | What it shows |
@@ -29,7 +28,6 @@ Phone UI (iPhone frame). Hard-refresh after install if you already had an older 
 | Keyboard | Annotated keyboard map, tap to zoom |
 | Preview | Live tape + key-press recipe fields |
 | DYMO LM160 | Same shell on a non-Brother pack |
-| Dark home | Theme toggle |
 
 ## Label makers
 
@@ -61,7 +59,7 @@ Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content (s
 variation E + C): warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
 Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
 section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
-rail. Light and dark. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
+rail. Warm opium-tinted paper only — no dark theme. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
 Earlier explorations: `concepts/index.html` (six styles) and `concepts/v2.html` (five variations).
 
 ## Label preview
