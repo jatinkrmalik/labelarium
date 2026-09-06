@@ -1,0 +1,30 @@
+name: Enhancement
+description: Suggest an improvement that is not a new label-maker pack
+title: "[Enhancement] "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a new device pack, use **Request a label maker** instead.
+  - type: textarea
+    id: idea
+    attributes:
+      label: Idea
+      description: What should Labelarium do that it does not do today?
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem it solves
+      description: What is awkward or missing with the current app?
+    validations:
+      required: true
+  - type: textarea
+    id: mocks
+    attributes:
+      label: Mocks
+      description: Optional sketches, screenshots, or links that show the idea.
+    validations:
+      required: false
