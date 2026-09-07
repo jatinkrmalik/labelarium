@@ -8,9 +8,11 @@
 [![PWA](https://img.shields.io/badge/PWA-offline-informational)](https://labelarium.com)
 [![Static](https://img.shields.io/badge/static-zero%20deps-lightgrey)](https://labelarium.com)
 
-Use it at **[labelarium.com](https://labelarium.com)**. Every symbol, frame, template and shortcut of your label maker: searchable, with pictures, offline.
+Search for the frame or symbol, see the picture, then follow the key-press recipe on the device.
 
-A zero-dependency progressive web app (plain HTML/CSS/JS, no build step). GitHub Pages hosts it at [labelarium.com](https://labelarium.com) over HTTPS, which is what install and the offline cache need.
+Use it at **[labelarium.com](https://labelarium.com)**. Skip the buried Frame/Symbol menus and the insertion sheet. Unofficial, free, and offline once you save a pack. Deepest on the Brother PT-D220 and PT-D210. Also DYMO, NIIMBOT, Brady, Phomemo, and other Brother models.
+
+Plain HTML/CSS/JS, zero dependencies, hosted on GitHub Pages.
 
 ## Screenshots
 
@@ -40,7 +42,7 @@ Phone UI (iPhone frame).
 
 ## Label makers
 
-Ten packs:
+Ten models. Search, pictures, and the key path work the same on each. The two everyday Brother handhelds are the ones where you can actually put the paper sheet away.
 
 - **Brother** PT-D220, PT-D210, PT-D610BT, PT-P710BT (CUBE Plus)
 - **DYMO** LabelManager 160, LabelManager 280
@@ -48,7 +50,7 @@ Ten packs:
 - **Brady** M210, M211
 - **Phomemo** M110 (support pages; no official PDF catalog)
 
-The two everyday Brother handhelds have the deepest catalog:
+PT-D220 and PT-D210 are indexed well enough to search instead of paging the device. The counts are how much of the sheet is in the index:
 
 - **PT-D220**: 30 symbol categories (371 pictograph glyphs, each with a name, keywords and its position
   on the device), 99 frames + underline, 25 templates, 14 fonts, 11 styles.
