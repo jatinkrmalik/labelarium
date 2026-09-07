@@ -1,0 +1,13 @@
+{
+  "name": "labelarium",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jatinkrmalik/labelarium.git"
+  },
+  "scripts": {
+    "serve": "python3 -m http.server -d site 8080"
+  }
+}

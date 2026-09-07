@@ -1,5 +1,5 @@
 <h1>
-  <img src="icons/icon-192.png" width="48" height="48" alt="Labelarium" align="absmiddle">
+  <img src="site/icons/icon-192.png" width="48" height="48" alt="Labelarium" align="absmiddle">
   Labelarium
 </h1>
 
@@ -17,15 +17,15 @@ A zero-dependency progressive web app (plain HTML/CSS/JS, no build step). GitHub
 Phone UI (iPhone frame).
 
 <p align="center">
-  <img src="docs/screenshots/phone-home.png" width="200" alt="Labelarium home with ten label-maker tiles">
-  <img src="docs/screenshots/phone-d220-home.png" width="200" alt="Brother PT-D220 device home">
-  <img src="docs/screenshots/phone-d220-symbols-signs.png" width="200" alt="PT-D220 Signs pictograph grid">
-  <img src="docs/screenshots/phone-d220-frames.png" width="200" alt="PT-D220 frames list">
+  <img src="site/docs/screenshots/phone-home.png" width="200" alt="Labelarium home with ten label-maker tiles">
+  <img src="site/docs/screenshots/phone-d220-home.png" width="200" alt="Brother PT-D220 device home">
+  <img src="site/docs/screenshots/phone-d220-symbols-signs.png" width="200" alt="PT-D220 Signs pictograph grid">
+  <img src="site/docs/screenshots/phone-d220-frames.png" width="200" alt="PT-D220 frames list">
 </p>
 <p align="center">
-  <img src="docs/screenshots/phone-d220-keyboard.png" width="200" alt="PT-D220 keyboard map">
-  <img src="docs/screenshots/phone-d220-preview.png" width="200" alt="PT-D220 label preview with HOME">
-  <img src="docs/screenshots/phone-dymo-lm160.png" width="200" alt="DYMO LabelManager 160 device home">
+  <img src="site/docs/screenshots/phone-d220-keyboard.png" width="200" alt="PT-D220 keyboard map">
+  <img src="site/docs/screenshots/phone-d220-preview.png" width="200" alt="PT-D220 label preview with HOME">
+  <img src="site/docs/screenshots/phone-dymo-lm160.png" width="200" alt="DYMO LabelManager 160 device home">
 </p>
 
 | Shot | What it shows |
@@ -64,12 +64,10 @@ whatever the official guide (or support pages) documents for that model.
 
 ## Design language
 
-Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content (see `concepts/v2.html`,
-variation E + C): warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
+Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content: warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
 Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
 section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
-rail. Warm opium-tinted paper only. No dark theme. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
-Earlier explorations: `concepts/index.html` (six styles) and `concepts/v2.html` (five variations).
+rail. Warm opium-tinted paper only. No dark theme. Fonts are bundled (SIL OFL, licences in `site/fonts/`), ~70 KB of woff2.
 
 ## Label preview
 
@@ -81,20 +79,22 @@ can be recalled with its recipe later.
 
 On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
 
-The site is static files: no build step, no environment variables. A fork can stay on GitHub Pages, or
-drop the folder on Netlify, Cloudflare Pages, or any web server. HTTPS is required for installation and
+The site is static files under `site/`: no build step, no environment variables. A fork can stay on GitHub Pages, or
+drop the `site/` folder on Netlify, Cloudflare Pages, or any web server. HTTPS is required for installation and
 the offline cache.
 
-Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages serves `404.html`
-(a copy of the app shell) for those paths; keep it in sync with `index.html`.
+Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages serves `site/404.html`
+(a copy of the app shell) for those paths; keep it in sync with `site/index.html`.
 
 ## Run it locally
 
+Serve `site/` as the web root. There is no build step.
+
 ```bash
-python3 -m http.server 8321
+python3 -m http.server -d site 8080
 ```
 
-Open <http://localhost:8321>. On a phone on the same Wi-Fi use `http://<your-computer-ip>:8321`.
+Open <http://localhost:8080>. On a phone on the same Wi-Fi use `http://<your-computer-ip>:8080`.
 
 Installing as an app (and the offline cache) requires a secure context: `localhost`, or any HTTPS host.
 Python's built-in server does not rewrite deep paths: after the first load, in-app links still work, but a
@@ -103,17 +103,31 @@ refresh on a deep path 404s unless the host rewrites to the shell.
 ## Layout
 
 ```
-index.html  app.js  style.css   app shell (History API router, search, views, previewer)
-404.html                        GitHub Pages SPA fallback (keep in sync with index.html)
-robots.txt  sitemap.xml         crawlers; path URLs on labelarium.com
-sw.js  manifest.webmanifest     PWA: precached shell, cache-first runtime, "Save offline" per device
-devices/index.json              list of label makers
-devices/<id>/                   device.js data + img/ assets from the official guide
-icons/og.png                    Open Graph image (1200×630); optional source icons/og.svg
-icons/devices/                  homepage / rail printer SVGs
-docs/screenshots/               phone product shots for this README
-fonts/                          bundled Bodoni Moda + Jost (SIL OFL)
+site/                           deployable web root (GitHub Pages artifact)
+  index.html  app.js  style.css app shell (History API router, search, views, previewer)
+  404.html                      GitHub Pages SPA fallback (keep in sync with index.html)
+  robots.txt  sitemap.xml       crawlers; path URLs on labelarium.com
+  sw.js  manifest.webmanifest   PWA: precached shell, cache-first runtime, "Save offline" per device
+  CNAME                         labelarium.com
+  devices/index.json            list of label makers
+  devices/<id>/                 device.js data + img/ assets from the official guide
+  icons/og.png                  Open Graph image (1200×630)
+  icons/devices/                homepage / rail printer SVGs
+  docs/screenshots/             phone product shots for this README
+  fonts/                        bundled Bodoni Moda + Jost (SIL OFL)
+docs/og/                        Open Graph source material (not in the Pages artifact)
 ```
+
+## CI and GitHub Pages
+
+Pull requests and pushes to `main` run [`.github/workflows/ci.yml`](.github/workflows/ci.yml). That check
+confirms required files exist under `site/`, that `site/CNAME` is `labelarium.com`, and that every
+device id in `site/devices/index.json` has a matching `device.js`.
+
+Publishing to [labelarium.com](https://labelarium.com) uses [`.github/workflows/pages.yml`](.github/workflows/pages.yml),
+which uploads the `site/` folder on push to `main`. Set the repository Pages source to **GitHub Actions**
+(Settings → Pages → Build and deployment → Source), not a branch deploy. That is a one-time repo setting
+and is not assumed to be switched yet.
 
 ## Support
 
@@ -140,5 +154,5 @@ respective owners. Labelarium is unofficial and not affiliated with those compan
 Code is licensed under the GNU Affero General Public License v3.0. See `LICENSE`. In short: you may use,
 study, change and share it, but if you run a modified version for others over a network you must offer
 them the modified source under the same licence. The name and marks are separate; see `TRADEMARK.md`.
-Bundled fonts are under the SIL Open Font License (`fonts/`). Device imagery under `devices/*/img` is
+Bundled fonts are under the SIL Open Font License (`site/fonts/`). Device imagery under `site/devices/*/img` is
 reproduced from each manufacturer's user guide (or support pages) for reference purposes.
