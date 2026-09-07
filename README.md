@@ -64,12 +64,10 @@ whatever the official guide (or support pages) documents for that model.
 
 ## Design language
 
-Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content (see `concepts/v2.html`,
-variation E + C): warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
+Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content: warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
 Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
 section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
 rail. Warm opium-tinted paper only. No dark theme. Fonts are bundled (SIL OFL, licences in `site/fonts/`), ~70 KB of woff2.
-Earlier explorations: `concepts/index.html` (six styles) and `concepts/v2.html` (five variations).
 
 ## Label preview
 
@@ -117,7 +115,6 @@ site/                           deployable web root (GitHub Pages artifact)
   icons/devices/                homepage / rail printer SVGs
   docs/screenshots/             phone product shots for this README
   fonts/                        bundled Bodoni Moda + Jost (SIL OFL)
-concepts/                       design explorations (not in the Pages artifact)
 docs/og/                        Open Graph source material (not in the Pages artifact)
 ```
 
