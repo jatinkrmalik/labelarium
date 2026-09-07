@@ -100,16 +100,6 @@ Installing as an app (and the offline cache) requires a secure context: `localho
 Python's built-in server does not rewrite deep paths: after the first load, in-app links still work, but a
 refresh on a deep path 404s unless the host rewrites to the shell.
 
-## Add another label maker
-
-1. Create `devices/<brand>-<model>/device.js` exporting one object. Copy `devices/brother-pt-d220/device.js`
-   as the schema reference (symbols, frames, templates, fonts, shortcuts, howto, errors, problems, tips).
-   Step strings use `[Key]` for a key on the device and `{Text}` for what the LCD shows.
-2. Put pictures under `devices/<brand>-<model>/img/` (symbols/`<category>-NN.png`, frames/`N.png`,
-   templates/`text-NN.png` …). Only referenced files are needed.
-3. Add an entry to `devices/index.json`. Done: search, favorites, offline save and the previewer pick it up.
-4. Drop a flat top-view SVG at `icons/devices/<id>.svg` for the homepage tile and device chrome.
-
 ## Layout
 
 ```
@@ -128,12 +118,12 @@ fonts/                          bundled Bodoni Moda + Jost (SIL OFL)
 ## Support
 
 If Labelarium is useful, [buy me a coffee on GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
-Want another model in the catalog? [Request a label maker](https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml) via Issues.
 
 ## Community
 
-PRs and new device packs are welcome. Start with [CONTRIBUTING](CONTRIBUTING.md)
-(draft first, official manuals only). We follow a
+Want a model that is not listed yet? [Request a label maker](https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml) and I will add it.
+PRs for app fixes are welcome; start with [CONTRIBUTING](CONTRIBUTING.md).
+We follow a
 [code of conduct](CODE_OF_CONDUCT.md). Vulnerabilities go to
 [SECURITY](SECURITY.md), not a public issue. Everyday bugs and requests live in
 [Issues](https://github.com/jatinkrmalik/labelarium/issues). Coffee still lives
