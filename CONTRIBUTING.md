@@ -6,14 +6,14 @@ draft pull request. We follow a [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Run it locally
 
-From the repo root:
+From the repo root, serve `site/` as the web root. There is no build step.
 
 ```bash
-python3 -m http.server 8321
+python3 -m http.server -d site 8080
 ```
 
-Open <http://localhost:8321>. On a phone on the same Wi-Fi use
-`http://<your-computer-ip>:8321`. Installing as an app (and the offline cache)
+Open <http://localhost:8080>. On a phone on the same Wi-Fi use
+`http://<your-computer-ip>:8080`. Installing as an app (and the offline cache)
 needs a secure context: `localhost`, or HTTPS.
 
 That is the whole toolchain.
@@ -24,9 +24,9 @@ Do not invent catalogs. Crops come from official user guides or support pages
 only, never from memory, a photo of the LCD, or a third-party listing.
 
 The steps live in the README under **Add another label maker**. Copy an existing
-`devices/<id>/` pack, fill `device.js` from the official document, drop only the
-images you actually reference, add a line to `devices/index.json`, and put a
-flat top-view SVG in `icons/devices/`. If you do not have the manual yet, open a
+`site/devices/<id>/` pack, fill `device.js` from the official document, drop only the
+images you actually reference, add a line to `site/devices/index.json`, and put a
+flat top-view SVG in `site/icons/devices/`. If you do not have the manual yet, open a
 [label maker request](https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml)
 instead of guessing.
 
@@ -51,8 +51,8 @@ Security issues are private. See [SECURITY.md](SECURITY.md).
    model. Keep them tight; do not ship whole PDF pages.
 4. Match the existing device-pack shape. The PT-D220 pack is the schema
    reference.
-5. Bump `sw.js` `VERSION` if you change cached app-shell files (`index.html`,
-   `app.js`, `style.css`, `devices/index.json`, fonts, icons). Docs-only PRs
+5. Bump `site/sw.js` `VERSION` if you change cached app-shell files (`site/index.html`,
+   `site/app.js`, `site/style.css`, `site/devices/index.json`, fonts, icons). Docs-only PRs
    do not need a bump unless a maintainer asks.
 
 A small, reviewable pack beats a giant dump. Maintainers will mark the PR ready
