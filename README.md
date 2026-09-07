@@ -62,13 +62,6 @@ Both of those include 22 shortcuts, how-to guides, every LCD error message, and 
 writes the recipe of key presses for the design you built. Other packs follow the same shell with
 whatever the official guide (or support pages) documents for that model.
 
-## Design language
-
-Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content: warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
-Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
-section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
-rail. Warm opium-tinted paper only. No dark theme. Fonts are bundled (SIL OFL, licences in `site/fonts/`), ~70 KB of woff2.
-
 ## Label preview
 
 Design a label (tape, colour, fonts, style, frame, margins, length, mirror, two lines) and get the exact
