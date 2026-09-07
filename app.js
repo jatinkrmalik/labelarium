@@ -1,5 +1,5 @@
-// Labelarium — Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
-// Labelarium — vanilla JS, History API router, no build step.
+// Labelarium. Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
+// Labelarium, vanilla JS, History API router, no build step.
 const $ = s => document.querySelector(s);
 const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
 let main = app; // device views render into the main column; home renders into the app root
@@ -101,18 +101,27 @@ function close(a, b) { // Levenshtein distance <= 1
 // ---------- router (History API) ----------
 const SITE = 'https://labelarium.com';
 const OG_IMAGE = SITE + '/icons/og.png';
-const HOME_TITLE = 'Labelarium';
+const OG_ALT = 'Labelarium, the label maker companion';
+const HOME_TITLE = 'Labelarium · the label maker companion';
 const HOME_DESC = 'Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.';
 
 function route() {
   let path = location.pathname || '/';
   if (path.length > 1 && path.endsWith('/')) {
     path = path.replace(/\/+$/, '') || '/';
-    history.replaceState(null, '', path + location.search);
+    history.replaceState(null, '', path + location.search + location.hash);
   }
   const seg = path.split('/').filter(Boolean);
   const q = Object.fromEntries(new URLSearchParams(location.search));
   return { seg, q, path };
+}
+function routeHash() {
+  try { return decodeURIComponent((location.hash || '').replace(/^#/, '')); }
+  catch { return (location.hash || '').replace(/^#/, ''); }
+}
+function absUrl(path) {
+  if (!path || path === '/') return SITE + '/';
+  return SITE + path;
 }
 function go(path, replace) {
   const next = path.startsWith('/') ? path : '/' + String(path).replace(/^#\/?/, '');
@@ -143,15 +152,19 @@ document.addEventListener('click', e => {
   const a = e.target.closest('a[href]');
   if (!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return;
   let url;
-  try { url = new URL(a.getAttribute('href'), location.origin); } catch { return; }
+  try { url = new URL(a.getAttribute('href'), location.href); } catch { return; }
   if (!isAppHref(url)) return;
   e.preventDefault();
-  const next = url.pathname + url.search;
-  if (next === location.pathname + location.search) return;
+  const next = url.pathname + url.search + url.hash;
+  const here = location.pathname + location.search + location.hash;
+  if (next === here) return;
+  const samePage = url.pathname === location.pathname && url.search === location.search;
   history.pushState(null, '', next);
+  if (samePage) { applyLocationSeo(); scrollRouteHash(); return; }
   render();
 });
 window.addEventListener('popstate', () => render());
+window.addEventListener('hashchange', () => { applyLocationSeo(); scrollRouteHash(); });
 
 function setMeta(key, content, attr = 'name') {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
@@ -162,22 +175,25 @@ function setMeta(key, content, attr = 'name') {
   }
   el.setAttribute('content', content);
 }
-function applySeo(title, desc, path, jsonld) {
+function applySeo(title, desc, path, jsonld, opts = {}) {
   document.title = title;
-  const url = SITE + (path === '/' ? '/' : path);
+  const url = absUrl(path);
   let canon = document.head.querySelector('link[rel="canonical"]');
   if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
   canon.href = url;
   setMeta('description', desc);
+  setMeta('robots', opts.noindex ? 'noindex, follow' : 'index, follow');
   setMeta('og:title', title, 'property');
   setMeta('og:description', desc, 'property');
   setMeta('og:url', url, 'property');
   setMeta('og:image', OG_IMAGE, 'property');
+  setMeta('og:image:alt', OG_ALT, 'property');
   setMeta('twitter:title', title);
   setMeta('twitter:description', desc);
   setMeta('twitter:image', OG_IMAGE);
+  setMeta('twitter:image:alt', OG_ALT);
   const ld = document.getElementById('jsonld');
-  if (ld && jsonld) ld.textContent = JSON.stringify(jsonld);
+  if (ld) ld.textContent = JSON.stringify(jsonld || webPageLd(title, desc, url));
 }
 function countSymbols(d) {
   return d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : (c.chars ? c.chars.split(' ').length : 0))), 0);
@@ -211,78 +227,137 @@ function homeJsonLd() {
         applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', browserRequirements: 'Requires JavaScript',
         isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         license: 'https://www.gnu.org/licenses/agpl-3.0.html', image: OG_IMAGE,
+        screenshot: SITE + '/docs/screenshots/phone-home.png',
         author: { '@type': 'Person', name: 'Jatin Malik', url: 'https://x.com/jatinkrmalik' },
       },
+      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'Labelarium', url: SITE + '/', publisher: { '@id': SITE + '/#app' } },
       {
-        '@type': 'ItemList', name: 'Supported label makers', numberOfItems: devices.length,
+        '@type': 'ItemList', '@id': SITE + '/#makers', name: 'Supported label makers', numberOfItems: devices.length,
         itemListElement: devices.map((d, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/d/' + d.id, name: deviceLabel(d) })),
       },
     ],
   };
 }
-function applyHomeSeo(q) {
+function applyNotFoundSeo(path) {
+  const title = 'Not found · Labelarium';
+  const desc = 'That page is not in Labelarium.';
+  const p = path && path !== '/' ? path : '/';
+  applySeo(title, desc, p, webPageLd(title, desc, absUrl(p)), { noindex: true });
+}
+function applyHomeSeo(q = {}) {
+  const hash = routeHash();
+  if (hash === 'favorites') {
+    applySeo('Pinned · Labelarium', 'Label makers you pinned on Labelarium.', '/', homeJsonLd());
+    return;
+  }
   const brand = q.brand;
   if (brand && devices.some(d => d.brand === brand)) {
     const names = devices.filter(d => d.brand === brand).map(d => d.name).join(', ');
-    applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, '/', homeJsonLd());
+    applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, `/?brand=${encodeURIComponent(brand)}`, homeJsonLd());
     return;
   }
   applySeo(HOME_TITLE, HOME_DESC, '/', homeJsonLd());
 }
-function applyDeviceSeo(d, section, rest) {
+function applyDeviceSeo(d, section, rest = [], q = {}) {
   const label = deviceLabel(d);
-  const model = d.model;
+  const tab = deviceTab(d);
+  const hash = routeHash();
   const about = { '@type': 'Product', name: label, brand: d.brand, model: d.model };
-  const page = (title, desc, path) => applySeo(title, desc, path, webPageLd(title, desc, SITE + path, { about }));
+  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path), { about }), opts);
   if (!section || section === 'home') {
     const sum = packSummary(d);
-    page(`${label} · Labelarium`, sum ? `${label}: ${d.tagline}. ${sum}. Searchable, with pictures, offline.` : `${label}: ${d.tagline}. Searchable, with pictures, offline.`, `/d/${d.id}`);
-    return;
+    const baseDesc = sum
+      ? `${label}: ${d.tagline}. ${sum}. Searchable, with pictures, offline.`
+      : `${label}: ${d.tagline}. Searchable, with pictures, offline.`;
+    const qtext = String(q.q || '').trim();
+    if (qtext) {
+      return page(`Search “${qtext}” · ${tab} · Labelarium`, `Search results for “${qtext}” on the ${label}.`, `/d/${d.id}?q=${encodeURIComponent(qtext)}`, { noindex: true });
+    }
+    if (hash === 'tips') {
+      const n = (d.tips || []).length;
+      return page(`Tips · ${tab} · Labelarium`, n ? `${n} quick tips for the ${label}.` : `Quick tips for the ${label}.`, `/d/${d.id}`);
+    }
+    if (hash === 'offline') {
+      return page(`Offline · ${tab} · Labelarium`, `Save pictures for the ${label} so this pack works without a network.`, `/d/${d.id}`);
+    }
+    if (hash === 'search') {
+      return page(`Search · ${tab} · Labelarium`, `Search symbols, frames, templates, shortcuts and more on the ${label}.`, `/d/${d.id}`);
+    }
+    return page(`${tab} · Labelarium`, baseDesc, `/d/${d.id}`);
   }
-  if (section === 'keyboard') return page(`Keyboard map · ${model} · Labelarium`, `Controls on the ${label}: ${d.keyboard.legend.length} callouts, with a tap-to-zoom diagram.`, `/d/${d.id}/keyboard`);
+  if (section === 'keyboard') return page(`Keyboard map · ${tab} · Labelarium`, `Controls on the ${label}: ${d.keyboard.legend.length} callouts, with a tap-to-zoom diagram.`, `/d/${d.id}/keyboard`);
   if (section === 'symbols') {
     const catId = rest[0];
-    if (catId === 'accented') return page(`Accented letters · ${model} · Labelarium`, `Accent key table for the ${label}.`, `/d/${d.id}/symbols/accented`);
+    if (catId === 'accented') return page(`Accented letters · ${tab} · Labelarium`, `Accent key table for the ${label}.`, `/d/${d.id}/symbols/accented`);
     if (catId) {
       const c = d.symbols.categories.find(x => x.id === catId);
       if (c) {
         const n = c.items.length || (c.chars ? c.chars.split(' ').length : 0);
-        return page(`${c.name} symbols · ${model} · Labelarium`, `${c.name} (${c.group}) on the ${label}: ${n} symbols, with insert steps.`, `/d/${d.id}/symbols/${c.id}`);
+        return page(`${c.name} symbols · ${tab} · Labelarium`, `${c.name} (${c.group}) on the ${label}: ${n} symbols, with insert steps.`, `/d/${d.id}/symbols/${c.id}`);
       }
     }
     const nCat = d.symbols.categories.length, nSym = countSymbols(d);
-    return page(`Symbols · ${model} · Labelarium`, nCat ? `Symbol catalog for the ${label}: ${nSym} entries in ${nCat} categories, with on-device steps.` : `No on-device symbol catalog is published for the ${label} in this pack.`, `/d/${d.id}/symbols`);
+    return page(`Symbols · ${tab} · Labelarium`, nCat ? `Symbol catalog for the ${label}: ${nSym} entries in ${nCat} categories, with on-device steps.` : `No on-device symbol catalog is published for the ${label} in this pack.`, `/d/${d.id}/symbols`);
   }
   if (section === 'frames') {
     const n = d.frames.items.filter(f => f.n !== 'off').length;
-    return page(`Frames · ${model} · Labelarium`, n ? `Frames on the ${label}: ${n} designs, numbered as on the device.` : `No on-device frame sheet is published for the ${label} in this pack.`, `/d/${d.id}/frames`);
+    const filter = q.f || 'all';
+    const filterTitle = { basic: 'Box and line frames', pictures: 'Picture frames', wide: '12 mm frames' }[filter];
+    const title = `${filterTitle || 'Frames'} · ${tab} · Labelarium`;
+    const desc = n
+      ? (filterTitle ? `${filterTitle} on the ${label}.` : `Frames on the ${label}: ${n} designs, numbered as on the device.`)
+      : `No on-device frame sheet is published for the ${label} in this pack.`;
+    const path = filterTitle ? `/d/${d.id}/frames?f=${encodeURIComponent(filter)}` : `/d/${d.id}/frames`;
+    return page(title, desc, path);
   }
   if (section === 'templates') {
     const nText = d.templates.text.length, nPat = d.templates.pattern.length;
-    return page(`Templates · ${model} · Labelarium`, (nText + nPat) ? `Templates on the ${label}: ${nText} text, ${nPat} pattern.` : `No on-device template library is published for the ${label} in this pack.`, `/d/${d.id}/templates`);
+    return page(`Templates · ${tab} · Labelarium`, (nText + nPat) ? `Templates on the ${label}: ${nText} text, ${nPat} pattern.` : `No on-device template library is published for the ${label} in this pack.`, `/d/${d.id}/templates`);
   }
   if (section === 'fonts') {
     const nF = d.fonts.length, nS = d.styles.length;
+    if (hash === 'styles') {
+      return page(`Styles · ${tab} · Labelarium`, nS ? `${nS} text styles on the ${label}, plus fonts, size, width and alignment.` : `Text style settings for the ${label}.`, `/d/${d.id}/fonts`);
+    }
     const desc = nF > 1
       ? `Type on the ${label}: ${nF} fonts, ${nS} styles, plus size, width and alignment.`
       : `Type settings for the ${label}${d.fontNote ? ': ' + String(d.fontNote).split('.')[0] + '.' : '.'}`;
-    return page(`Fonts & styles · ${model} · Labelarium`, desc, `/d/${d.id}/fonts`);
+    return page(`Fonts & styles · ${tab} · Labelarium`, desc, `/d/${d.id}/fonts`);
   }
-  if (section === 'shortcuts') return page(`Shortcuts · ${model} · Labelarium`, `${d.shortcuts.length} key combos and hidden tricks on the ${label}.`, `/d/${d.id}/shortcuts`);
+  if (section === 'shortcuts') return page(`Shortcuts · ${tab} · Labelarium`, `${d.shortcuts.length} key combos and hidden tricks on the ${label}.`, `/d/${d.id}/shortcuts`);
   if (section === 'howto') {
     const topic = rest[0];
     const h = topic && d.howto.find(x => x.id === topic);
-    if (h) return page(`${h.title} · ${model} · Labelarium`, `${h.title} on the ${label}.`, `/d/${d.id}/howto/${h.id}`);
-    return page(`How-to guides · ${model} · Labelarium`, `${d.howto.length} step-by-step guides for the ${label}.`, `/d/${d.id}/howto`);
+    if (h) return page(`${h.title} · ${tab} · Labelarium`, `${h.title} on the ${label}.`, `/d/${d.id}/howto/${h.id}`);
+    return page(`How-to guides · ${tab} · Labelarium`, `${d.howto.length} step-by-step guides for the ${label}.`, `/d/${d.id}/howto`);
   }
   if (section === 'trouble') {
+    if (hash === 'errors') {
+      return page(`Error messages · ${tab} · Labelarium`, d.errors.length ? `LCD error messages for the ${label}: ${d.errors.length} messages, with causes and fixes.` : `LCD error messages for the ${label}.`, `/d/${d.id}/trouble`);
+    }
+    if (hash === 'problems') {
+      return page(`Problems · ${tab} · Labelarium`, d.problems.length ? `${d.problems.length} problems and fixes for the ${label}.` : `Problems and fixes for the ${label}.`, `/d/${d.id}/trouble`);
+    }
     const desc = (d.errors.length || d.problems.length)
       ? `LCD messages and fixes for the ${label}: ${d.errors.length} messages, ${d.problems.length} problems.`
       : `Troubleshooting notes for the ${label}.`;
-    return page(`Troubleshooting · ${model} · Labelarium`, desc, `/d/${d.id}/trouble`);
+    return page(`Troubleshooting · ${tab} · Labelarium`, desc, `/d/${d.id}/trouble`);
   }
-  if (section === 'preview') return page(`Label preview · ${model} · Labelarium`, `Design a label for the ${label} and get the key-press recipe.`, `/d/${d.id}/preview`);
-  if (section === 'specs') return page(`Specs & tapes · ${model} · Labelarium`, `Tape widths, limits and official links for the ${label}.`, `/d/${d.id}/specs`);
+  if (section === 'preview') return page(`Label preview · ${tab} · Labelarium`, `Design a label for the ${label} and get the key-press recipe.`, `/d/${d.id}/preview`);
+  if (section === 'specs') return page(`Specs & tapes · ${tab} · Labelarium`, `Tape widths, limits and official links for the ${label}.`, `/d/${d.id}/specs`);
+  return page(`${tab} · Labelarium`, `${label} in Labelarium.`, `/d/${d.id}`);
+}
+function applyLocationSeo() {
+  const { seg, q, path } = route();
+  if (!seg.length) { applyHomeSeo(q); return; }
+  if (seg[0] !== 'd' || !seg[1]) { applyNotFoundSeo(path); return; }
+  const d = loaded[seg[1]];
+  if (d) applyDeviceSeo(d, seg[2] || 'home', seg.slice(3), q);
+}
+function scrollRouteHash() {
+  const id = routeHash();
+  if (!id) return;
+  document.getElementById(id)?.scrollIntoView({ block: 'start' });
 }
 
 async function render() {
@@ -292,7 +367,7 @@ async function render() {
     if (!devices.length) await loadIndex();
     if (!seg.length) { applyHomeSeo(q); renderHome(q); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
-      applySeo('Not found · Labelarium', 'That page is not in Labelarium.', '/');
+      applyNotFoundSeo(route().path);
       setTop('Not found', { back: '/' });
       app.className = 'app';
       app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
@@ -304,19 +379,21 @@ async function render() {
     const section = seg[2] || 'home';
     const views = { home: viewDeviceHome, symbols: viewSymbols, frames: viewFrames, templates: viewTemplates, fonts: viewFonts, shortcuts: viewShortcuts, keyboard: viewKeyboard, howto: viewHowto, trouble: viewTrouble, preview: viewPreview, specs: viewSpecs };
     if (!views[section]) return go(`/d/${d.id}`, true);
-    applyDeviceSeo(d, section, seg.slice(3));
+    applyDeviceSeo(d, section, seg.slice(3), q);
     views[section](d, seg.slice(3), q);
     ensureFooter(main);
     maybeShowInstallBar();
   } catch (e) {
     setTop('Labelarium', { back: '/' });
-    applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', '/');
+    applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', route().path || '/', null, { noindex: true });
     app.className = 'app';
     app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="/">Back to all label makers</a></div>`;
     ensureFooter(app);
     console.error(e);
+  } finally {
+    if (routeHash()) requestAnimationFrame(scrollRouteHash);
+    else if (!route().q.q) window.scrollTo(0, 0);
   }
-  if (!route().q.q) window.scrollTo(0, 0);
 }
 
 // Diagonal ABC tape. viewBox is sized for rotate(-26) of the 88×22 strip so nothing is clipped.
@@ -346,6 +423,15 @@ function deviceLabel(dev) {
   const n = name.toLowerCase(), b = brand.toLowerCase();
   if (n === b || n.startsWith(b + ' ')) return name;
   return `${brand} ${name}`;
+}
+function deviceTab(dev) {
+  const brand = dev.brand || '';
+  const model = dev.model || dev.name || '';
+  if (!brand) return model;
+  if (!model) return brand;
+  const m = model.toLowerCase(), b = brand.toLowerCase();
+  if (m === b || m.startsWith(b + ' ')) return model;
+  return `${brand} ${model}`;
 }
 
 // Document-flow site footer. Not sticky: lives at the end of the page content.
@@ -378,7 +464,7 @@ function renderHome(q = {}) {
     </div>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
-    ${favDevs.length ? `<h2>Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+    ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     <div class="devgrid">${list.map(card).join('')}</div>
@@ -421,10 +507,10 @@ window.openMore = id => {
   openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
 };
 function searchBox(d, q) {
-  return `<div class="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+  return `<div class="search" id="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
-window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); renderResults(loaded[id], v); }, 80); };
+window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); const d = loaded[id]; applyDeviceSeo(d, 'home', [], { q: v }); renderResults(d, v); }, 80); };
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
@@ -436,8 +522,8 @@ function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   $('#sections').innerHTML = `<div class="col"><p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
-    <aside class="col"><h2>Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
-    <div class="card" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
+    <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
+    <div class="card" id="offline" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
 }
 function renderResults(d, q, firstPaint) {
@@ -489,7 +575,7 @@ function glyphTile(d, it, showName) {
   return `<button class="glyph" onclick="openSymbol('${d.id}','${it.cat.id}',${it.n})" title="${esc(it.name)}"><span class="badge">${it.n}</span><img src="${it.img}" alt="${esc(it.name)}" loading="lazy">${showName ? `<span class="name">${esc(it.name)}</span>` : ''}</button>`;
 }
 function frameTile(d, f) {
-  return `<button class="frame" onclick="openFrame('${d.id}','${f.n}')"><span class="badge">${f.n === 'off' ? 'Off' : 'Frame'}</span>${f.wide ? '<span class="pill warn" style="position:absolute;right:8px;top:6px">12 mm</span>' : ''}<img class="frame-img" src="${f.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${f.n === 'off' ? '—' : f.n}</span><span>${esc(f.name)}</span></div></button>`;
+  return `<button class="frame" onclick="openFrame('${d.id}','${f.n}')"><span class="badge">${f.n === 'off' ? 'Off' : 'Frame'}</span>${f.wide ? '<span class="pill warn" style="position:absolute;right:8px;top:6px">12 mm</span>' : ''}<img class="frame-img" src="${f.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${f.n === 'off' ? 'Off' : f.n}</span><span>${esc(f.name)}</span></div></button>`;
 }
 function tplTile(d, t) {
   return `<button class="frame" onclick="openTemplate('${d.id}','${t.kind}',${t.n})"><span class="badge">${t.kind === 'text' ? 'Text' : 'Pattern'}</span><img class="tpl-img" src="${t.img}" alt="" loading="lazy"><div class="lbl"><span class="num">${pad2(t.n)}</span><span>${esc(t.name)}</span></div></button>`;
@@ -521,7 +607,7 @@ window.openSymbol = (id, catId, n) => {
   openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 class="t">${esc(it.name)}</h2>
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
     <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
-    <div class="note">Recently used? Pick <b>History</b> instead — it keeps your last 7 symbols.</div>
+    <div class="note">Recently used? Pick <b>History</b> instead. It keeps your last 7 symbols.</div>
     <p style="margin-top:12px"><a href="/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
 };
 window.openFrame = (id, n) => {
@@ -530,7 +616,7 @@ window.openFrame = (id, n) => {
   openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
-    <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b> — [OK] prints without it.</div>
+    <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b>. [OK] prints without it.</div>
     <p style="margin-top:12px"><a href="/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
 };
 window.openTemplate = (id, kind, n) => {
@@ -547,8 +633,8 @@ function viewSymbols(d, [catId]) {
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
   main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
-    <h2>Basic <span class="muted small">— text characters</span></h2>${grp('Basic')}
-    <h2>Pictograph <span class="muted small">— pictures</span></h2>${grp('Pictograph')}
+    <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
+    <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
     <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
 }
 function viewCategory(d, catId) {
@@ -593,7 +679,7 @@ window.setFilter = (id, f) => { const y = window.scrollY; history.replaceState(n
 function viewTemplates(d) {
   deviceTop(d, 'Templates');
   const block = (title, sub, howto, items) => items.length
-    ? `<h2>${title} <span class="muted small">— ${sub}</span></h2><div class="card"><h3>How</h3>${steps(howto)}</div><div class="framelist" style="margin-top:10px">${items.map(t => tplTile(d, t)).join('')}</div>`
+    ? `<h2>${title} <span class="muted small">(${sub})</span></h2><div class="card"><h3>How</h3>${steps(howto)}</div><div class="framelist" style="margin-top:10px">${items.map(t => tplTile(d, t)).join('')}</div>`
     : '';
   main.innerHTML = `<div class="card"><div class="note">${d.templates.notes.map(fmt).join('<br>')}</div></div>
     ${block('Text label templates', 'your text, their layout', d.templates.textHowto, d.templates.text)}
@@ -601,9 +687,9 @@ function viewTemplates(d) {
 }
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
-  const list = (title, arr, menu) => `<h2>${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
+  const list = (title, arr, id) => `<h2 id="${esc(id)}">${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
   main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
-    ${list('Fonts', d.fonts, 'Font')}${list('Sizes', d.sizes, 'Size')}${list('Widths', d.widths, 'Width')}${list('Styles', d.styles, 'Style')}${list('Alignment', d.alignments, 'Alignment')}`;
+    ${list('Fonts', d.fonts, 'fonts')}${list('Sizes', d.sizes, 'sizes')}${list('Widths', d.widths, 'widths')}${list('Styles', d.styles, 'styles')}${list('Alignment', d.alignments, 'alignment')}`;
 }
 function viewShortcuts(d) {
   deviceTop(d, 'Shortcuts');
@@ -627,8 +713,8 @@ function viewHowto(d, [topic]) {
 }
 function viewTrouble(d) {
   deviceTop(d, 'Troubleshooting');
-  main.innerHTML = `<h2>Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
-    <h2>What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
+  main.innerHTML = `<h2 id="errors">Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
+    <h2 id="problems">What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
 }
 function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
@@ -677,7 +763,7 @@ const savedKey = id => 'labels:' + id;
 function renderSaved(d) {
   const box = $('#saved'); if (!box) return;
   const list = store.get(savedKey(d.id), []);
-  if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label” — it comes back with its full recipe.</p>'; return; }
+  if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label”. It comes back with its full recipe.</p>'; return; }
   box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark strip"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
 }
 window.saveLabel = id => {
@@ -713,7 +799,7 @@ function drawTape(d, s) {
     else if (frame.n === 2) frameCss = `border:2px solid ${ink};border-radius:8px;padding:2px 10px;`;
     else frameImg = `<img class="frameimg${s.mirror ? ' mirror' : ''}" src="${frame.img}" alt="">`;
   }
-  // Mirror must live in the same transform as width — an inline scaleX(width) was overriding .tape.mirror CSS.
+  // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
   const sx = (s.mirror ? -1 : 1) * width;
   const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center;padding:0 ${frameImg ? Math.round(s.tape * PX * 1.15) : 4}px">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
   const el = $('#tape');
@@ -731,7 +817,7 @@ function drawTape(d, s) {
   $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
   // recipe
   const r = [];
-  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape — frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
+  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
   r.push(`Type “${s.text1}”${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
   if (s.font) r.push(`[Font] → {Font} → [OK] → [◀] / [▶] to {${font.name}} → [OK].`);
   if (s.size) r.push(`[Font] → {Size} → [OK] → {${d.sizes[s.size].name}} → [OK].`);

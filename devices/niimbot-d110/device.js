@@ -1,6 +1,6 @@
-// NIIMBOT D110 — reference data for Labelarium.
+// NIIMBOT D110. Reference data for Labelarium.
 // Source: official Product Manual, D110_M English V1.1 (PDF title D110_M英文版说明书, 13 pages, 2024).
-// US SKU D110_M. App-first thermal printer — this guide has no on-device symbol, frame, template or font catalog.
+// US SKU D110_M. App-first thermal printer. This guide has no on-device symbol, frame, template or font catalog.
 // Notation in steps: [Key] = a control on the printer, {Text} = app / status wording, → = then.
 // Symbol items: [name, keywords, unicode approximation]. These are diagrams printed in this guide, not printer glyphs.
 export default {
@@ -69,7 +69,7 @@ export default {
   symbols: {
     howto: [
       'The D110 has no [Symbol] key and no on-printer symbol catalog. Add icons on the Drawing Board in the NIIM or NIIMBOT app.',
-      'The pictures below are the diagrams printed in the D110_M Product Manual (package contents, installation, apps, parts and warnings) — not glyphs stored on the printer.',
+      'The pictures below are the diagrams printed in the D110_M Product Manual (package contents, installation, apps, parts and warnings). Not glyphs stored on the printer.',
       'Open a picture to see its caption from the guide.',
     ],
     categories: [
@@ -120,7 +120,7 @@ export default {
       'Add borders and decorations on the Drawing Board in the NIIM or NIIMBOT app.',
     ],
     notes: [
-      'This Product Manual does not print a frame catalog. Off is the only slot — there are no numbered Brother-style frames on this printer.',
+      'This Product Manual does not print a frame catalog. Off is the only slot. There are no numbered Brother-style frames on this printer.',
     ],
     items: [
       ['off', 'No frame', 'none off plain drawing board'],
@@ -139,7 +139,7 @@ export default {
       'Open the Drawing Board (or a template in the app) and type your text.',
     ],
     patternHowto: [
-      'Pattern / decorative designs, if any, are in the NIIM or NIIMBOT app — not listed in this guide.',
+      'Pattern / decorative designs, if any, are in the NIIM or NIIMBOT app. Not listed in this guide.',
     ],
     text: [],
     pattern: [],
@@ -166,7 +166,7 @@ export default {
     { id: 'indicators', title: 'Read the indicator lights', kw: 'led blue green red white bluetooth firmware printing fault',
       steps: ['Front Indicator light (around the power button): blue solid = powered on but not connected; blue flashing quickly = upgrading firmware; green solid = Bluetooth connected; green flashing quickly = printing; red solid = device fault.', 'Top Power Indicator light: white blinking slowly = charging; white solid = fully charged and connected to power; white flashing quickly = low battery.'] },
     { id: 'safety', title: 'Safety precautions', kw: 'warning children water battery adapter smoke disassemble flammable',
-      steps: ['Do not disassemble the product yourself (no returns or exchanges for disassembled products).', 'Do not use corrosive chemical products or cleaners to wipe the product.', 'Do not use the product near flammable substances (gas stations, fuel depots, etc.).', 'Keep the product and accessories away from children, or use only under a guardian.', 'If the product enters water, or malfunctions, disconnect it from power immediately.', 'Do not replace the battery yourself — incorrect replacement can explode.', 'If you notice smoke or a smell from the product or adapter, disconnect immediately and avoid burns.'],
+      steps: ['Do not disassemble the product yourself (no returns or exchanges for disassembled products).', 'Do not use corrosive chemical products or cleaners to wipe the product.', 'Do not use the product near flammable substances (gas stations, fuel depots, etc.).', 'Keep the product and accessories away from children, or use only under a guardian.', 'If the product enters water, or malfunctions, disconnect it from power immediately.', 'Do not replace the battery yourself. Incorrect replacement can explode.', 'If you notice smoke or a smell from the product or adapter, disconnect immediately and avoid burns.'],
       notes: ['Buy the version that matches your region from the NIIMBOT official store or an authorized sales agent.'] },
   ],
 
@@ -192,10 +192,10 @@ export default {
   ],
   tips: [
     'Commercial or industrial jobs: NIIMBOT app. Home storage and crafts: NIIM app. Both are on the App Store and Google Play.',
-    'After pairing, the guide\'s next step is the Drawing Board — that is where you design the label.',
+    'After pairing, the guide\'s next step is the Drawing Board. That is where you design the label.',
     'Print side face down, first label sticking out of the outlet, then close the lid.',
     'Quick press is not fixed: set it in the app to skip feeding, print the time, or reprint history.',
-    'Double-press [Power] prints a testing page — useful before you blame the app.',
+    'Double-press [Power] prints a testing page. Useful before you blame the app.',
     'If it will not power on, charge for a full hour before trying again.',
     'Illustrations in this getting-started guide are for reference; the physical printer may differ slightly after updates.',
   ],

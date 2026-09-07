@@ -1,4 +1,4 @@
-// Brother P-touch PT-D220 — reference data for Labelarium.
+// Brother P-touch PT-D220. Reference data for Labelarium.
 // Source: official User's Guide D027JF001A (2024) plus Brother support FAQs.
 // Notation in steps: [Key] = a key on the device, {Text} = what the LCD shows, → = then.
 // Symbol items: [name, keywords, unicode approximation]. Position (1-based) = order in the category on the device.
@@ -119,7 +119,7 @@ export default {
     howto: [
       'Press [Symbol].',
       'Use [◀] / [▶] to choose {History}, {Basic} or {Pictograph}, then [OK]. (History = your last 7 symbols; no categories inside it.)',
-      'Use [◀] / [▶] to choose the category, then [OK] — or press the category\'s shortcut key to jump straight to it.',
+      'Use [◀] / [▶] to choose the category, then [OK], or press the category\'s shortcut key to jump straight to it.',
       'Use [◀] / [▶] to move to the symbol (positions below count from the left), then [OK].',
       'To cancel at any point press [Esc].',
     ],
@@ -302,7 +302,7 @@ export default {
       'To remove a frame: [Frame] → choose {Off} → [OK].',
     ],
     notes: [
-      'Frames 84–99 (and any frame showing the 12 mm tape icon) print only on 12 mm (0.47") tape. On narrower tape you get "No Frame OK?" — [OK] prints without the frame, [Esc] cancels.',
+      'Frames 84–99 (and any frame showing the 12 mm tape icon) print only on 12 mm (0.47") tape. On narrower tape you get "No Frame OK?". [OK] prints without the frame, [Esc] cancels.',
       'On 3.5 mm tape frames are not available.',
       'Frames wrap the whole label, both lines included.',
     ],
@@ -469,13 +469,13 @@ export default {
   howto: [
     { id: 'margins', title: 'Save tape: margins (Full / Half / Narrow / Chain)', kw: 'margin waste tape saving short label length leader blank space before after cut dots',
       steps: ['Press [Label].', 'Use [◀] / [▶] until {Margin} shows, then [OK].', 'Pick {Full} (25 mm each side), {Half} (12 mm), {Narrow} (4 mm) or {Chain Print}, then [OK].'],
-      notes: ['The ~25 mm lead-in before the first label cannot be eliminated (it is the distance from print head to cutter). With Half / Narrow the device prints two dots (:) — cut there with scissors so the margins are even.', 'For several labels in a row use Chain Print (below) — later labels lose the lead-in entirely.', 'Fix for "too much blank tape on both sides of the text".'] },
+      notes: ['The ~25 mm lead-in before the first label cannot be eliminated (it is the distance from print head to cutter). With Half / Narrow the device prints two dots (:). Cut there with scissors so the margins are even.', 'For several labels in a row use Chain Print (below). Later labels lose the lead-in entirely.', 'Fix for "too much blank tape on both sides of the text".'] },
     { id: 'chain', title: 'Chain Print: many labels, minimal waste', kw: 'chain print batch several labels feed ok waste multiple',
       steps: ['[Label] → {Margin} → [OK] → {Chain Print} → [OK].', 'Type the first label and press [Print]. When {Copies:} shows, set the number and press [OK].', 'When "Feed OK?" appears press [Esc] to keep going.', 'Clear the text (keep the format), type the next label, press [Print].', 'After the last label press [OK] at "Feed OK?" so the tape feeds, then push the cutter lever.'],
-      notes: ['Feed before cutting, otherwise the last label may be cut through.', 'When a specific label is done printing you can also cut manually with the lever — only after "Please Cut".'] },
+      notes: ['Feed before cutting, otherwise the last label may be cut through.', 'When a specific label is done printing you can also cut manually with the lever. Only after "Please Cut".'] },
     { id: 'two-lines', title: 'Two-line labels', kw: 'two lines second line enter multi-line return 2 line limit',
       steps: ['Type line 1.', 'Press [Enter] where the second line should start (a ↵ appears on the LCD).', 'Type line 2. Print.'],
-      notes: ['Needs 9 mm or 12 mm tape. On 3.5 / 6 mm you get "2 Line Limit!" — the same message appears if you press Enter a third time.'] },
+      notes: ['Needs 9 mm or 12 mm tape. On 3.5 / 6 mm you get "2 Line Limit!". The same message appears if you press Enter a third time.'] },
     { id: 'length', title: 'Fixed label length', kw: 'label length auto fixed size mm inch lock padlock change length',
       steps: ['Press [Label].', '{Label Length} → [OK].', 'Use [◀] / [▶] to pick {Auto} or 30–300 mm (1.2"–12"), then [OK].'],
       notes: ['A 🔒 appears on the LCD when a length is fixed. Press [Space] in the setting to return to Auto.', '"Change Length!" means the text no longer fits: shorten it or return to Auto.', 'After printing, cut along the printed dots (:) so the length matches.'] },
@@ -496,7 +496,7 @@ export default {
       steps: ['Press [Shift] + [Preview]. About 25 mm (1") of tape feeds.'] },
     { id: 'print-copies', title: 'Print and print copies', kw: 'print copies multiple duplicates cut lever please cut peel backing',
       steps: ['Press [Print]. {Copies:} appears.', 'Use [◀] / [▶] or type a digit for 1–9 copies (or just press [OK] for one).', 'Press [OK].', 'When "Please Cut" appears push the cutter lever at the top right.'],
-      notes: ['Never press the lever while "Please Wait" is displayed — it jams the tape.', 'To peel: fold the label lengthwise with text inside so the backing splits, then peel each half.'] },
+      notes: ['Never press the lever while "Please Wait" is displayed. It jams the tape.', 'To peel: fold the label lengthwise with text inside so the backing splits, then peel each half.'] },
     { id: 'numbering', title: 'Numbering (auto-increment serial labels)', kw: 'numbering serial sequence increment auto number consecutive 0123 0124 series count',
       steps: ['Type the text including the number, e.g. {0123}.', 'Move the cursor onto the number to increment with [◀] / [▶].', 'Press [Shift] + [Print].', '{Numbering} → [OK].', 'Use [◀] / [▶] to set the highest number to print (e.g. 0125 prints 0123, 0124, 0125), then [OK].'],
       notes: ['Up to 9 labels per run. "Invalid!" means the cursor is not on a number.'] },
@@ -505,7 +505,7 @@ export default {
       notes: ['Use clear tape so the label reads correctly from the other side of the glass.'] },
     { id: 'files', title: 'Save, open and print stored labels (30 slots)', kw: 'save file memory store recall open load favorite stored labels slots overwrite',
       steps: ['Save: type the label → [File] → [◀] / [▶] to {Save} → [OK] → [◀] / [▶] to a slot number (1–30) → [OK]. Choosing an occupied slot asks "Overwrite OK?".', 'Print a stored label: [File] → {Print} → [OK] → pick the slot → [OK] → {Copies:} → [OK].', 'Open for editing: [File] → {Open} → [OK] → pick the slot → [OK].', 'Shortcut into the File menu: [Menu] → [1].'],
-      notes: ['80 characters per file, 2400 in total. Files are lost after a reset, a repair, or if power is cut for a long time — keep good batteries in as memory backup even when using the adapter.', 'Labels made with templates cannot be saved.'] },
+      notes: ['80 characters per file, 2400 in total. Files are lost after a reset, a repair, or if power is cut for a long time. Keep good batteries in as memory backup even when using the adapter.', 'Labels made with templates cannot be saved.'] },
     { id: 'font', title: 'Font, size, width, style and alignment', kw: 'font typeface size large medium small width x2 half style bold italic outline shadow solid vertical alignment left center right justify',
       steps: ['Press [Font].', 'Use [◀] / [▶] to pick {Font}, {Size}, {Width}, {Style} or {Alignment}, then [OK].', 'Use [◀] / [▶] to pick the setting, then [OK].'],
       notes: ['See the Fonts & styles section for samples of all 14 fonts and 11 styles.', 'Vertical style prints each character rotated so the label reads top-to-bottom when hung vertically.'] },
@@ -530,11 +530,11 @@ export default {
     { id: 'cursor', title: 'Move around long text', kw: 'cursor jump start end navigate scroll long text shift arrow',
       steps: ['[◀] / [▶] move one character.', '[Shift] + [▶] jumps to the end, [Shift] + [◀] to the start.', 'The LCD shows 15 characters at a time; the label can hold 80.'] },
     { id: 'power', title: 'Batteries, adapter and auto power off', kw: 'battery batteries AAA adapter AD-24ES power off automatic sleep memory backup',
-      steps: ['Use 6 × AAA alkaline (LR03) or fully charged Ni-MH (HR03) — replace all six together, never mix types.', 'Optional adapter AD-24ES / AD-24ESA plugs into the jack at the top. Keep batteries in as memory backup.', 'The device switches off after 5 idle minutes. Text and settings survive 3 minutes without any power; longer and they are lost.'],
+      steps: ['Use 6 × AAA alkaline (LR03) or fully charged Ni-MH (HR03). Replace all six together, never mix types.', 'Optional adapter AD-24ES / AD-24ESA plugs into the jack at the top. Keep batteries in as memory backup.', 'The device switches off after 5 idle minutes. Text and settings survive 3 minutes without any power; longer and they are lost.'],
       notes: ['The device cannot charge Ni-MH cells.'] },
     { id: 'tape', title: 'Change the tape cassette', kw: 'tape cassette install replace insert TZe cartridge jam stuck feed guides',
       steps: ['Switch off. Press the marked area at the top end to open the cassette cover.', 'Pull the old cassette straight up.', 'Insert the new TZe cassette until it clicks, making sure the tape end runs under the tape guides.', 'Close the cover.'],
-      notes: ['Only Brother TZe tapes with the TZe mark work. Never print with an empty cassette — it damages the print head.', 'Blank line through the print? Wipe the print head with a dry cotton swab.'] },
+      notes: ['Only Brother TZe tapes with the TZe mark work. Never print with an empty cassette. It damages the print head.', 'Blank line through the print? Wipe the print head with a dry cotton swab.'] },
     { id: 'cutter', title: 'Replace a blunt cutter (TC-4)', kw: 'cutter blade dull blunt not cutting replace TC-4',
       steps: ['Open the cassette cover and remove the tape.', 'Pull the two green sections of the cutter unit out in the direction of the arrows.', 'Push the new TC-4 unit in until it locks.'],
       notes: ['Never touch the blade with your fingers.'] },
@@ -570,9 +570,9 @@ export default {
   tips: [
     'Type a frame number straight after pressing Frame instead of scrolling through 99 designs.',
     'Category shortcut letters work right after choosing Basic or Pictograph: Symbol → Pictograph → OK → Space jumps to Signs (⚠, 🚫 …).',
-    'History (the first option under Symbol) remembers your last 7 symbols — the fastest way to reuse ⚠ or →.',
+    'History (the first option under Symbol) remembers your last 7 symbols. The fastest way to reuse ⚠ or →.',
     'For cable flags, use text template 06 (PRINTER | PRINTER): fold the label around the cable and the text shows on both sides.',
-    'Two lines of small text on 12 mm tape fit twice the information per label — great for pantry jars with name + date.',
+    'Two lines of small text on 12 mm tape fit twice the information per label. Great for pantry jars with name + date.',
     'Store your 30 most-used labels in File slots and reprint them with Menu → 1 → Print.',
     'Press Space inside any setting to jump back to its default.',
   ],

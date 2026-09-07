@@ -1,4 +1,4 @@
-// Brother P-touch PT-D610BT — reference data for Labelarium.
+// Brother P-touch PT-D610BT. Reference data for Labelarium.
 // Source: official User's Guide (Version A, 2022, 154 pp).
 // Catalog counts are from this guide's printed tables (not D210/D220).
 // Notation in steps: [Key] = a key on the device, {Text} = what the LCD shows, → = then.
@@ -472,12 +472,12 @@ export default {
     howto: [
       'Press [Fn].',
       'Use [▲] / [▼] to display {Frame}, then [OK].',
-      'Choose a category, then a frame with the cursor keys — or type the frame number.',
+      'Choose a category, then a frame with the cursor keys, or type the frame number.',
       'Press [OK].',
     ],
     notes: [
       'Frames are grouped as Simple 1, Simple 2, Decorative, Business 1 and Business 2 (167 designs on this guide\'s sheet; Brother lists 160).',
-      'A template that needs a different tape width shows an error — install the matching cassette or pick another design.',
+      'A template that needs a different tape width shows an error. Install the matching cassette or pick another design.',
     ],
     items: [
       ['off', 'No frame', 'none off plain remove'],
@@ -769,10 +769,10 @@ export default {
       notes: ['Maximum five blocks per label.'] },
     { id: 'length', title: 'Fixed label length', kw: 'label length auto 30 300 mm lock',
       steps: ['[Fn] → {Length} → [OK].', 'Pick {Auto} or 30–300 mm (1.2"–12") with [▲] / [▼] or the number keys, then [OK].'],
-      notes: ['{Text too long} means the text no longer fits — shorten it or return to Auto ([Space] in the setting).'] },
+      notes: ['{Text too long} means the text no longer fits. Shorten it or return to Auto ([Space] in the setting).'] },
     { id: 'cut', title: 'Cut options (Small / Large / Chain / No Cut / Special Tape)', kw: 'cut margin chain waste tape cutter special fabric',
       steps: ['[Fn] → {Cut Option} → [OK].', 'Pick {Small Margin} (2 mm), {Large Margin} (25 mm), {Chain}, {No Cut} or {Special Tape}, then [OK].'],
-      notes: ['The first label still has about 23 mm of lead-in (print head to cutter). After Chain or No Cut, press Shift + Preview to feed and cut the last label.', 'Use No Cut / Special Tape for fabric iron-on — then cut with scissors.'] },
+      notes: ['The first label still has about 23 mm of lead-in (print head to cutter). After Chain or No Cut, press Shift + Preview to feed and cut the last label.', 'Use No Cut / Special Tape for fabric iron-on, then cut with scissors.'] },
     { id: 'chain', title: 'Chain print: many labels, less waste', kw: 'chain print batch feed waste',
       steps: ['[Fn] → {Cut Option} → {Chain} → [OK].', 'Print each label. After the last one, press [Shift] + [Preview] and choose Feed & Cut.'],
       notes: ['If you skip the final feed, the last label can be cut short.'] },
@@ -862,7 +862,7 @@ export default {
     'History (first stop under Symbol) remembers the last 30 symbols.',
     'Shift + Fn formats one character; move the cursor to a line first to format that line only.',
     'Cable flags: Auto Format → Cable Labeling → Flag 1 / Flag 2. Fold around the cable so the text shows on both sides.',
-    'Keep AA cells in even on the adapter — they back up the 99 files and the clock.',
+    'Keep AA cells in even on the adapter. They back up the 99 files and the clock.',
     'Space inside a setting jumps back to its default (Auto length, brightness 0, …).',
     'Preview + Scale/Zoom is the quickest way to check a 7-line 24 mm layout before you print.',
   ],

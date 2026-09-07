@@ -1,11 +1,11 @@
-// Phomemo M110 — reference data for Labelarium.
+// Phomemo M110. Reference data for Labelarium.
 // App-first pack. No official PDF is published. Sources (only these two pages):
 //   https://phomemo.com/pages/m110-support-center
 //   https://phomemo.com/blogs/guides/m110-setup-guide-from-unboxing-to-printing-in-5-minutes
 // Images: crops of on-page official photos (M110 product render + Print Master screenshot
 // on the Support Center). Number badges on the crop match the legend below.
 // Notation in steps: [Control] = a control on the printer or in Print Master, {Text} = on-screen copy, → = then.
-// Phomemo has not published numbered symbol, frame, font or template catalogs — those lists
+// Phomemo has not published numbered symbol, frame, font or template catalogs. Those lists
 // are empty on purpose. Do not treat the one Print Master stand-in font as a device catalog.
 export default {
   id: 'phomemo-m110',
@@ -55,7 +55,7 @@ export default {
       [8, 'Power key', 'Left front key on the official product render (power symbol). The two pages do not name the key; the icon is on the photo.'],
       [9, 'Printer-symbol key', 'Right front key on the official product render (printer icon). The two pages do not name the key. Printing is started from Print Master.'],
       [10, 'Side button (open cover)', 'Setup guide: press the side button to open the top cover. Not a separate callout on the photo.'],
-      [11, 'Label size in Print Master', 'Official screenshot shows {(25X75)earrings} in the top bar — size plus template name. Set size in the app to match the roll.'],
+      [11, 'Label size in Print Master', 'Official screenshot shows {(25X75)earrings} in the top bar. Size plus template name. Set size in the app to match the roll.'],
       [12, 'Text', 'Print Master tool on the Support Center screenshot. Add and edit text on the canvas.'],
       [13, 'Code', 'Print Master tool on the screenshot. Barcodes and QR codes; Support Center also lists Code128, Code39, Codabar, EAN-8 and EAN-13.'],
       [14, 'Icon', 'Print Master tool on the screenshot. Phomemo has not published an icon/symbol sheet for the M110.'],
@@ -69,7 +69,7 @@ export default {
     ],
   },
   shortcuts: [
-    { keys: 'Phone [Bluetooth] on → open Print Master → [Connect Device] → {M110}', action: 'Pair the printer. Do not pair from the phone’s Bluetooth settings — that fails.', kw: 'bluetooth pair connect device app print master wireless' },
+    { keys: 'Phone [Bluetooth] on → open Print Master → [Connect Device] → {M110}', action: 'Pair the printer. Do not pair from the phone’s Bluetooth settings. That fails.', kw: 'bluetooth pair connect device app print master wireless' },
     { keys: 'Print Master → template → [Print]', action: 'Print a label from the app', kw: 'print first label template' },
     { keys: '[Text] / [Code] / [Icon] / [Frames] / [Picture]', action: 'Tools shown on Phomemo’s Support Center screenshot of Print Master', kw: 'text barcode qr icon frames picture logo' },
     { keys: '[Side button] → open cover', action: 'Open the top cover to load labels', kw: 'cover lid open load tape' },
@@ -85,7 +85,7 @@ export default {
   widths: [['App', 'width-app.png', 1]],
   styles: [['App', 'style-app.png']],
   alignments: [['App', 'align-app.png']],
-  fontNote: 'The M110 has no on-printer font menu. Size, width, style and alignment live in Print Master. Phomemo has not published a font/glyph sheet, so this pack does not invent one. The preview uses a generic system sans as a stand-in. Label-preview key recipes in this app still use P-touch wording (shared shell) — on the M110 you tap Print in the app instead.',
+  fontNote: 'The M110 has no on-printer font menu. Size, width, style and alignment live in Print Master. Phomemo has not published a font/glyph sheet, so this pack does not invent one. The preview uses a generic system sans as a stand-in. Label-preview key recipes in this app still use P-touch wording (shared shell). On the M110 you tap Print in the app instead.',
 
   symbols: {
     howto: [
@@ -122,7 +122,7 @@ export default {
     notes: [
       'Print Master: choose or create a template. Setup guide examples: price tag, barcode, name label. Then customise text, icons and layout and tap Print.',
       'Phomemo has not published a numbered text/pattern template catalog for the M110, so those lists are empty on purpose.',
-      'The Support Center screenshot shows a hang-tag layout named {earrings} at 25 × 75 mm — an example, not item 01 of a catalog.',
+      'The Support Center screenshot shows a hang-tag layout named {earrings} at 25 × 75 mm. An example, not item 01 of a catalog.',
     ],
     textHowto: [
       'Open Print Master and connect {M110}.',
@@ -141,7 +141,7 @@ export default {
   howto: [
     { id: 'unbox', title: 'What is in the box', kw: 'unbox package contents roll manual cable warranty',
       steps: [
-        'Support Center: Phomemo M110 printer × 1; 1½" × 1⅛" (40 × 30 mm) 100-label roll × 1 (already inside — open the cover and pull it out a little so the printer senses it); USB cable × 1; user manual × 1.',
+        'Support Center: Phomemo M110 printer × 1; 1½" × 1⅛" (40 × 30 mm) 100-label roll × 1 (already inside. Open the cover and pull it out a little so the printer senses it); USB cable × 1; user manual × 1.',
         'Setup guide also lists a warranty card and calls the roll a sample of 40 mm × 30 mm labels.',
       ],
       notes: ['Product registration is no longer necessary. Keep proof of purchase for warranty.'] },
@@ -171,7 +171,7 @@ export default {
         'Tap [Connect Device] → select {M110}.',
       ],
       notes: [
-        'MUST connect from Print Master, NOT from the phone’s Bluetooth settings — otherwise pairing fails.',
+        'MUST connect from Print Master, NOT from the phone’s Bluetooth settings. Otherwise pairing fails.',
         'The app remembers the device for later sessions.',
       ] },
     { id: 'print', title: 'Print the first label', kw: 'print first label template text barcode',
@@ -196,7 +196,7 @@ export default {
       ],
       notes: [
         'Listed OS: Windows 7 / 8 / 10 (32- and 64-bit), Windows 11 (64-bit); macOS 10.14, 10.15, 10.11, 12; Chrome OS.',
-        'This pack does not document Labelife menus — Phomemo has not published that catalog on these two pages.',
+        'This pack does not document Labelife menus. Phomemo has not published that catalog on these two pages.',
       ] },
     { id: 'paper', title: 'How long thermal labels last', kw: 'fade thermal paper storage sun heat lifespan years',
       steps: [
@@ -215,7 +215,7 @@ export default {
 
   errors: [],
   problems: [
-    ['Bluetooth connection fails / cannot pair', 'Turn Bluetooth on, open Print Master, tap Connect Device, select M110. Do not pair from the phone’s Bluetooth settings — the Support Center says that fails.'],
+    ['Bluetooth connection fails / cannot pair', 'Turn Bluetooth on, open Print Master, tap Connect Device, select M110. Do not pair from the phone’s Bluetooth settings. The Support Center says that fails.'],
     ['App won’t connect', 'Setup guide: restart Bluetooth or re-pair in app settings.'],
     ['Paper jam', 'Setup guide: check alignment and make sure the sensor reads the label. Reload with the adhesive side out, paper in the guide, lid closed.'],
     ['Faded print', 'Setup guide: replace the roll; expired thermal paper can affect quality. Keep paper away from heat and sun.'],
@@ -227,11 +227,11 @@ export default {
   ],
   tips: [
     'Pair in Print Master ([Connect Device] → {M110}), never in the phone’s Bluetooth list.',
-    'The in-box 40 × 30 mm roll is already loaded — open the cover and pull the end out so the sensor sees it.',
+    'The in-box 40 × 30 mm roll is already loaded. Open the cover and pull the end out so the sensor sees it.',
     'Load later rolls with the adhesive side facing out, through the paper guide, lid closed.',
     'Charge before first use. Red LED = charging, green = ready.',
     'Keep thermal labels away from sun and heat. Official pages disagree on life: up to 10 years stored, or 1–2 years printed.',
     'Barcodes and QR codes are created in the app ([Code]), not on a printer keyboard.',
-    'This printer has no symbol/frame/font catalog on the device. Empty sections in this pack are intentional — Phomemo did not publish those lists on the official pages.',
+    'This printer has no symbol/frame/font catalog on the device. Empty sections in this pack are intentional. Phomemo did not publish those lists on the official pages.',
   ],
 };
