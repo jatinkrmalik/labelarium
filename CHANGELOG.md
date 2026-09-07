@@ -8,3 +8,6 @@
 - Stop tracking `.claude/` in version control and ignore the directory.
 - Record version `0.1.0` in root `package.json` (metadata only; no build step).
 - Bump the service worker cache name to `labelarium-v32`.
+- Add a dashed request tile at the end of the home label-maker grid. It stays visible with a brand filter and opens the GitHub label-maker request form in a new tab.
+- Drop the duplicate "Request a label maker" link from the site footer so the tile is the one call to action. Coffee, AGPL, and credit stay.
+- Bump the service worker cache name to `labelarium-v33`.

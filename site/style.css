@@ -413,6 +413,27 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   .devtile .muted { font-size: 12px; line-height: 1.3; height: 2.6em; }
   .devtile .dev-icon { padding: 4px; }
 }
+/* Empty slot at the end of the maker grid: dashed plate, no inner double-rule. */
+.devtile.request-tile {
+  background: var(--plate-2);
+  border-style: dashed;
+  box-shadow: none;
+  container-type: inline-size;
+}
+.devtile.request-tile:hover { background: var(--plate); }
+.devtile.request-tile .dev-icon {
+  background: transparent;
+  border-color: transparent;
+}
+.devtile.request-tile .request-q {
+  font-family: var(--serif);
+  font-weight: 400;
+  line-height: 1;
+  font-size: 84px;
+  font-size: 50cqw;
+  color: var(--ink);
+  display: block;
+}
 .devtile .star { position: absolute; top: 8px; right: 8px; z-index: 1; margin: 0; border: 0; background: transparent; font-size: 18px; cursor: pointer; color: var(--ink); width: 32px; height: 32px; line-height: 1; }
 .devtile .star.on { color: var(--red); }
 .devcard { display: flex; align-items: center; gap: 16px; padding: 16px 18px; }
