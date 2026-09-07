@@ -448,7 +448,7 @@ function ensureFooter(el) {
 
 // ---------- home ----------
 function renderHome(q = {}) {
-  setTop('Labelarium');
+  setTop('Labelarium', { right: installIconButton() });
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const brand = q.brand || 'all';
@@ -469,7 +469,7 @@ function renderHome(q = {}) {
       </span>
     </a>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div>${installHomeCta()}</div>
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
@@ -843,7 +843,7 @@ function drawTape(d, s) {
 // Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
 // iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
 // Capture the prompt immediately; only show the bar after a few distinct device screens.
-// Explicit Install controls (home CTA, device topbar) ignore the bar's 7-day snooze.
+// Explicit Install controls (home and device topbar icons) ignore the bar's 7-day snooze.
 let deferredInstall = null;
 const INSTALL_SCREENS = 3;
 const INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
@@ -864,11 +864,6 @@ function installActionLabel() {
 }
 function installIconSvg() {
   return `<svg class="install-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 4v11M8.5 11.5 12 15l3.5-3.5M6 19.5h12"/></svg>`;
-}
-function installHomeCta() {
-  if (!shouldShowInstallControls()) return '';
-  const label = installActionLabel();
-  return `<p class="install-home js-install"><button class="btn ghost" type="button" data-install="cta" onclick="requestInstall()">${esc(label)}</button></p>`;
 }
 function installIconButton() {
   if (!shouldShowInstallControls()) return '';
