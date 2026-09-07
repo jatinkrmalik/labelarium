@@ -1,11 +1,20 @@
-# Labelarium
+<h1>
+  <img src="icons/icon-192.png" width="48" height="48" alt="Labelarium" align="absmiddle">
+  Labelarium
+</h1>
 
-Every symbol, frame, template and shortcut of your label maker: searchable, with pictures, offline.
-A zero-dependency progressive web app (plain HTML/CSS/JS, no build step).
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+[![Live](https://img.shields.io/website?url=https%3A%2F%2Flabelarium.com&up_message=labelarium.com&down_message=down&label=site)](https://labelarium.com)
+[![PWA](https://img.shields.io/badge/PWA-offline-informational)](https://labelarium.com)
+[![Static](https://img.shields.io/badge/static-zero%20deps-lightgrey)](https://labelarium.com)
+
+Use it at **[labelarium.com](https://labelarium.com)**. Every symbol, frame, template and shortcut of your label maker: searchable, with pictures, offline.
+
+A zero-dependency progressive web app (plain HTML/CSS/JS, no build step). GitHub Pages hosts it at [labelarium.com](https://labelarium.com) over HTTPS, which is what install and the offline cache need.
 
 ## Screenshots
 
-Phone UI (iPhone frame). Hard-refresh after install if you already had an older build cached.
+Phone UI (iPhone frame).
 
 <p align="center">
   <img src="docs/screenshots/phone-home.png" width="200" alt="Labelarium home with ten label-maker tiles">
@@ -31,7 +40,7 @@ Phone UI (iPhone frame). Hard-refresh after install if you already had an older 
 
 ## Label makers
 
-Ten packs today:
+Ten packs:
 
 - **Brother** PT-D220, PT-D210, PT-D610BT, PT-P710BT (CUBE Plus)
 - **DYMO** LabelManager 160, LabelManager 280
@@ -39,7 +48,7 @@ Ten packs today:
 - **Brady** M210, M211
 - **Phomemo** M110 (support pages; no official PDF catalog)
 
-Deepest catalog coverage is still on the two everyday Brother handhelds:
+The two everyday Brother handhelds have the deepest catalog:
 
 - **PT-D220**: 30 symbol categories (371 pictograph glyphs, each with a name, keywords and its position
   on the device), 99 frames + underline, 25 templates, 14 fonts, 11 styles.
@@ -59,7 +68,7 @@ Neoclassical × Bauhaus, in the "Tabs & rail" structure with "Plates" content (s
 variation E + C): warm paper ground, white plates with a double rule, Bodoni Moda only for page titles,
 Jost for everything you read (16 px body, 12 px labels), and eleven distinct geometric marks, one per
 section. Phones get a bottom tab bar (Search, Symbols, Frames, Preview, More); from 900 px a fixed left
-rail. Warm opium-tinted paper only — no dark theme. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
+rail. Warm opium-tinted paper only. No dark theme. Fonts are bundled (SIL OFL, licences in `fonts/`), ~70 KB of woff2.
 Earlier explorations: `concepts/index.html` (six styles) and `concepts/v2.html` (five variations).
 
 ## Label preview
@@ -68,7 +77,18 @@ Design a label (tape, colour, fonts, style, frame, margins, length, mirror, two 
 key-press recipe for the device. Steps tick off on tap. "Save this label" stores the design locally so it
 can be recalled with its recipe later.
 
-## Run it
+## Install
+
+On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
+
+The site is static files: no build step, no environment variables. A fork can stay on GitHub Pages, or
+drop the folder on Netlify, Cloudflare Pages, or any web server. HTTPS is required for installation and
+the offline cache.
+
+Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages serves `404.html`
+(a copy of the app shell) for those paths; keep it in sync with `index.html`.
+
+## Run it locally
 
 ```bash
 python3 -m http.server 8321
@@ -77,18 +97,8 @@ python3 -m http.server 8321
 Open <http://localhost:8321>. On a phone on the same Wi-Fi use `http://<your-computer-ip>:8321`.
 
 Installing as an app (and the offline cache) requires a secure context: `localhost`, or any HTTPS host.
-The whole thing is static files, so GitHub Pages / Netlify / Cloudflare Pages work as-is.
-Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages
-serves `404.html` (a copy of the app shell) for those paths; keep it in sync with `index.html`.
-Python's built-in server does not: after the first load, in-app links still work, but a
+Python's built-in server does not rewrite deep paths: after the first load, in-app links still work, but a
 refresh on a deep path 404s unless the host rewrites to the shell.
-On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
-
-## Deploy
-
-Everything is static. Push the repository to GitHub and enable Pages (root), or drop the folder on Netlify,
-Cloudflare Pages or any web server. HTTPS is required for installation and the offline cache; all three
-hosts provide it. No build step, no environment variables.
 
 ## Add another label maker
 
