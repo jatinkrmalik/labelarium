@@ -1,9 +1,9 @@
-// Brady M211 — reference data for Labelarium.
+// Brady M211. Reference data for Labelarium.
 // Source: official M211 User Manual Y5067197 Revision A-3 (2025) plus Brady support.
 // The M211 has no on-device keyboard, fonts, frames, templates or symbol sheet.
 // Labels are designed in the Brady Express Labels mobile app and sent over Bluetooth.
 // Notation in steps: [Key] = a control on the printer, {Text} = app / status wording, → = then.
-// Catalog tiles are one tight crop per printed cell from THIS M211 manual — not Brother or M210 lists.
+// Catalog tiles are one tight crop per printed cell from THIS M211 manual. Not Brother or M210 lists.
 // Symbol items: [name, keywords, unicode approximation]. Position (1-based) = order in that printed catalog.
 export default {
   id: 'brady-m211',
@@ -59,7 +59,7 @@ export default {
     { keys: 'hold [Power] 5 seconds', action: 'Reset Bluetooth so a new phone can pair (light pulses)', kw: 'bluetooth disconnect unpair reset pairing' },
     { keys: 'hold [Power] 15 seconds', action: 'Hard boot if the printer is unresponsive', kw: 'reboot reset frozen locked up restart hard boot' },
     { keys: '[Cut]', action: 'Manual cut (auto-cut is set in the Express Labels file)', kw: 'cutter cut blade scissors' },
-    { keys: 'lock lever clockwise', action: 'Lock the cartridge — required before print', kw: 'lock lever cartridge print ready' },
+    { keys: 'lock lever clockwise', action: 'Lock the cartridge (required before print)', kw: 'lock lever cartridge print ready' },
     { keys: 'lock lever counter-clockwise', action: 'Unlock to load/unload, and whenever the printer sits idle', kw: 'unlock lever cartridge idle printhead platen' },
     { keys: '[Eject] after unlock', action: 'Pop the cartridge out of the bay', kw: 'eject remove cartridge change tape' },
     { keys: 'Express Labels → Print', action: 'Send the open label file to the M211', kw: 'print app send bluetooth' },
@@ -67,7 +67,7 @@ export default {
     { keys: 'Express Labels → printers → more', action: 'Rename this M211 (name is not stored on the printer)', kw: 'rename printer name serial' },
   ],
   fonts: [
-    ['Express Labels (phone)', 'express-labels.png', 'There is no Font key on the M211. Type is chosen in Brady Express Labels on your phone. This tile is the M211 wordmark printed in the user manual — the manual does not include a font catalog.', 'Arial, Helvetica, sans-serif', 400, 'normal'],
+    ['Express Labels (phone)', 'express-labels.png', 'There is no Font key on the M211. Type is chosen in Brady Express Labels on your phone. This tile is the M211 wordmark printed in the user manual. The manual does not include a font catalog.', 'Arial, Helvetica, sans-serif', 400, 'normal'],
   ],
   sizes: [['App autosize', 'size-auto.png', 1]],
   widths: [['App default', 'width-normal.png', 1]],
@@ -134,7 +134,7 @@ export default {
       'This user manual does not print a frame catalog, so none is listed.',
     ],
     notes: [
-      'Off is a blank patch from the printed page — the M211 guide has no frame sheet.',
+      'Off is a blank patch from the printed page. The M211 guide has no frame sheet.',
       'Do not expect Brother-style numbered frames; those lists belong to other machines.',
     ],
     items: [
@@ -155,7 +155,7 @@ export default {
     ],
     patternHowto: [
       'Open Brady Express Labels on the phone.',
-      'Pick a layout in the app — this printer manual does not show pattern tiles.',
+      'Pick a layout in the app. This printer manual does not show pattern tiles.',
       'Tap Print. The M211 cuts according to the file’s cut setting.',
     ],
     text: [],
@@ -169,29 +169,29 @@ export default {
     { id: 'power', title: 'Power, Bluetooth reset and hard boot', kw: 'power on off bluetooth reboot 5 seconds 15 seconds',
       steps: ['Tap [Power] to turn on or off. Bluetooth is on whenever the printer is on.', 'Hold [Power] 5 seconds until the Bluetooth light pulses to drop the current phone.', 'Hold [Power] 15 seconds to hard-boot a frozen printer. Battery and Bluetooth lights come on when it has restarted.'] },
     { id: 'connect', title: 'Connect Express Labels over Bluetooth', kw: 'pair bluetooth app express labels phone android ios',
-      steps: ['Install Brady Express Labels (Android 6.0+ or iOS 10.0+; phone needs Bluetooth 4.2+).', 'Turn the M211 on.', 'Open the app. It should detect the printer — rename if you want, then tap connect.'],
+      steps: ['Install Brady Express Labels (Android 6.0+ or iOS 10.0+; phone needs Bluetooth 4.2+).', 'Turn the M211 on.', 'Open the app. It should detect the printer. Rename if you want, then tap connect.'],
       notes: ['Only one mobile device at a time. If the printer does not appear, hold [Power] 5 seconds to release the previous pairing.', 'Range is about 65 ft (19.8 m).'] },
     { id: 'settings', title: 'Shutdown time and printer name', kw: 'auto off 30 minutes rename serial settings gear',
       steps: ['Shutdown: open an M211 label file → tap the gear → set idle time (default 30 minutes).', 'Name: in the app printer list, open the more menu → rename.'],
       notes: ['These settings live in the app session, not on the printer. The next user starts from defaults. Language and units are app-wide.'] },
     { id: 'load', title: 'Load an M21 cartridge', kw: 'cartridge m21 authentic smart-cell lock lever eject',
       steps: ['Turn the lock lever counter-clockwise to unlock (power may be on or off).', 'Press [Eject] on the back and lift the cartridge out.', 'Drop the new Brady Authentic cartridge in until it snaps.', 'Turn the lever clockwise to lock.'],
-      notes: ['Only cartridges with the Brady Authentic mark. Smart-cell tells the app the media and sets many format details.', 'Unlock the cartridge whenever you are not printing — a locked idle printer can transfer a black line onto the first label from residual heat.'] },
+      notes: ['Only cartridges with the Brady Authentic mark. Smart-cell tells the app the media and sets many format details.', 'Unlock the cartridge whenever you are not printing. A locked idle printer can transfer a black line onto the first label from residual heat.'] },
     { id: 'print', title: 'Print from the app', kw: 'print send file cut lock',
-      steps: ['Printer on, cartridge locked.', 'Open the label file on the phone.', 'Tap Print. The app sends the job.', 'If the cartridge runs out mid-job, printing stops and the error light comes on — the app shows the message.'],
+      steps: ['Printer on, cartridge locked.', 'Open the label file on the phone.', 'Tap Print. The app sends the job.', 'If the cartridge runs out mid-job, printing stops and the error light comes on. The app shows the message.'],
       notes: ['There is no on-printer editor. An SDK exists if you need other software; see Brady’s programming site.'] },
     { id: 'cut', title: 'Auto-cut and the Cut button', kw: 'cutter automatic manual fragments jam',
       steps: ['Set cut-between-labels or cut-at-end-of-job in the Express Labels file.', 'Press [Cut] on the printer for a manual cut.'],
-      notes: ['If cuts are rough, fragments may be in the cutter. Unlock, remove the cartridge, pick fragments with tweezers — never fingers. The cutter is sharp.'] },
+      notes: ['If cuts are rough, fragments may be in the cutter. Unlock, remove the cartridge, pick fragments with tweezers, never fingers. The cutter is sharp.'] },
     { id: 'magnet', title: 'Fit the magnet accessory (M21-MAGNET)', kw: 'magnet neodymium panel ibeam pacemaker',
       steps: ['Slide the keeper plate off the magnet.', 'Line the magnet up with the screw holes on the back of the printer.', 'Fit the two screws that come with the magnet.'],
-      notes: ['Neodymium magnet — keep away from pacemakers, defibrillators, insulin pumps, cards, drives, and explosive atmospheres. Do not give children strong magnets. Wear eye protection if magnets may snap together.'] },
+      notes: ['Neodymium magnet. Keep away from pacemakers, defibrillators, insulin pumps, cards, drives, and explosive atmospheres. Do not give children strong magnets. Wear eye protection if magnets may snap together.'] },
     { id: 'clean', title: 'Clean the printhead, platen and sensor', kw: 'printhead platen roller sensor pck-6 isopropyl offset',
       steps: ['Power off. Unlock and remove the cartridge.', 'Moisten a lint-free swab with isopropyl alcohol, or use Brady PCK-6 swabs.', 'Gently swab the printhead, then the platen (you may need to lock the lever to reach the roller).', 'Blow or swab debris off the position sensor if pre-sized labels print offset.'] },
     { id: 'recycle', title: 'Dismantle a used cartridge for recycling', kw: 'recycle smart cell housing spring washer screwdriver ppe',
       steps: ['Wear safety glasses and gloves. Use a 1/4-inch flathead screwdriver.', 'Pry the smart cell off the bottom (it is glued).', 'Twist the screwdriver in the seam to split the housing.', 'Remove leftover media, shake out parts, unwind the ribbon from its spools.', 'Bin: housings/retaining arm → #7 PC; springs/washers → #40 metals; smart cell → e-waste; plastic washers/spacers → #1 PETE.'] },
     { id: 'jam', title: 'Clear a label jam', kw: 'jam stuck feed unlock tweezers printhead scratch',
-      steps: ['Unlock the lever (force it if the jam is large — unlocking retracts the platen).', 'Remove the cartridge.', 'Pull the jammed label and fragments with tweezers or needle-nose pliers.'],
+      steps: ['Unlock the lever (force it if the jam is large; unlocking retracts the platen).', 'Remove the cartridge.', 'Pull the jammed label and fragments with tweezers or needle-nose pliers.'],
       notes: ['Metal tools can scratch the printhead. Never use your fingers in the cutter.'] },
   ],
 
@@ -204,7 +204,7 @@ export default {
     ['An error occurred while printing.', 'Generic print fault.', 'See Troubleshooting Scenarios (p. 24): lock, damage, jam, or hard boot (hold [Power] 15 seconds).'],
   ],
   problems: [
-    ['Cutter does not cut, or cuts are rough', 'Fragments in the cutter, or the app is not set to cut. Unlock, remove the cartridge, pick fragments with tweezers — never fingers. Check the file’s cut setting.'],
+    ['Cutter does not cut, or cuts are rough', 'Fragments in the cutter, or the app is not set to cut. Unlock, remove the cartridge, pick fragments with tweezers, never fingers. Check the file’s cut setting.'],
     ['Labels won’t feed', 'Leading edge of the roll is torn or uneven. Cut a straight edge with scissors and reload.'],
     ['Labels are jammed', 'Unlock (force if needed), remove the cartridge, extract the jam with tweezers. Avoid scratching the printhead.'],
     ['Printer does not turn on', 'Charge with the supplied USB cable. If the pack is charged and it still stays off, hold [Power] 15 seconds.'],
@@ -217,11 +217,11 @@ export default {
     ['Printer not in Express Labels', 'Another phone still holds the pairing. Hold [Power] 5 seconds until Bluetooth pulses, then connect.'],
   ],
   tips: [
-    'Unlock the cartridge whenever you are not printing — a locked idle M211 can print a black line on the first label.',
+    'Unlock the cartridge whenever you are not printing. A locked idle M211 can print a black line on the first label.',
     'Use the USB-C wall adapter that came in the box (≥15 W). USB-A ports charge more slowly.',
     'Only Brady Authentic M21 cartridges. The smart cell tells Express Labels the media and sets much of the format.',
     'One phone at a time. Hold [Power] 5 seconds to hand the printer to someone else.',
-    'Hard boot is hold [Power] 15 seconds — there is no Shift+R factory reset on this machine.',
+    'Hard boot is hold [Power] 15 seconds. There is no Shift+R factory reset on this machine.',
     'Cut mode (between labels vs end of job) is in the Express Labels file, not on a printer key.',
     'This pack lists only catalog cells printed in the M211 user manual. App fonts and symbols that are not in Y5067197 are not invented here.',
   ],

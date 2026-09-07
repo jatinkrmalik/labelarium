@@ -1,4 +1,4 @@
-// Brady M210 / M210-LAB — reference data for Labelarium.
+// Brady M210 / M210-LAB. Reference data for Labelarium.
 // Source: official M210/M210-LAB User Manual, Firmware 3.0, Rev. B (2022) plus Brady support.
 // Notation in steps: [Key] = a key on the device, {Text} = what the LCD shows, → = then.
 // Symbol items: [name, keywords, unicode approximation]. Position (1-based) = order in the category on the printed sheet.
@@ -19,7 +19,7 @@ export default {
     ['Print', '203 dpi thermal transfer. Max print width 0.75" (19.1 mm). Max alphanumeric length 99.9" (253.7 cm). Max 50 characters. Up to 4 lines.'],
     ['Symbols', 'Official counts: M210 194 · M210 with Cyrillic keypad 218 · M210-LAB 131. This pack lists every filled cell printed in Appendix A of the shared M210/M210-LAB manual (221 glyphs).'],
     ['Typeface', 'One typeface: Brady Fixed Width Condensed. Sizes Auto / 6 / 9 / 14 / 20 / 28 / 40 pt, each with a Bold weight. Default 9 pt. No extra fonts, widths or frames.'],
-    ['Media', 'Brady Authentic M21 cartridges, continuous 0.25"–0.75" (6.35–19.1 mm) or pre-sized. Smart-cell sets many format details. No PC port — cannot print from a computer.'],
+    ['Media', 'Brady Authentic M21 cartridges, continuous 0.25"–0.75" (6.35–19.1 mm) or pre-sized. Smart-cell sets many format details. No PC port. Cannot print from a computer.'],
     ['Memory', '12 saved files (name up to 11 characters). Files survive battery removal.'],
     ['Barcodes', 'Code 39 and Code 128 (Banner Landscape or Flag). Datamatrix (max 44 chars) and QR (max 50 chars), small/large; 0.75" media and Banner Landscape only.'],
     ['Power', '6 × AA alkaline (not rechargeable AA, not Ultimate Lithium), optional M210-BATTERY Li-ion pack (charges only on the AC adapter, outside the printer), or optional 9 V Brady AC adapter (M210-AC / 110416 / 110417). Auto-off after 10 minutes idle.'],
@@ -29,7 +29,7 @@ export default {
   ],
   tapes: [
     { mm: 6.4, in: '0.25"', lines: 4, note: 'Narrowest M21 width. Panel Residential recommends 9 pt on 0.25" for a residential breaker door. 2D codes will not fit.' },
-    { mm: 9.5, in: '0.375"', lines: 4, note: 'Continuous or pre-sized M21. Some symbols cannot print at 6 pt — use 9 pt or larger.' },
+    { mm: 9.5, in: '0.375"', lines: 4, note: 'Continuous or pre-sized M21. Some symbols cannot print at 6 pt. Use 9 pt or larger.' },
     { mm: 12.7, in: '0.50"', lines: 4, note: 'General industrial / wire. SelfLam and Permasleeve hide several label types (see Label Type).' },
     { mm: 19.1, in: '0.75"', lines: 4, note: 'Maximum width. Required for Datamatrix and QR. Stock cartridge with the M210 is M21-750-499 nylon; M210-LAB ships M21-750-7425.' },
   ],
@@ -109,7 +109,7 @@ export default {
     ['Center', 'align-center.png'],
     ['Right (prints centered)', 'align-center.png'],
   ],
-  fontNote: 'Single typeface — Brady Fixed Width Condensed — in Auto plus 6 / 9 / 14 / 20 / 28 / 40 pt, each with Bold. Default is 9 pt. Autosize shows as A in the status bar and scales down until [Enter] or the minimum size. The size applies to the whole label, not per line. Some symbols cannot print at 6 pt (“Cannot Fit” — switch to 9 pt). Left/right justification is not supported; everything prints centered. There is no outline, italic, shadow or vertical font style; Horizontal/Vertical is a Label Type option, not a font style.',
+  fontNote: 'Single typeface (Brady Fixed Width Condensed) in Auto plus 6 / 9 / 14 / 20 / 28 / 40 pt, each with Bold. Default is 9 pt. Autosize shows as A in the status bar and scales down until [Enter] or the minimum size. The size applies to the whole label, not per line. Some symbols cannot print at 6 pt (“Cannot Fit”, switch to 9 pt). Left/right justification is not supported; everything prints centered. There is no outline, italic, shadow or vertical font style; Horizontal/Vertical is a Label Type option, not a font style.',
 
   symbols: {
     howto: [
@@ -337,7 +337,7 @@ export default {
         'Position the cursor.',
         'Press [International] ([Alt] + [6]), or [Menu] → {International} → [Enter].',
         'Navigate to the character, then [Enter].',
-        'The printer does not print a full accent table in this manual — only the LCD picker (A / a / C rows are shown). Greek letters are also under International, not Language. Coverage depends on printer version.',
+        'The printer does not print a full accent table in this manual. Only the LCD picker (A / a / C rows are shown). Greek letters are also under International, not Language. Coverage depends on printer version.',
       ],
       table: {
         A: 'Á À Â Ä Ã Ą Ă',
@@ -385,7 +385,7 @@ export default {
       [3, 'Fixed Length', 'fixed length cannot fit', 'Pick a preset length. Extra text raises {Cannot Fit}. The print-head-to-cutter margin cannot be removed.'],
       [4, 'Custom Length', 'custom length 99.9', 'Type a length up to 99.9" (2537 mm), 50 characters max. Text is centered. Extra text raises {Cannot Fit}.'],
       [5, 'Vial', 'vial tube lab 2d', 'Fixes length from the vial size. Landscape or portrait. Any media except SelfLam / Permasleeve. 2D barcode recommended for dense data. Pre-sized media sets width automatically.'],
-      [6, 'WireMarker (M210)', 'wire marker repeat sleeve', 'Repeats the text down the label to match the chosen wire size (W.75, W1.5, W2.0, …). Not on Permasleeve. Repeats do not show on the LCD — only on the print. [Enter] adds a second line; both lines repeat.'],
+      [6, 'WireMarker (M210)', 'wire marker repeat sleeve', 'Repeats the text down the label to match the chosen wire size (W.75, W1.5, W2.0, …). Not on Permasleeve. Repeats do not show on the LCD, only on the print. [Enter] adds a second line; both lines repeat.'],
       [7, 'Terminal Block (M210)', 'terminal block spacing serial', 'Not on SelfLam / Permasleeve. Spacing 0.2"–40", serialization on/off, # of terminations, rotation 0° or 90°. One strip covers the block if spacing is right.'],
       [8, 'Patch Panel (M210)', 'patch panel ports serial', 'Same data fields as Terminal Block, with # of Ports instead of terminations. Landscape or 90° portrait print.'],
       [9, 'Panel Residential (M210)', 'breaker door ac bedroom kitchen', '30 pre-named 15-character labels (A/C, Alarm, Basement, bathrooms, bedrooms, kitchen appliances, …). Best on 0.25" / 9 pt. Print all 30 or pick Yes/No per name. Left-justified, fixed width. Portrait if more than one line.'],
@@ -409,7 +409,7 @@ export default {
       steps: ['Use Banner Landscape or Flag.', 'Press [Barcode] ([Alt] + [2]).', 'Pick {39} or {128} → [Enter].', 'Type the data. [Font Size] scales the bars with the human-readable line (always below, cannot be removed).', 'Move right off the box to stop editing the barcode.'],
       notes: ['Allowed characters are in Appendix B. No checksum. One serialized set can sit inside a barcode.'] },
     { id: '2d', title: 'Datamatrix and QR', kw: 'datamatrix qr 2d square',
-      steps: ['Install 0.75" (19.1 mm) media. Set {Banner Landscape}.', 'Press the 2D key (next to Barcode on the pad).', 'Pick Datamatrix or QR, small or large → [Enter].', 'Type up to 44 characters (Datamatrix) or 50 (QR). Sizes are fixed — font size does not change them.'],
+      steps: ['Install 0.75" (19.1 mm) media. Set {Banner Landscape}.', 'Press the 2D key (next to Barcode on the pad).', 'Pick Datamatrix or QR, small or large → [Enter].', 'Type up to 44 characters (Datamatrix) or 50 (QR). Sizes are fixed. Font size does not change them.'],
       notes: ['Minimum readable diameter for a Brady scanner is 0.59" (15 mm). Multiple lines of text/codes are not supported.'] },
     { id: 'serial', title: 'Serialization', kw: 'serial sequence increment start end',
       steps: ['Press [Serial] ([Alt] + [Menu]).', 'Enter Start, Increment (not 0; default 1) and End → [Enter].', 'Letters A–Z use alphabetic order; increment is still a number. Do not mix letters and digits in one sequence. Up to three letters (AB…BB rolls the left character).'],
@@ -418,11 +418,11 @@ export default {
       steps: ['Save: [Menu] → {File} → [Enter] → {Save} → [Enter] → empty slot → [Enter] → name (11 chars) → [Enter].', 'Overwrite: pick an occupied slot → {Yes} → new name.', 'Open: [Menu] → {File} → {Open} → slot → [Enter] (unsaved screen data is lost).', 'Delete: [Menu] → {File} → {Delete} → slot → {Yes}. [Backspace] leaves the list.'],
       notes: ['Files survive battery removal. Two files may share a name; slots 1–12 distinguish them. No PC connection.'] },
     { id: 'print', title: 'Print, Multi-Print and cut', kw: 'print copies cut lever multi-print',
-      steps: ['Press [Print]. A print icon and remaining-supply gauge show until the job finishes.', 'Squeeze the cutter levers. Plastic grips hold the label in the chute — pull it out.', 'Copies: [Multi-Print] ([Alt] + [Print]) → Copies: → [Enter]. Cut between labels or press [Print] again to keep going.', 'Job-wide cut behaviour: [Menu] → {Cut Mode} → {Cut Between Labels} / {Cut at End of Job}.'] },
+      steps: ['Press [Print]. A print icon and remaining-supply gauge show until the job finishes.', 'Squeeze the cutter levers. Plastic grips hold the label in the chute. Pull it out.', 'Copies: [Multi-Print] ([Alt] + [Print]) → Copies: → [Enter]. Cut between labels or press [Print] again to keep going.', 'Job-wide cut behaviour: [Menu] → {Cut Mode} → {Cut Between Labels} / {Cut at End of Job}.'] },
     { id: 'clear', title: 'Clear vs Backspace', kw: 'clear backspace cancel',
       steps: ['[Backspace] deletes one character to the left and also backs out of menus.', '[Clear] ([Alt] + [Backspace]) wipes data but keeps font size and label type.'] },
     { id: 'lines', title: 'Multiple lines', kw: 'enter line four cannot fit',
-      steps: ['[Enter] starts a new line (max four).', 'Do not press [Enter] at the end of a line unless you want another line — a blank line still counts.'],
+      steps: ['[Enter] starts a new line (max four).', 'Do not press [Enter] at the end of a line unless you want another line. A blank line still counts.'],
       notes: ['Pre-sized labels may allow fewer than four. “Cannot Fit” means shrink the font, delete text, or change type/orientation.'] },
     { id: 'units-clock', title: 'Units, clock, zero style, backlight', kw: 'units inch mm clock date time zero backlight',
       steps: ['Units: [Menu] → {Units} → inches or mm.', 'Clock: [Menu] → {Set Clock} → Clock Format (12/24), Date Format (MM/DD/YY or DD/MM/YY, 2- or 4-digit year), Time Format, then Date and Time.', 'Zero: [Menu] → {Set Zero Style} → open 0 or slashed zero.', 'Backlight: [Menu] → {Backlight Time} → 5–30 s, Always On (AC), or Always Off. [Alt] + [Space] toggles the lamp.'] },
@@ -449,30 +449,30 @@ export default {
   problems: [
     ['Printer does not power up', 'Charge or replace the pack, or install six new AA cells. To print while the Li-ion pack charges on the adapter, put AA cells in the printer.'],
     ['Screen freezes', 'Power off. If Power does nothing, unplug the adapter, pull the pack/cells, reseat, power on.'],
-    ['LCD reverts to the previous label', 'Battery is low — replace or recharge.'],
+    ['LCD reverts to the previous label', 'Battery is low. Replace or recharge.'],
     ['Printer powers off often', 'Auto-off is 10 minutes idle. Fit fresh AA or the AC adapter. Charge Li-ion outside the printer.'],
     ['Poor print / voids / wrinkles', 'Worn cells, dirty head (clean with alcohol), unusable media, crease in the tape (advance past it), or wrinkled ribbon (unlock, turn the take-up spool clockwise 1–2 turns).'],
     ['Black line on the first label of a run', 'Cartridge was left locked, so the warm head sat on the ribbon. Unlock as soon as you finish printing.'],
     ['Will not feed / Print does nothing', 'Cut a straight leader. Confirm the lock is vertical. Clear the exit chute. Try another cartridge.'],
     ['Compressed print / bad registration', 'Remove the last cut label from the tray. Clean the platen.'],
-    ['Cutter does not cut', 'Tweezers or needle-nose pliers for slivers — never fingers. Sharp cutter parts.'],
-    ['Jam, cannot feed', 'Unlock (force if needed — unlock retracts the platen), remove the cartridge, clear with tweezers. Do not scratch the print head with metal.'],
+    ['Cutter does not cut', 'Tweezers or needle-nose pliers for slivers, never fingers. Sharp cutter parts.'],
+    ['Jam, cannot feed', 'Unlock (force if needed; unlock retracts the platen), remove the cartridge, clear with tweezers. Do not scratch the print head with metal.'],
     ['Keys stuck or dead', 'Find a key jammed down and press it free.'],
     ['Left/right justification does nothing', 'Not supported. Everything prints centered. No action.'],
     ['Human-readable barcode text cannot move / no checksum', 'Fixed below the bars. Checksum is not offered.'],
     ['Menu hides some label types', 'The cartridge decides. Nylon/vinyl/polyester continuous: all types. SelfLam: Banner Landscape, Fixed Length, Wire. Permasleeve: Banner Landscape, Fixed Length. 2D codes: 0.75" only.'],
     ['Datamatrix / QR will not enter', 'Set Banner Landscape (not Portrait) and 0.75" media.'],
-    ['Pre-sized text is shifted', 'Debris on the sensor — remove the cartridge and blow it off.'],
+    ['Pre-sized text is shifted', 'Debris on the sensor. Remove the cartridge and blow it off.'],
     ['Cannot change language', 'Wrong key during setup. [Menu] → {Language} and set it again.'],
     ['Want a PC connection', 'There is none. The M210 cannot print PC files. Brady sells other printers that can.'],
   ],
   tips: [
     'Banner Portrait is the escape hatch: pick it to drop another type’s parameters and return to general editing.',
-    'Unlock the cartridge when you walk away — a locked warm head burns a vertical line on the next label.',
+    'Unlock the cartridge when you walk away. A locked warm head burns a vertical line on the next label.',
     'Autosize ({A} in the status bar) is the fastest way to pack a line without hitting Cannot Fit.',
-    'WireMarker repeats only on the print, not the LCD — print a sample before a long run.',
+    'WireMarker repeats only on the print, not the LCD. Print a sample before a long run.',
     'One serialized sequence per file; you can drop that sequence into a barcode.',
     'Panel Residential’s 30 names are listed in order under that label type; 9 pt on 0.25" media fits a standard residential door.',
-    'Keep AA cells in the printer as a working power source while the Li-ion pack charges on the adapter — the pack will not charge inside the printer.',
+    'Keep AA cells in the printer as a working power source while the Li-ion pack charges on the adapter. The pack will not charge inside the printer.',
   ],
 };

@@ -1,4 +1,4 @@
-// Brother P-touch PT-P710BT (CUBE Plus) — reference data for Labelarium.
+// Brother P-touch PT-P710BT (CUBE Plus). Reference data for Labelarium.
 // Source: official User's Guide eng v03 (pt-p710bt_eng_ug_03.pdf; support lists 2021-07-20)
 // plus Brother support FAQs / published product specs where the UG is silent (print dpi, speed).
 // Notation in steps: [Key] = a control on the printer, {Text} = on-screen / LED wording, → = then.
@@ -44,7 +44,7 @@ export default {
       [2, 'Tape Exit Slot', 'Labels come out here. Pull this slot to the left to open the Cassette Cover. Do not put fingers or objects into the slot.'],
       [3, 'Power Button', 'Press to turn on. Press and hold until the Power LED goes out to turn off. Press twice quickly to feed about 25 mm (1") and cut. A light press clears some errors or cancels printing.'],
       [4, 'Battery LED', 'Orange. Off: full. Lit: charging. 3 s off / 0.5 s on: about half. 2 s off then two flashes: low. Flashing 0.5 s: insufficient charge or battery failure.'],
-      [5, 'USB Port', 'Included USB cable. Charge here (computer USB 5 V 0.5–2 A, or a USB AC adapter). Print from a Windows/Mac computer here — the cube does not use Bluetooth for computers.'],
+      [5, 'USB Port', 'Included USB cable. Charge here (computer USB 5 V 0.5–2 A, or a USB AC adapter). Print from a Windows/Mac computer here. The cube does not use Bluetooth for computers.'],
       [6, 'Cassette Cover', 'Opens to the tape bay. Serial number is inside, under the TZe cassette (used as PT-P710BT**** when pairing). Close fully before printing.'],
       [7, 'Tape Guide', 'The tape end must run under this guide and point at the Tape Exit Slot. Slack here jams the printer.'],
       [8, 'End of Tape', 'Leave a short leader out of the Tape Guide when you insert a cassette. First print still feeds about 25 mm of blank tape (laminate lead-in).'],
@@ -120,7 +120,7 @@ export default {
       ]},
       { id: 'pairing', name: 'Bluetooth pairing', group: 'Pictograph', key: 'B', kw: 'bluetooth pair phone pin 0000 PT-P710BT serial', items: [
         ['Bluetooth off', 'toggle phone settings', '📴'],
-        ['Bluetooth on — PT-P710BT****', 'device name serial last four digits', '📶'],
+        ['Bluetooth on (PT-P710BT****)', 'device name serial last four digits', '📶'],
       ]},
       { id: 'marks', name: 'Marks in the guide', group: 'Pictograph', key: 'C', kw: 'safety danger warning caution prohibited hot tze note slack', items: [
         ['Prohibited (tape slack)', 'no forbidden slack jam', '🚫'],
@@ -138,7 +138,7 @@ export default {
       howto: [
         'The cube has no [Accent] key.',
         'Type accented letters on the phone or computer keyboard inside iPrint&Label, P-touch Design&Print 2, or P-touch Editor.',
-        'The picture is the mobile-app table from the User\'s Guide — that is where text is entered.',
+        'The picture is the mobile-app table from the User\'s Guide. That is where text is entered.',
       ],
       table: {},
     },
@@ -148,7 +148,7 @@ export default {
     howto: [
       'The PT-P710BT has no [Frame] key and no frame sheet.',
       'Pick a frame or border in iPrint&Label, P-touch Design&Print 2, or P-touch Editor if the app offers one.',
-      'This pack lists Off only — the closed cube from the guide, with no printed decoration.',
+      'This pack lists Off only. The closed cube from the guide, with no printed decoration.',
     ],
     notes: [
       'This User\'s Guide does not print a numbered frame catalog. Do not use D210/D220 frame numbers on this printer.',
@@ -170,7 +170,7 @@ export default {
       'On a computer: connect the included USB cable (not Bluetooth), open P-touch Editor, pick Express, Professional or Snap.',
     ],
     patternHowto: [
-      'Pattern / decorative tape layouts, if any, are in the mobile apps or P-touch Editor — not on the printer and not pictured in this guide.',
+      'Pattern / decorative tape layouts, if any, are in the mobile apps or P-touch Editor. Not on the printer and not pictured in this guide.',
     ],
     text: [],
     pattern: [],
@@ -178,8 +178,8 @@ export default {
 
   howto: [
     { id: 'tape', title: 'Insert a TZe tape cassette', kw: 'tape cassette install replace insert TZe cartridge jam slack guide',
-      steps: ['Place your fingers on the Tape Exit Slot.', 'Open the Cassette Cover by pulling the Tape Exit Slot to the left.', 'Confirm the tape points at the Tape Exit Slot and press the cassette in until it locks. The end of the tape must run under the Tape Guide — pull slack out if needed.', 'Close the Cassette Cover.'],
-      notes: ['When inserting or removing a cassette, keep the tape from catching on the printer.', 'Never print with an empty cassette — it damages the Print Head.', 'Only Brother TZe cassettes.'] },
+      steps: ['Place your fingers on the Tape Exit Slot.', 'Open the Cassette Cover by pulling the Tape Exit Slot to the left.', 'Confirm the tape points at the Tape Exit Slot and press the cassette in until it locks. The end of the tape must run under the Tape Guide. Pull slack out if needed.', 'Close the Cassette Cover.'],
+      notes: ['When inserting or removing a cassette, keep the tape from catching on the printer.', 'Never print with an empty cassette. It damages the Print Head.', 'Only Brother TZe cassettes.'] },
     { id: 'charge', title: 'Charge the Li-ion battery', kw: 'charge usb battery PA-BT-005 adapter 5V protective sheet',
       steps: ['First time only: pull out the protective sheet inside the cassette bay.', 'Connect the included USB cable to the printer and to a computer USB port (5 V DC, 0.5–2 A) or to a USB AC adapter (not included) of the same rating.', 'Charge until the Battery LED turns off.'],
       notes: ['Charge at 10–35 °C (50–95 °F) or the Battery LED stays lit and the cell will not charge.', 'Printing or feeding while charging can pause the charge; it resumes when the job ends.', 'Use the included USB cable.', 'If charging from a computer, leave the computer on.', 'Store long-term at 10–35 °C and charge once every six months.'] },
@@ -190,7 +190,7 @@ export default {
       steps: ['On: press [Power].', 'Off: press and hold [Power] until the Power LED turns off.'] },
     { id: 'pair', title: 'Pair with a phone or tablet', kw: 'bluetooth pair pin 0000 serial PT-P710BT ios android',
       steps: ['Turn the printer on.', 'On the phone: Settings → turn Bluetooth on.', 'Select PT-P710BT**** (**** = last four digits of the serial number inside the Cassette Cover, under the cassette).', 'If asked for a PIN, enter {0000}.', 'Open iPrint&Label or P-touch Design&Print 2 and select this printer.'],
-      notes: ['The cube does not support Wi-Fi.', 'If it is not found, it may already be paired with another device — turn that device\'s Bluetooth off, or power-cycle the printer.', 'If it is not found, make sure it is not in sleep mode.', 'Keep the phone close; microwaves and other radio sources can block the link.'] },
+      notes: ['The cube does not support Wi-Fi.', 'If it is not found, it may already be paired with another device. Turn that device\'s Bluetooth off, or power-cycle the printer.', 'If it is not found, make sure it is not in sleep mode.', 'Keep the phone close; microwaves and other radio sources can block the link.'] },
     { id: 'print-mobile', title: 'Print from a mobile device', kw: 'iphone android iprint design print bluetooth app',
       steps: ['Download iPrint&Label (business: barcodes, equipment, folder tabs) or P-touch Design&Print 2 (home and work styles) from the App Store or Google Play.', 'Pair as above.', 'Design the label in the app and print.', 'The first label of a session feeds about 25 mm (1") of blank tape. Press [Power] twice quickly to feed and cut if you need to.'],
       notes: ['iPrint&Label and Design&Print 2 QR codes from the guide are in Symbols → Mobile apps.'] },
@@ -198,7 +198,7 @@ export default {
       steps: ['Visit install.brother and install the printer driver and P-touch Editor.', 'Connect the included USB cable. Computers cannot print over Bluetooth on this model, and there is no Wi-Fi.', 'Windows: double-click the P-touch Editor icon, pick Express, Professional or Snap, then print.', 'Mac: Applications → P-touch Editor, pick a new template or a template category, then print.'],
       notes: ['Express: quick text and images. Professional: advanced tools. Snap: a palette that stays on screen (capture, drag-and-drop, print text).', 'Cable Labeling Wizard is available for electrical equipment labels.'] },
     { id: 'autocut-chain', title: 'Auto Cut, Chain Printing, Special tape, Mirror', kw: 'auto cut chain special tape mirror fabric extra strength glass',
-      steps: ['In P-touch Editor print settings, tick the options you need (several can be on at once).', '{Auto Cut}: cuts each label.', '{Chain Printing}: does not cut the last label, to save tape.', '{Special tape}: feeds for a manual cut — use with fabric and extra-strength tapes.', '{Mirror Printing}: prints reversed. Use clear tape on glass so it reads from the other side.'],
+      steps: ['In P-touch Editor print settings, tick the options you need (several can be on at once).', '{Auto Cut}: cuts each label.', '{Chain Printing}: does not cut the last label, to save tape.', '{Special tape}: feeds for a manual cut. Use with fabric and extra-strength tapes.', '{Mirror Printing}: prints reversed. Use clear tape on glass so it reads from the other side.'],
       notes: ['Press [Power] twice quickly to feed and cut if Auto Cut is off.'] },
     { id: 'lead-in', title: 'The 25 mm blank lead-in', kw: 'margin waste tape 25 mm 1 inch laminate blank leader',
       steps: ['The first label of a session always feeds about 25 mm (1") of blank tape. That is the laminate layer, not a setting you can zero out.', 'Chain Printing (do not cut the last label) and the app\'s margin controls reduce wasted tape on later labels.'],
@@ -213,7 +213,7 @@ export default {
       notes: ['Do not power off or unplug USB during a firmware transfer.'] },
     { id: 'clean-head', title: 'Clean the Print Head', kw: 'print head dirty streak line TZe-CL4 cotton swab',
       steps: ['Streaks or poor characters usually mean a dirty head.', 'Option A: insert TZe-CL4 Head Cleaning Tape and press [Power] twice quickly. About 25 mm feeds per cycle. Repeat up to three times.', 'Option B: power off, unplug USB, and wipe the head with a dry cotton swab.'],
-      notes: ['CAUTION: do not touch the Print Head — it can burn.', 'If three cleaning-tape cycles do not help, contact Brother.'] },
+      notes: ['CAUTION: do not touch the Print Head. It can burn.', 'If three cleaning-tape cycles do not help, contact Brother.'] },
     { id: 'clean-cutter', title: 'Clean the tape cutter', kw: 'cutter blade adhesive jam ethanol isopropyl',
       steps: ['Tape adhesive dulls the blade and can jam the cutter.', 'Wipe the blades with a cotton swab moistened with ethanol or isopropyl alcohol.'],
       notes: ['CAUTION: do not touch or put fingers into the cutter blade.', 'Disconnect USB and power off before any maintenance. Wipe the exterior with a soft dry cloth (or slightly damp). No benzene, thinner or alcohol on the case.'] },
@@ -223,13 +223,13 @@ export default {
 
   errors: [
     ['Power LED red, flashing twice per second then off 1 s', 'Battery failure.', 'Lightly press [Power]. If it continues, replace the battery.'],
-    ['Power LED red, flashing 1 s — no / wrong / incompatible cassette', 'No cassette, incorrect cassette, or incompatible cassette.', 'Lightly press [Power]. Insert a correct TZe cassette.'],
-    ['Power LED red, flashing 1 s — insufficient charge', 'Battery too low, or the protective sheet is still in place.', 'Lightly press [Power]. Remove the protective sheet. Charge the battery.'],
-    ['Power LED red, flashing 1 s — high temperature', 'Printer too hot.', 'Lightly press [Power]. Wait until the Power LED is green, then retry.'],
-    ['Power LED red, flashing 1 s — transmission error', 'Bluetooth or USB link dropped.', 'Restart the printer. Phone: pair again. Computer: reseat the USB cable or try another USB port.'],
-    ['Power LED red, flashing 1 s — cutter error', 'Cutter jammed or failed.', 'Restart the printer. Clean the cutter if adhesive has built up.'],
-    ['Power LED red, lit — program transfer failure', 'Firmware / program transfer failed.', 'Transfer the program again. If it continues, contact Brother.'],
-    ['Power LED red, flashing 0.3 s — system error', 'Internal fault.', 'Contact Brother. The flash pattern may change if you touch [Power].'],
+    ['Power LED red, flashing 1 s: no / wrong / incompatible cassette', 'No cassette, incorrect cassette, or incompatible cassette.', 'Lightly press [Power]. Insert a correct TZe cassette.'],
+    ['Power LED red, flashing 1 s: insufficient charge', 'Battery too low, or the protective sheet is still in place.', 'Lightly press [Power]. Remove the protective sheet. Charge the battery.'],
+    ['Power LED red, flashing 1 s: high temperature', 'Printer too hot.', 'Lightly press [Power]. Wait until the Power LED is green, then retry.'],
+    ['Power LED red, flashing 1 s: transmission error', 'Bluetooth or USB link dropped.', 'Restart the printer. Phone: pair again. Computer: reseat the USB cable or try another USB port.'],
+    ['Power LED red, flashing 1 s: cutter error', 'Cutter jammed or failed.', 'Restart the printer. Clean the cutter if adhesive has built up.'],
+    ['Power LED red, lit: program transfer failure', 'Firmware / program transfer failed.', 'Transfer the program again. If it continues, contact Brother.'],
+    ['Power LED red, flashing 0.3 s: system error', 'Internal fault.', 'Contact Brother. The flash pattern may change if you touch [Power].'],
     ['Battery LED flashing 0.5 s', 'Insufficient charge or battery failure.', 'See the Power LED table above.'],
     ['Battery LED stays lit while charging', 'Too cold or too hot to charge (outside 10–35 °C).', 'Move to 10–35 °C (50–95 °F).'],
   ],
@@ -253,9 +253,9 @@ export default {
     ['Label will not stick', 'Surface wet, dirty or uneven. For rough/textured surfaces use Extra Strength Adhesive Tape. Read the instructions that come with fabric and other special tapes.'],
   ],
   tips: [
-    'Press [Power] twice quickly to feed about 25 mm and cut — the cube\'s equivalent of a Feed key.',
+    'Press [Power] twice quickly to feed about 25 mm and cut. The cube\'s equivalent of a Feed key.',
     'Bluetooth PIN is 0000. The advertised name is PT-P710BT plus the last four digits of the serial number under the cassette.',
-    'Phones print over Bluetooth. Computers must use the included USB cable — this model has no computer Bluetooth and no Wi-Fi.',
+    'Phones print over Bluetooth. Computers must use the included USB cable. This model has no computer Bluetooth and no Wi-Fi.',
     'First label of a session always wastes about 25 mm of laminate. Use Chain Printing so later labels do not.',
     'Pull the Tape Exit Slot to the left to open the cover. The tape end must sit in the Tape Guide or it will jam.',
     'Charge until the Battery LED goes out. First use: pull the protective sheet out of the cassette bay or it will not run.',

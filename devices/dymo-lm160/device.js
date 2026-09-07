@@ -1,4 +1,4 @@
-// DYMO LabelManager 160 — reference data for Labelarium.
+// DYMO LabelManager 160. Reference data for Labelarium.
 // Source: official User Guide LM160_UserGuide_en.pdf (Rev. 6/20) plus the DYMO product page.
 // Catalogs are counted from the printed tables on page 9 of THIS guide, not borrowed from Brother.
 // Clip art: 105 cells (21×5). Symbols: 123 cells (25×5 minus 2 empty grey cells). Total 228.
@@ -389,7 +389,7 @@ export default {
       notes: ['Visit www.dymo.com/register to register the serial number (inside the back cover).'] },
     { id: 'two-lines', title: 'Two-line labels', kw: 'two lines second line return enter 1/4 6 mm',
       steps: ['Type line 1.', 'Press [Return]. A return mark appears on the LCD (it is not printed).', 'Type line 2. Press [Print].'],
-      notes: ['Maximum two lines. Only one line will print on 6 mm (1/4") tape — {Too many lines!} if you try more.'] },
+      notes: ['Maximum two lines. Only one line will print on 6 mm (1/4") tape. {Too many lines!} if you try more.'] },
     { id: 'vertical', title: 'Vertical labels', kw: 'vertical rotate sideways',
       steps: ['Press [Vertical].', 'Type the text.', 'Press [Print].'],
       notes: ['On two-line vertical labels, line 2 prints after line 1. Underline does not print on a vertical label.'] },
@@ -418,7 +418,7 @@ export default {
       notes: ['You are asked for language and width the first time you power on, and again whenever you change the cassette.'] },
     { id: 'cassette', title: 'Insert or change the D1 cassette', kw: 'tape cassette D1 install replace label guides ribbon',
       steps: ['Lift the label cassette cover.', 'Make sure the label and ribbon are taut across the mouth of the cassette and the label passes between the label guides. Turn the ribbon rewind spool clockwise if needed.', 'Insert the cassette until it clicks. Close the cover.', 'Select the new label width when prompted.'],
-      notes: ['The cutter blade is extremely sharp — do not press the cutter button while changing cassettes. Use DYMO D1 cassettes only.'] },
+      notes: ['The cutter blade is extremely sharp. Do not press the cutter button while changing cassettes. Use DYMO D1 cassettes only.'] },
     { id: 'batteries', title: 'Batteries and optional adapter', kw: 'battery AAA adapter DSA-18PFM-09 power 9 volt',
       steps: ['Press the thumb latch on the back to open the battery cover.', 'Insert six AAA alkaline cells following the + / − markings. Replace the cover.', 'Optional adapter: plug DSA-18PFM-09 Fc 090200 into the connector on the top, then into a wall outlet. The adapter disconnects the batteries as a power source.'],
       notes: ['Do not mix old and new cells, or alkaline with rechargeable. Remove the batteries if the maker will sit unused for a long time. Text is lost if batteries come out and the adapter is unplugged.'] },
@@ -447,11 +447,11 @@ export default {
     ['How do I remove the backing from the label?', 'DYMO labels have a split back. Pinch lengthwise toward the printed side so the backing separates, then peel.'],
   ],
   tips: [
-    'Press [.,#] when you only need punctuation — it skips the Clip Art menu.',
+    'Press [.,#] when you only need punctuation. It skips the Clip Art menu.',
     'Hold a letter to reach à á â ã ä … without the [Accent] key.',
     'Bold and italic stack: press both [B] and [I] for bold italic.',
     'On 6 mm (1/4") tape you only get one line and sizes 8–12 pt. Switch to 12 mm for 24 pt and two lines.',
     'The ~two-minute auto-off keeps the current label if batteries (or the adapter) stay connected.',
-    'Clean the cutter blade every time you change the cassette — that is the guide’s maintenance step, not optional.',
+    'Clean the cutter blade every time you change the cassette. That is the guide’s maintenance step, not optional.',
   ],
 };
