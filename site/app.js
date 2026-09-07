@@ -463,7 +463,7 @@ function renderHome(q = {}) {
       </a>
     </div>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div>${installHomeCta()}</div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
@@ -489,7 +489,8 @@ const SECTIONS = [
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
   const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
-  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: star + (section ? `<a class="iconbtn" href="/d/${d.id}" aria-label="Search">⌕</a>` : '') });
+  const search = section ? `<a class="iconbtn" href="/d/${d.id}" aria-label="Search">⌕</a>` : '';
+  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
@@ -836,14 +837,46 @@ function drawTape(d, s) {
 // Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
 // iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
 // Capture the prompt immediately; only show the bar after a few distinct device screens.
+// Explicit Install controls (home CTA, device topbar) ignore the bar's 7-day snooze.
 let deferredInstall = null;
 const INSTALL_SCREENS = 3;
 const INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
-const isStandaloneApp = () => window.matchMedia('(display-mode: standalone)').matches
-  || window.matchMedia('(display-mode: fullscreen)').matches
-  || window.navigator.standalone === true;
-const isIosDevice = () => /iPad|iPhone|iPod/.test(navigator.userAgent)
-  || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function isStandaloneApp() {
+  return window.matchMedia('(display-mode: standalone)').matches
+    || window.matchMedia('(display-mode: fullscreen)').matches
+    || window.navigator.standalone === true;
+}
+function isIosDevice() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+function shouldShowInstallControls() {
+  return !isStandaloneApp() && !store.get('install-done', false);
+}
+function installActionLabel() {
+  return isIosDevice() ? 'Add to Home Screen' : 'Install';
+}
+function installIconSvg() {
+  return `<svg class="install-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 4v11M8.5 11.5 12 15l3.5-3.5M6 19.5h12"/></svg>`;
+}
+function installHomeCta() {
+  if (!shouldShowInstallControls()) return '';
+  const label = installActionLabel();
+  return `<p class="install-home js-install"><button class="btn ghost" type="button" data-install="cta" onclick="requestInstall()">${esc(label)}</button></p>`;
+}
+function installIconButton() {
+  if (!shouldShowInstallControls()) return '';
+  const label = installActionLabel();
+  return `<button class="iconbtn js-install" type="button" data-install="icon" aria-label="${esc(label)}" title="${esc(label)}" onclick="requestInstall()">${installIconSvg()}</button>`;
+}
+function hideInstallControls() {
+  document.querySelectorAll('.js-install').forEach(el => { el.hidden = true; });
+}
+function syncInstallBarOffset() {
+  const bar = document.getElementById('install-bar');
+  const h = bar && !bar.hidden ? Math.round(bar.getBoundingClientRect().height) : 0;
+  document.documentElement.style.setProperty('--install-bar-h', h + 'px');
+}
 
 // Old builds hid forever on dismiss via install-hide. Convert once to a 7-day snooze.
 if (store.get('install-hide', false) === true) {
@@ -854,7 +887,11 @@ if (store.get('install-hide', false) === true) {
 function hideInstallBar(persist) {
   const bar = document.getElementById('install-bar');
   if (bar) bar.hidden = true;
-  if (persist) store.set('install-done', true);
+  if (persist) {
+    store.set('install-done', true);
+    hideInstallControls();
+  }
+  syncInstallBarOffset();
 }
 function showInstallBar(kind) {
   if (isStandaloneApp() || store.get('install-done', false)) return;
@@ -875,6 +912,7 @@ function showInstallBar(kind) {
       <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
   }
   bar.hidden = false;
+  requestAnimationFrame(syncInstallBarOffset);
 }
 function noteInstallScreen() {
   if (store.get('install-ready', false)) return;
@@ -892,6 +930,22 @@ function maybeShowInstallBar() {
   if (deferredInstall) showInstallBar('chrome');
   else if (isIosDevice()) showInstallBar('ios');
 }
+function openInstallHelp(kind) {
+  if (kind === 'ios') {
+    openSheet(`<h2 class="t">Add to Home Screen</h2>
+      <p>Add Labelarium to your Home Screen to use it locally, even offline.</p>
+      <ol class="steps">
+        <li>Tap <b>Share</b>.</li>
+        <li>Tap <b>Add to Home Screen</b>.</li>
+      </ol>`);
+    return;
+  }
+  const body = window.isSecureContext
+    ? `<p>This browser has not offered an install prompt.</p>
+      <p class="small muted">Browse a few device screens and try again. Chrome and Edge can install over HTTPS. On iPhone, use Share, then Add to Home Screen.</p>`
+    : `<p>Installing needs a secure context. Open this site over HTTPS, or on localhost.</p>`;
+  openSheet(`<h2 class="t">Install</h2>${body}`);
+}
 window.dismissInstall = () => {
   hideInstallBar(false);
   store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
@@ -903,12 +957,24 @@ window.acceptInstall = async () => {
   deferredInstall = null;
   hideInstallBar(true);
 };
+window.requestInstall = async () => {
+  if (isStandaloneApp() || store.get('install-done', false)) {
+    hideInstallControls();
+    return;
+  }
+  if (deferredInstall) {
+    await acceptInstall();
+    return;
+  }
+  openInstallHelp(isIosDevice() ? 'ios' : 'pending');
+};
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstall = e;
   maybeShowInstallBar();
 });
 window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
+window.addEventListener('resize', syncInstallBarOffset);
 
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}

@@ -1,0 +1,37 @@
+Visual QA (Puppeteer + Chrome, local server on site/, 390x844 and 1280x900)
+
+Homepage
+- Ghost Install CTA sits under the hero marks, 44px tall, centered.
+- Does not collide with kicker, title, chips, or tiles.
+- iPhone UA: label is "Add to Home Screen" (196px, no overflow).
+- After install-done or standalone: CTA is omitted.
+
+Device chrome (/d/brother-pt-d220)
+- Download icon button is 44x44, immediately left of pin, also 44x44.
+- Symbols (install + pin + search): no topbar overflow.
+- Back is 44px to match; phone device glyph is 44px.
+
+Sheets
+- No beforeinstallprompt: honest "not offered" copy. Does not fake a native install.
+- iOS: Share, then Add to Home Screen steps in the existing bottom sheet.
+
+Install bar
+- Left in place. Snooze on dismiss does not hide the new buttons.
+- Sticky search sits below the bar (--install-bar-h) so the two do not overlap.
+
+Shots
+- phone-home.png
+- phone-home-ios.png
+- phone-home-install-sheet.png
+- phone-home-ios-sheet.png
+- phone-device.png
+- phone-device-topbar.png
+- phone-device-symbols.png
+- phone-device-symbols-topbar.png
+- phone-device-install-sheet.png
+- phone-device-with-bar.png
+- phone-device-with-bar-scrolled.png
+- phone-device-installed-hidden.png
+- desk-home.png
+- desk-device.png
+- desk-device-topbar.png
