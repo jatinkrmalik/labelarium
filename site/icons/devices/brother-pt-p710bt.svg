@@ -1,26 +1,12 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
   <g stroke-linejoin="round" stroke-linecap="round">
-    <rect x="16.00" y="16.00" width="96.00" height="96.00" rx="22.00" fill="#fff" stroke="#141414" stroke-width="2.2"/>
-    <rect x="21.00" y="21.00" width="86.00" height="86.00" rx="18.00" fill="#fff" stroke="#141414" stroke-width="0.85"/>
-    <rect x="30.00" y="30.00" width="68.00" height="68.00" rx="14.00" fill="#fff" stroke="#141414" stroke-width="1.35"/>
-    <rect x="36.00" y="36.00" width="56.00" height="56.00" rx="11.00" fill="#efe7d6" stroke="#141414" stroke-width="1.15"/>
-    <rect x="44.00" y="44.00" width="40.00" height="40.00" rx="8.00" fill="#fff" stroke="#141414" stroke-width="1.0"/>
-    <rect x="56.00" y="74.50" width="16.00" height="4.80" rx="1.40" fill="#efe7d6" stroke="#141414" stroke-width="0.85"/>
-    <rect x="59.00" y="75.70" width="10.00" height="2.40" rx="0.70" fill="#fff" stroke="#141414" stroke-width="0.6"/>
-    <circle cx="40.50" cy="40.50" r="1.25" fill="#141414"/>
-    <circle cx="81.50" cy="40.50" r="1.25" fill="#141414"/>
-    <circle cx="40.50" cy="81.50" r="1.25" fill="#141414"/>
-    <circle cx="81.50" cy="81.50" r="1.25" fill="#141414"/>
-    <path d="M50 44 h28" fill="none" stroke="#141414" stroke-width="0.65"/>
-    <path d="M44 50 v20" fill="none" stroke="#141414" stroke-width="0.65"/>
-    <path d="M84 50 v20" fill="none" stroke="#141414" stroke-width="0.65"/>
-    <circle cx="64.00" cy="25.20" r="2.35" fill="#c8342a" stroke="#141414" stroke-width="0.75"/>
-    <circle cx="64.00" cy="25.20" r="0.90" fill="#fff"/>
-    <rect x="18.20" y="53.00" width="2.50" height="22.00" rx="1.25" fill="#141414"/>
-    <rect x="18.75" y="54.60" width="1.40" height="18.80" rx="0.70" fill="#efe7d6"/>
-    <rect x="54.00" y="96.50" width="20.00" height="5.00" rx="1.50" fill="#141414"/>
-    <rect x="57.20" y="97.60" width="13.60" height="2.60" rx="0.80" fill="#fff"/>
-    <path d="M30 20 h12 M86 20 h12 M30 108 h12 M86 108 h12" fill="none" stroke="#141414" stroke-width="0.7"/>
-    <path d="M20 30 v12 M20 86 v12 M108 30 v12 M108 86 v12" fill="none" stroke="#141414" stroke-width="0.7"/>
+    <rect x="8.00" y="8.00" width="112.00" height="112.00" rx="24.00" fill="#f7f5f0" stroke="#141414" stroke-width="2.2"/>
+    <rect x="14.00" y="14.00" width="100.00" height="100.00" rx="18.50" fill="#fff" stroke="#141414" stroke-width="1.15"/>
+    <rect x="70.00" y="72.00" width="17.00" height="17.00" rx="3.40" fill="#efe7d6" stroke="#141414" stroke-width="1.05"/>
+    <rect x="7.90" y="48.50" width="8.20" height="31.00" rx="3.10" fill="#141414"/>
+    <rect x="9.20" y="51.40" width="5.00" height="25.20" rx="1.90" fill="#efe7d6"/>
+    <rect x="9.80" y="59.40" width="3.60" height="7.40" rx="0.80" fill="#fff"/>
+    <circle cx="64.00" cy="11.10" r="2.90" fill="#2e9a44" stroke="#141414" stroke-width="0.75"/>
+    <circle cx="64.00" cy="10.45" r="1.00" fill="#fff"/>
   </g>
 </svg>
