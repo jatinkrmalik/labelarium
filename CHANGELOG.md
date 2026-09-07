@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1]
+
+- Redraw the ten homepage / rail device SVGs as flat top views from product photos and manuals, instead of the old schematic grids.
+- Move the home Install control from a centered hero button to a top-right icon, matching the device pages.
+- Record version `0.1.1` in root `package.json`.
+- Bump the service worker cache name to `labelarium-v35`.
+
 ## [0.1.0]
 
 - Move deployable web assets under `site/` so the GitHub Pages artifact is that folder only. OSS docs and `docs/og/` stay at the repo root. Unused `concepts/` design explorations are removed.

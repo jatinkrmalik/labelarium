@@ -1,10 +1,9 @@
 Visual QA (Puppeteer + Chrome, local server on site/, 390x844 and 1280x900)
 
 Homepage
-- Ghost Install CTA sits under the hero marks, 44px tall, centered.
-- Does not collide with kicker, title, chips, or tiles.
-- iPhone UA: label is "Add to Home Screen" (196px, no overflow).
-- After install-done or standalone: CTA is omitted.
+- Install is a 44x44 icon in the home topbar, top-right, same download glyph as device pages.
+- Tape logo stays centered. Icon does not collide with the logo at 390px.
+- After install-done or standalone: icon is omitted.
 
 Device chrome (/d/brother-pt-d220)
 - Download icon button is 44x44, immediately left of pin, also 44x44.
