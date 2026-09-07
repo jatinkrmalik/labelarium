@@ -121,6 +121,17 @@ concepts/                       design explorations (not in the Pages artifact)
 docs/og/                        Open Graph source material (not in the Pages artifact)
 ```
 
+## CI and GitHub Pages
+
+Pull requests and pushes to `main` run [`.github/workflows/ci.yml`](.github/workflows/ci.yml). That check
+confirms required files exist under `site/`, that `site/CNAME` is `labelarium.com`, and that every
+device id in `site/devices/index.json` has a matching `device.js`.
+
+Publishing to [labelarium.com](https://labelarium.com) uses [`.github/workflows/pages.yml`](.github/workflows/pages.yml),
+which uploads the `site/` folder on push to `main`. Set the repository Pages source to **GitHub Actions**
+(Settings → Pages → Build and deployment → Source), not a branch deploy. That is a one-time repo setting
+and is not assumed to be switched yet.
+
 ## Support
 
 If Labelarium is useful, [buy me a coffee on GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
