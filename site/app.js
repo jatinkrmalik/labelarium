@@ -437,7 +437,7 @@ function deviceTab(dev) {
 // Document-flow site footer. Not sticky: lives at the end of the page content.
 function siteFooter() {
   return `<footer class="site-foot">
-    <p class="footer"><a class="f-left" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request a label maker</a><span class="f-mid"><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><span class="sep" aria-hidden="true"> · </span><a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>
+    <p class="footer"><a class="f-left" href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><span class="f-mid"><a href="https://github.com/jatinkrmalik/labelarium/blob/main/LICENSE" target="_blank" rel="noopener">AGPL-3.0</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">Made by @jatinkrmalik</a></p>
     <p class="footer-legal">Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. Labelarium is unofficial and not affiliated. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
   </footer>`;
 }
@@ -462,12 +462,18 @@ function renderHome(q = {}) {
       <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
+  const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
+      <span class="devtile-hit">
+      <span class="dev-icon" aria-hidden="true"><span class="request-q">?</span></span>
+      <span class="dev-copy"><b>Request a label maker</b><span class="muted">Don't see yours?</span></span>
+      </span>
+    </a>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
-    <div class="devgrid">${list.map(card).join('')}</div>
+    <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
     ${siteFooter()}`;
 }
 window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '/' : '/?brand=' + encodeURIComponent(b)); render(); };
