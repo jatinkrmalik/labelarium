@@ -433,6 +433,14 @@ function deviceTab(dev) {
   if (m === b || m.startsWith(b + ' ')) return model;
   return `${brand} ${model}`;
 }
+function deviceTileLabel(dev) {
+  const brand = dev.brand || '', model = dev.model || '';
+  if (!model || model.toLowerCase() === brand.toLowerCase()) return deviceLabel(dev);
+  const m = model.toLowerCase(), b = brand.toLowerCase();
+  const tile = !brand || m.startsWith(b + ' ') ? model : `${brand} ${model}`;
+  const full = deviceLabel(dev);
+  return tile.length <= full.length ? tile : full;
+}
 
 // Document-flow site footer. Not sticky: lives at the end of the page content.
 function siteFooter() {
@@ -459,7 +467,7 @@ function renderHome(q = {}) {
       <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
       <a class="devtile-hit" href="/d/${dev.id}">
       <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
+      <div class="dev-copy"><b>${esc(deviceTileLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
@@ -469,8 +477,8 @@ function renderHome(q = {}) {
       </span>
     </a>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
-    ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p></div>
+    ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers</h2>
     <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
