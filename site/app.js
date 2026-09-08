@@ -358,6 +358,10 @@ function scrollRouteHash() {
   const id = routeHash();
   if (!id) return;
   document.getElementById(id)?.scrollIntoView({ block: 'start' });
+  if (id === 'search') {
+    const i = $('#q');
+    if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  }
 }
 
 async function render() {
@@ -401,8 +405,9 @@ const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox=
 
 function iconBtn({ tag='button', href, cls='', label, title, extra='', inner }) {
   const hrefAttr = href ? ` href="${esc(href)}"` : '';
+  const typeAttr = tag === 'button' && !/\btype=/.test(extra) ? ' type="button"' : '';
   const extraAttr = extra ? ` ${extra}` : '';
-  return `<${tag} class="iconbtn labeled ${cls}"${hrefAttr}${extraAttr} aria-label="${esc(label)}" title="${esc(title || label)}"><span class="ico" aria-hidden="true">${inner}</span><span class="lbl">${esc(label)}</span></${tag}>`;
+  return `<${tag} class="iconbtn labeled ${cls}"${hrefAttr}${typeAttr}${extraAttr} aria-label="${esc(label)}" title="${esc(title || label)}"><span class="ico" aria-hidden="true">${inner}</span><span class="lbl">${esc(label)}</span></${tag}>`;
 }
 
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
@@ -458,6 +463,8 @@ function siteFooter() {
 function ensureFooter(el) {
   if (!el || el.querySelector(':scope > .site-foot')) return;
   el.insertAdjacentHTML('beforeend', siteFooter());
+  // Search results hide the in-main footer; renderResults may run before this.
+  if (el.classList.contains('has-q')) el.querySelector(':scope > .site-foot').hidden = true;
 }
 
 // ---------- home ----------
@@ -513,8 +520,9 @@ function deviceTop(d, section, sub) {
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
+<<<<<<< HEAD
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
@@ -531,13 +539,33 @@ function searchBox(d, q) {
   return `<div class="search" id="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
-window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); const d = loaded[id]; applyDeviceSeo(d, 'home', [], { q: v }); renderResults(d, v); }, 80); };
+window.onSearch = (id, v) => {
+  const i = $('#q');
+  if (i && i.value !== v) i.value = v;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`);
+    const d = loaded[id];
+    applyDeviceSeo(d, 'home', [], { q: v });
+    renderResults(d, v);
+  }, 80);
+};
+window.focusDeviceSearch = e => {
+  const i = $('#q');
+  if (!i) return;
+  e.preventDefault();
+  i.focus();
+  i.setSelectionRange(i.value.length, i.value.length);
+};
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
   main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections" class="twocol"></div>`;
   if (q.q) renderResults(d, q.q, true); else renderSections(d);
-  if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  if (location.hash === '#search' || q.q) {
+    const i = $('#q');
+    if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  }
 }
 function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
@@ -549,10 +577,21 @@ function renderSections(d) {
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
+  main.classList.toggle('has-q', !!q);
+  const foot = main.querySelector(':scope > .site-foot');
+  if (foot) foot.hidden = !!q;
   if (!q) { box.innerHTML = ''; sections.hidden = false; if (!sections.innerHTML) renderSections(d); return; }
   sections.hidden = true;
   const res = search(d, q);
-  if (!res.length) { box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<br><span class="small">Try a simpler word, e.g. “sign”, “star”, “tape”.</span></div>`; return; }
+  if (!res.length) {
+    box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<p class="small">Try a simpler word</p>
+      <div class="empty-actions">
+        <button type="button" class="chip" onclick="onSearch('${d.id}','sign')">sign</button>
+        <button type="button" class="chip" onclick="onSearch('${d.id}','star')">star</button>
+        <button type="button" class="chip" onclick="onSearch('${d.id}','tape')">tape</button>
+      </div></div>`;
+    return;
+  }
   const groups = {}; res.forEach(r => (groups[r.type] ||= []).push(r));
   const names = { symbol: 'Symbols', frame: 'Frames', template: 'Templates', howto: 'How-to', shortcut: 'Shortcuts', 'symbol-category': 'Symbol categories', font: 'Fonts', style: 'Styles', error: 'Error messages', problem: 'Problems & fixes', key: 'Keys' };
   const terms = norm(q).split(/\s+/).filter(w => w.length > 1).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
