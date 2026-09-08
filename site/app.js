@@ -358,6 +358,10 @@ function scrollRouteHash() {
   const id = routeHash();
   if (!id) return;
   document.getElementById(id)?.scrollIntoView({ block: 'start' });
+  if (id === 'search') {
+    const i = $('#q');
+    if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  }
 }
 
 async function render() {
@@ -399,6 +403,13 @@ async function render() {
 // Diagonal ABC tape. viewBox is sized for rotate(-26) of the 88×22 strip so nothing is clipped.
 const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="-22 -16 100 70" width="57" height="40" overflow="visible" aria-hidden="true" focusable="false"><g transform="rotate(-26 28 19)"><rect x="-16" y="8" width="88" height="22" fill="#e8b820"/><rect x="-16" y="8" width="88" height="3" fill="#141414"/><rect x="-16" y="27" width="88" height="3" fill="#141414"/><text x="28" y="24" text-anchor="middle" font-family="Jost,Futura,'Century Gothic',sans-serif" font-weight="700" font-size="13" fill="#141414">ABC</text></g></svg>`;
 
+function iconBtn({ tag='button', href, cls='', label, title, extra='', inner }) {
+  const hrefAttr = href ? ` href="${esc(href)}"` : '';
+  const typeAttr = tag === 'button' && !/\btype=/.test(extra) ? ' type="button"' : '';
+  const extraAttr = extra ? ` ${extra}` : '';
+  return `<${tag} class="iconbtn labeled ${cls}"${hrefAttr}${typeAttr}${extraAttr} aria-label="${esc(label)}" title="${esc(title || label)}"><span class="ico" aria-hidden="true">${inner}</span><span class="lbl">${esc(label)}</span></${tag}>`;
+}
+
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
   if (back) topbar.removeAttribute('aria-label');
@@ -433,6 +444,14 @@ function deviceTab(dev) {
   if (m === b || m.startsWith(b + ' ')) return model;
   return `${brand} ${model}`;
 }
+function deviceTileLabel(dev) {
+  const brand = dev.brand || '', model = dev.model || '';
+  if (!model || model.toLowerCase() === brand.toLowerCase()) return deviceLabel(dev);
+  const m = model.toLowerCase(), b = brand.toLowerCase();
+  const tile = !brand || m.startsWith(b + ' ') ? model : `${brand} ${model}`;
+  const full = deviceLabel(dev);
+  return tile.length <= full.length ? tile : full;
+}
 
 // Document-flow site footer. Not sticky: lives at the end of the page content.
 function siteFooter() {
@@ -444,11 +463,13 @@ function siteFooter() {
 function ensureFooter(el) {
   if (!el || el.querySelector(':scope > .site-foot')) return;
   el.insertAdjacentHTML('beforeend', siteFooter());
+  // Search results hide the in-main footer; renderResults may run before this.
+  if (el.classList.contains('has-q')) el.querySelector(':scope > .site-foot').hidden = true;
 }
 
 // ---------- home ----------
 function renderHome(q = {}) {
-  setTop('Labelarium', { right: installIconButton() });
+  setTop('Labelarium');
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const brand = q.brand || 'all';
@@ -459,7 +480,7 @@ function renderHome(q = {}) {
       <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
       <a class="devtile-hit" href="/d/${dev.id}">
       <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <div class="dev-copy"><b>${esc(deviceLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
+      <div class="dev-copy"><b>${esc(deviceTileLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
@@ -469,10 +490,13 @@ function renderHome(q = {}) {
       </span>
     </a>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p><div class="marks"><i class="mark ci-red"></i><i class="mark sq-blue"></i><i class="mark tr-yellow"></i></div></div>
-    ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : '<p class="hint">Tap ○ on a label maker to pin it here.</p>'}
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p></div>
+    ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers</h2>
-    <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+    <div class="home-toolbar">
+      <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+      ${installIconButton()}
+    </div>
     <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
     ${siteFooter()}`;
 }
@@ -494,13 +518,13 @@ const SECTIONS = [
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
-  const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
-  const search = section ? `<a class="iconbtn" href="/d/${d.id}" aria-label="Search">⌕</a>` : '';
+  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')"`, inner: favs.includes(d.id) ? '●' : '○' });
+  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, label: 'Search', inner: '⌕' }) : '';
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
-  const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
+  const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
@@ -517,13 +541,33 @@ function searchBox(d, q) {
   return `<div class="search" id="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
 }
 let searchTimer;
-window.onSearch = (id, v) => { clearTimeout(searchTimer); searchTimer = setTimeout(() => { history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`); const d = loaded[id]; applyDeviceSeo(d, 'home', [], { q: v }); renderResults(d, v); }, 80); };
+window.onSearch = (id, v) => {
+  const i = $('#q');
+  if (i && i.value !== v) i.value = v;
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    history.replaceState(null, '', `/d/${id}${v ? '?q=' + encodeURIComponent(v) : ''}`);
+    const d = loaded[id];
+    applyDeviceSeo(d, 'home', [], { q: v });
+    renderResults(d, v);
+  }, 80);
+};
+window.focusDeviceSearch = e => {
+  const i = $('#q');
+  if (!i) return;
+  e.preventDefault();
+  i.focus();
+  i.setSelectionRange(i.value.length, i.value.length);
+};
 
 function viewDeviceHome(d, _, q) {
   deviceTop(d);
   main.innerHTML = `${searchBox(d, q.q)}<div id="results"></div><div id="sections" class="twocol"></div>`;
   if (q.q) renderResults(d, q.q, true); else renderSections(d);
-  if (q.q) { const i = $('#q'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  if (location.hash === '#search' || q.q) {
+    const i = $('#q');
+    if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  }
 }
 function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
@@ -535,10 +579,21 @@ function renderSections(d) {
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
+  main.classList.toggle('has-q', !!q);
+  const foot = main.querySelector(':scope > .site-foot');
+  if (foot) foot.hidden = !!q;
   if (!q) { box.innerHTML = ''; sections.hidden = false; if (!sections.innerHTML) renderSections(d); return; }
   sections.hidden = true;
   const res = search(d, q);
-  if (!res.length) { box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<br><span class="small">Try a simpler word, e.g. “sign”, “star”, “tape”.</span></div>`; return; }
+  if (!res.length) {
+    box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<p class="small">Try a simpler word</p>
+      <div class="empty-actions">
+        <button type="button" class="chip" onclick="onSearch('${d.id}','sign')">sign</button>
+        <button type="button" class="chip" onclick="onSearch('${d.id}','star')">star</button>
+        <button type="button" class="chip" onclick="onSearch('${d.id}','tape')">tape</button>
+      </div></div>`;
+    return;
+  }
   const groups = {}; res.forEach(r => (groups[r.type] ||= []).push(r));
   const names = { symbol: 'Symbols', frame: 'Frames', template: 'Templates', howto: 'How-to', shortcut: 'Shortcuts', 'symbol-category': 'Symbol categories', font: 'Fonts', style: 'Styles', error: 'Error messages', problem: 'Problems & fixes', key: 'Keys' };
   const terms = norm(q).split(/\s+/).filter(w => w.length > 1).map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
@@ -639,7 +694,7 @@ function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
-  main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
+  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to insert any symbol</summary>${steps(d.symbols.howto)}</details></div>
     <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
     <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
     <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
@@ -677,7 +732,7 @@ function viewFrames(d, _, q) {
   }
   if (hasWide) chips.push(chip('wide', '12 mm only'));
   const chipRow = chips.length > 1 ? `<div class="chips">${chips.join('')}</div>` : '';
-  main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
+  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to apply a frame</summary>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></details></div>
     ${chipRow}
     ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
 }
@@ -737,6 +792,7 @@ const MARGINS = { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 };
 function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
   const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
+  if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = d.tapes[0] ? d.tapes[0].mm : 12;
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
   main.innerHTML = `<div class="twocol"><div class="col"><div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
   <div class="card ctl" id="ctl">
@@ -764,6 +820,7 @@ function viewPreview(d, _, q) {
   ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
   ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
   const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
+  redrawPreview = draw;
   draw();
 }
 const savedKey = id => 'labels:' + id;
@@ -782,13 +839,15 @@ window.saveLabel = id => {
 window.loadLabel = (id, i) => { const l = store.get(savedKey(id), [])[i]; if (!l) return; store.set('preview:' + id, l.s); render(); window.scrollTo(0, 0); };
 window.deleteLabel = (id, i) => { const list = store.get(savedKey(id), []); if (!confirm(`Delete “${list[i]?.name}”?`)) return; list.splice(i, 1); store.set(savedKey(id), list); renderSaved(loaded[id]); };
 window.resetPreview = id => { localStorage.removeItem('lab:preview:' + id); render(); };
+let redrawPreview = null;
 function drawTape(d, s) {
   const PX = 9; // px per mm
   const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
   const frame = d.frames.items.find(f => String(f.n) === String(s.frame));
   const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
-  const printH = (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX; // printable height in px
-  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (frame && frame.n !== 'off' && frame.n !== 0 ? 1.25 : 1));
+  const imgFrame = frame && frame.n !== 'off' && frame.n !== 0;
+  const printH = Math.max(8, (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX);
+  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.45 : 1));
   const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
   const ink = tape[2];
   let fx = '';
@@ -799,29 +858,80 @@ function drawTape(d, s) {
   const vertical = style === 'Vertical';
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
   const marginMm = MARGINS[s.margin];
-  let frameCss = '', frameImg = '';
+  let frameCss = 'padding:0 4px;';
+  let frameBoxOpen = '';
+  const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
   if (frame && frame.n !== 'off') {
-    if (frame.n === 0) frameCss = 'text-decoration:underline;';
-    else if (frame.n === 1) frameCss = `border-top:2px solid ${ink};border-bottom:2px solid ${ink};padding:2px 6px;`;
-    else if (frame.n === 2) frameCss = `border:2px solid ${ink};border-radius:8px;padding:2px 10px;`;
-    else frameImg = `<img class="frameimg${s.mirror ? ' mirror' : ''}" src="${frame.img}" alt="">`;
+    if (frame.n === 0) {
+      frameCss = 'text-decoration:underline;padding:0 4px;';
+    } else if (sampleArt) {
+      const tapeH = s.tape * PX;
+      const bwY = Math.max(4, Math.round(tapeH * 0.1));
+      const bwX = Math.max(12, Math.round(tapeH * 0.22));
+      frameCss = 'padding:2px 8px;';
+      frameBoxOpen = `<div class="framebox${s.mirror ? ' mirror' : ''}" style="border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(frame.img)}');border-image-slice:8% 5%;border-image-repeat:stretch;min-width:${2 * bwX + 40}px">`;
+    } else {
+      // Left/right caps at native aspect (house, flourishes, icons). Middle is a 1-column slice stretched, not the whole PNG.
+      const capW = Math.max(36, Math.round(s.tape * PX * 1.45));
+      const bg = `background-image:url('${cssq(frame.img)}')`;
+      frameCss = `padding:6px ${capW}px;`;
+      frameBoxOpen = `<div class="framebox caps${s.mirror ? ' mirror' : ''}" style="--cap:${capW}px"><span class="frame-cap l" style="${bg};width:${capW}px"></span><span class="frame-mid"><span class="frame-mid-slice" style="${bg}"></span></span><span class="frame-cap r" style="${bg};width:${capW}px"></span>`;
+    }
   }
   // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
-  const sx = (s.mirror ? -1 : 1) * width;
-  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center;padding:0 ${frameImg ? Math.round(s.tape * PX * 1.15) : 4}px">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  // When a frame box is present it carries the mirror so the caps flip with the text.
+  const textSx = (s.mirror && !frameBoxOpen ? -1 : 1) * width;
+  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${textSx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  const body = frameBoxOpen ? `${frameBoxOpen}${txt}</div>` : txt;
   const el = $('#tape');
-  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${frameImg}${txt}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
+  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${body}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
-  // scaleX does not affect layout, so widen the box by hand
-  const inner = t.querySelector('.txt'); const w = inner.getBoundingClientRect().width;
-  if (width !== 1) inner.style.margin = `0 ${(w * width - w) / 2}px`;
+  const inner = t.querySelector('.txt');
+  const applyWidthPad = () => {
+    inner.style.margin = '0';
+    if (width !== 1) {
+      const box = inner.getBoundingClientRect().width;
+      inner.style.margin = `0 ${(box * Math.abs(width) - box) / 2}px`;
+    }
+  };
+  applyWidthPad();
+  // Printers shrink type to the tape, they do not let letters spill off the strip.
+  const maxTextH = t.clientHeight * (imgFrame ? 0.58 : 0.96);
+  let fh = fontPx;
+  for (let i = 0; i < 12 && inner.getBoundingClientRect().height > maxTextH; i++) {
+    fh = Math.max(8, fh * 0.9);
+    inner.style.fontSize = fh + 'px';
+    applyWidthPad();
+  }
+  const midSlice = t.querySelector('.frame-mid-slice');
+  const mid = t.querySelector('.frame-mid');
+  if (midSlice && mid) {
+    const mw = Math.max(4, mid.clientWidth);
+    midSlice.style.transform = `scaleX(${Math.ceil(mw / 4)})`;
+  }
   const tapeW = t.getBoundingClientRect().width, tapeH = s.tape * PX;
   const totalMm = Math.round(tapeW / PX);
-  // shrink to fit the phone: real size when it fits, scaled down otherwise
-  const avail = el.parentElement.clientWidth - 28, k = Math.min(1, avail / tapeW);
-  el.className = 'tapefit'; el.style.width = `${tapeW * k}px`; el.style.height = `${tapeH * k}px`; t.style.transform = `scale(${k})`;
+  // Keep letter height. A real printer prints a longer strip; it does not squash 12 mm tape to a sliver.
+  const wrap = el.parentElement;
+  const padX = wrap ? (parseFloat(getComputedStyle(wrap).paddingLeft) || 0) + (parseFloat(getComputedStyle(wrap).paddingRight) || 0) : 28;
+  const avail = Math.max(80, (wrap ? wrap.clientWidth : tapeW) - padX);
+  let k = Math.min(1, avail / Math.max(1, tapeW));
+  // Framed labels keep full tape height so flourishes are not clipped by the scale-down.
+  const floorH = imgFrame ? tapeH : Math.min(tapeH, Math.max(56, tapeH * 0.75));
+  k = Math.max(k, floorH / Math.max(1, tapeH));
+  const shownW = tapeW * k, shownH = tapeH * k;
+  const scrolls = shownW > avail + 1;
+  el.className = 'tapefit';
+  el.style.width = `${shownW}px`;
+  el.style.height = `${shownH}px`;
+  el.style.margin = scrolls ? '0' : '0 auto';
+  t.style.transform = `scale(${k})`;
+  if (wrap) {
+    wrap.classList.toggle('scrolls', scrolls);
+    if (scrolls) wrap.scrollLeft = 0;
+  }
   const over = s.length && totalMm > s.length;
-  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
+  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
   // recipe
   const r = [];
   if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
@@ -867,8 +977,7 @@ function installIconSvg() {
 }
 function installIconButton() {
   if (!shouldShowInstallControls()) return '';
-  const label = installActionLabel();
-  return `<button class="iconbtn js-install" type="button" data-install="icon" aria-label="${esc(label)}" title="${esc(label)}" onclick="requestInstall()">${installIconSvg()}</button>`;
+  return iconBtn({ cls: 'js-install', label: 'Install', title: installActionLabel(), extra: 'type="button" data-install="icon" onclick="requestInstall()"', inner: installIconSvg() });
 }
 function hideInstallControls() {
   document.querySelectorAll('.js-install').forEach(el => { el.hidden = true; });
@@ -927,6 +1036,13 @@ function noteInstallScreen() {
 }
 function maybeShowInstallBar() {
   noteInstallScreen();
+  // Home and device chrome already have an Install control. Don't stack a second bar.
+  if (document.querySelector('.js-install')) {
+    const bar = document.getElementById('install-bar');
+    if (bar) bar.hidden = true;
+    syncInstallBarOffset();
+    return;
+  }
   if (!store.get('install-ready', false)) return;
   if (deferredInstall) showInstallBar('chrome');
   else if (isIosDevice()) showInstallBar('ios');
@@ -954,9 +1070,13 @@ window.dismissInstall = () => {
 window.acceptInstall = async () => {
   if (!deferredInstall) return;
   deferredInstall.prompt();
-  try { await deferredInstall.userChoice; } catch {}
+  let outcome = 'dismissed';
+  try {
+    const choice = await deferredInstall.userChoice;
+    if (choice && choice.outcome) outcome = choice.outcome;
+  } catch {}
   deferredInstall = null;
-  hideInstallBar(true);
+  if (outcome === 'accepted') hideInstallBar(true);
 };
 window.requestInstall = async () => {
   if (isStandaloneApp() || store.get('install-done', false)) {
@@ -975,7 +1095,13 @@ window.addEventListener('beforeinstallprompt', e => {
   maybeShowInstallBar();
 });
 window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
-window.addEventListener('resize', syncInstallBarOffset);
+window.addEventListener('resize', () => {
+  syncInstallBarOffset();
+  if (redrawPreview && $('#tape')) {
+    cancelAnimationFrame(drawTape._rz);
+    drawTape._rz = requestAnimationFrame(redrawPreview);
+  }
+});
 
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
