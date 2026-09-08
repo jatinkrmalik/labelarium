@@ -639,7 +639,7 @@ function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
-  main.innerHTML = `<div class="card"><h3>How to insert any symbol</h3>${steps(d.symbols.howto)}</div>
+  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to insert any symbol</summary>${steps(d.symbols.howto)}</details></div>
     <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
     <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
     <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
@@ -677,7 +677,7 @@ function viewFrames(d, _, q) {
   }
   if (hasWide) chips.push(chip('wide', '12 mm only'));
   const chipRow = chips.length > 1 ? `<div class="chips">${chips.join('')}</div>` : '';
-  main.innerHTML = `<div class="card"><h3>How to apply a frame</h3>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></div>
+  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to apply a frame</summary>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></details></div>
     ${chipRow}
     ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
 }
