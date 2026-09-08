@@ -356,13 +356,21 @@ details.howto-fold { border: 0; margin: 0; }
 .sheet.zoom .zoom-hero img { display: block; width: 100%; height: auto; max-height: none; background: #fff; }
 
 /* Preview / designer */
-.tapewrap { background: var(--plate-2); border: 1px solid var(--soft); padding: 26px 14px; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
-.tapefit { position: relative; margin: 0 auto; flex-shrink: 0; }
+.tapewrap { background: var(--plate-2); border: 1px solid var(--soft); padding: 26px 14px; overflow-x: auto; overflow-y: clip; -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+.tapefit { position: relative; margin: 0 auto; flex-shrink: 0; overflow: hidden; }
 .tapefit .tape { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
 .tape { position: relative; margin: 0 auto; display: flex; align-items: center; justify-content: center; white-space: nowrap; box-shadow: 0 1px 0 rgba(0,0,0,.25); overflow: hidden; }
 .tape .txt { display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 1; max-height: 100%; box-sizing: border-box; }
 .tape .line { line-height: 1.05; }
 .tape .framebox { position: relative; display: inline-flex; align-items: center; justify-content: center; align-self: stretch; max-height: 100%; box-sizing: border-box; }
+.tape .framebox.caps { display: grid; grid-template-columns: var(--cap, 96px) minmax(0, 1fr) var(--cap, 96px); width: max-content; min-width: calc(var(--cap, 96px) * 2 + 48px); }
+.tape .frame-cap, .tape .frame-mid { grid-row: 1; height: 100%; min-height: 0; }
+.tape .frame-cap { background-repeat: no-repeat; background-size: auto 100%; }
+.tape .frame-cap.l { grid-column: 1; background-position: left center; }
+.tape .frame-cap.r { grid-column: 3; background-position: right center; }
+.tape .frame-mid { grid-column: 2; overflow: hidden; contain: paint; isolation: isolate; position: relative; }
+.tape .frame-mid-slice { position: absolute; top: 0; bottom: 0; left: 50%; width: 4px; margin-left: -2px; background-repeat: no-repeat; background-size: auto 100%; background-position: center; transform-origin: center; pointer-events: none; }
+.tape .framebox .txt { grid-column: 1 / -1; grid-row: 1; }
 .tape .framebox.mirror { transform: scaleX(-1); }
 .tape.mirror .txt { /* mirror is applied via inline scaleX with width; keep class for recipe/state only */ }
 .tape .dots { position: absolute; top: 0; bottom: 0; width: 0; border-left: 2px dotted rgba(0,0,0,.4); }

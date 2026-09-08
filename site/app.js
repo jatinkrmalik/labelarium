@@ -847,7 +847,7 @@ function drawTape(d, s) {
   const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
   const imgFrame = frame && frame.n !== 'off' && frame.n !== 0;
   const printH = Math.max(8, (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX);
-  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.2 : 1));
+  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.45 : 1));
   const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
   const ink = tape[2];
   let fx = '';
@@ -859,26 +859,30 @@ function drawTape(d, s) {
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
   const marginMm = MARGINS[s.margin];
   let frameCss = 'padding:0 4px;';
-  let frameBoxStyle = '';
+  let frameBoxOpen = '';
+  const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
   if (frame && frame.n !== 'off') {
     if (frame.n === 0) {
       frameCss = 'text-decoration:underline;padding:0 4px;';
-    } else {
-      // 9-slice: keep the end caps, stretch only the middle so a long label does not squash the art.
+    } else if (sampleArt) {
       const tapeH = s.tape * PX;
-      const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
-      const bwY = Math.max(4, Math.round(tapeH * (sampleArt ? 0.1 : 0.16)));
-      const bwX = Math.max(12, Math.round(tapeH * (sampleArt ? 0.22 : 0.88)));
-      const slice = sampleArt ? '8% 5%' : '22% 24%';
+      const bwY = Math.max(4, Math.round(tapeH * 0.1));
+      const bwX = Math.max(12, Math.round(tapeH * 0.22));
       frameCss = 'padding:2px 8px;';
-      frameBoxStyle = `border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(frame.img)}');border-image-slice:${slice};border-image-repeat:stretch;min-width:${2 * bwX + 40}px`;
+      frameBoxOpen = `<div class="framebox${s.mirror ? ' mirror' : ''}" style="border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(frame.img)}');border-image-slice:8% 5%;border-image-repeat:stretch;min-width:${2 * bwX + 40}px">`;
+    } else {
+      // Left/right caps at native aspect (house, flourishes, icons). Middle is a 1-column slice stretched, not the whole PNG.
+      const capW = Math.max(36, Math.round(s.tape * PX * 1.45));
+      const bg = `background-image:url('${cssq(frame.img)}')`;
+      frameCss = `padding:6px ${capW}px;`;
+      frameBoxOpen = `<div class="framebox caps${s.mirror ? ' mirror' : ''}" style="--cap:${capW}px"><span class="frame-cap l" style="${bg};width:${capW}px"></span><span class="frame-mid"><span class="frame-mid-slice" style="${bg}"></span></span><span class="frame-cap r" style="${bg};width:${capW}px"></span>`;
     }
   }
   // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
   // When a frame box is present it carries the mirror so the caps flip with the text.
-  const textSx = (s.mirror && !frameBoxStyle ? -1 : 1) * width;
+  const textSx = (s.mirror && !frameBoxOpen ? -1 : 1) * width;
   const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${textSx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
-  const body = frameBoxStyle ? `<div class="framebox${s.mirror ? ' mirror' : ''}" style="${frameBoxStyle}">${txt}</div>` : txt;
+  const body = frameBoxOpen ? `${frameBoxOpen}${txt}</div>` : txt;
   const el = $('#tape');
   el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${body}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
@@ -892,11 +896,18 @@ function drawTape(d, s) {
   };
   applyWidthPad();
   // Printers shrink type to the tape, they do not let letters spill off the strip.
+  const maxTextH = t.clientHeight * (imgFrame ? 0.58 : 0.96);
   let fh = fontPx;
-  for (let i = 0; i < 12 && inner.getBoundingClientRect().height > t.clientHeight - 2; i++) {
+  for (let i = 0; i < 12 && inner.getBoundingClientRect().height > maxTextH; i++) {
     fh = Math.max(8, fh * 0.9);
     inner.style.fontSize = fh + 'px';
     applyWidthPad();
+  }
+  const midSlice = t.querySelector('.frame-mid-slice');
+  const mid = t.querySelector('.frame-mid');
+  if (midSlice && mid) {
+    const mw = Math.max(4, mid.clientWidth);
+    midSlice.style.transform = `scaleX(${Math.ceil(mw / 4)})`;
   }
   const tapeW = t.getBoundingClientRect().width, tapeH = s.tape * PX;
   const totalMm = Math.round(tapeW / PX);
@@ -905,7 +916,8 @@ function drawTape(d, s) {
   const padX = wrap ? (parseFloat(getComputedStyle(wrap).paddingLeft) || 0) + (parseFloat(getComputedStyle(wrap).paddingRight) || 0) : 28;
   const avail = Math.max(80, (wrap ? wrap.clientWidth : tapeW) - padX);
   let k = Math.min(1, avail / Math.max(1, tapeW));
-  const floorH = Math.min(tapeH, Math.max(56, tapeH * 0.75));
+  // Framed labels keep full tape height so flourishes are not clipped by the scale-down.
+  const floorH = imgFrame ? tapeH : Math.min(tapeH, Math.max(56, tapeH * 0.75));
   k = Math.max(k, floorH / Math.max(1, tapeH));
   const shownW = tapeW * k, shownH = tapeH * k;
   const scrolls = shownW > avail + 1;
@@ -916,7 +928,7 @@ function drawTape(d, s) {
   t.style.transform = `scale(${k})`;
   if (wrap) {
     wrap.classList.toggle('scrolls', scrolls);
-    if (scrolls) wrap.scrollLeft = Math.max(0, (wrap.scrollWidth - wrap.clientWidth) / 2);
+    if (scrolls) wrap.scrollLeft = 0;
   }
   const over = s.length && totalMm > s.length;
   $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
