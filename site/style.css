@@ -227,9 +227,30 @@ a.iconbtn { display: inline-flex; }
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  margin-bottom: 12px;
 }
-.home-toolbar .chips { flex: 1 1 auto; min-width: 0; padding: 8px 0 6px; }
-.home-toolbar .js-install { flex: 0 0 auto; margin-top: 8px; }
+.home-toolbar .chips { flex: 1 1 auto; min-width: 0; padding: 0; }
+.home-toolbar .iconbtn.labeled.js-install {
+  flex: 0 0 auto;
+  height: auto;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 14px;
+  gap: 6px;
+  background: var(--yellow);
+  color: var(--ink);
+  border: 1.5px solid var(--rule);
+}
+.home-toolbar .iconbtn.labeled.js-install:hover {
+  background: #d4a61c;
+  border-color: var(--rule);
+}
+.home-toolbar .js-install .lbl {
+  font: 600 13px/1 var(--sans);
+  letter-spacing: 0;
+}
+.home-toolbar .js-install .ico,
+.home-toolbar .js-install .install-ico { width: 14px; height: 14px; }
 .chip { flex: 0 0 auto; border: 1.5px solid var(--rule); background: var(--plate); color: var(--ink); padding: 8px 14px; font: 600 13px/1 var(--sans); cursor: pointer; }
 .chip.on { background: var(--ink); color: var(--paper); }
 .hint { color: var(--ink-2); font-size: 15px; margin: 10px 2px; }
