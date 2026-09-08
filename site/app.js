@@ -1016,9 +1016,13 @@ window.dismissInstall = () => {
 window.acceptInstall = async () => {
   if (!deferredInstall) return;
   deferredInstall.prompt();
-  try { await deferredInstall.userChoice; } catch {}
+  let outcome = 'dismissed';
+  try {
+    const choice = await deferredInstall.userChoice;
+    if (choice && choice.outcome) outcome = choice.outcome;
+  } catch {}
   deferredInstall = null;
-  hideInstallBar(true);
+  if (outcome === 'accepted') hideInstallBar(true);
 };
 window.requestInstall = async () => {
   if (isStandaloneApp() || store.get('install-done', false)) {
