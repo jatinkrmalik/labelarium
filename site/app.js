@@ -812,7 +812,7 @@ function viewPreview(d, _, q) {
   </div></div>
   <div class="col"><div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="row" style="margin-top:14px;gap:10px"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
-    <div class="note">Preview is an approximation: fonts are web look-alikes, real print length varies slightly, and frames show as a simple border so typed text stays readable. The Frames section has the real artwork.</div></div>
+    <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
   renderSaved(d);
@@ -845,9 +845,9 @@ function drawTape(d, s) {
   const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
   const frame = d.frames.items.find(f => String(f.n) === String(s.frame));
   const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
-  const imgFrame = frame && frame.n !== 'off' && frame.n !== 0 && frame.n !== 1 && frame.n !== 2;
+  const imgFrame = frame && frame.n !== 'off' && frame.n !== 0;
   const printH = Math.max(8, (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX);
-  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.12 : 1));
+  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.2 : 1));
   const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
   const ink = tape[2];
   let fx = '';
@@ -859,21 +859,23 @@ function drawTape(d, s) {
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
   const marginMm = MARGINS[s.margin];
   let frameCss = 'padding:0 4px;';
+  let frameChrome = '';
   if (frame && frame.n !== 'off') {
-    if (frame.n === 0) frameCss = 'text-decoration:underline;padding:0 4px;';
-    else if (frame.n === 1) frameCss = `border-top:2px solid ${ink};border-bottom:2px solid ${ink};padding:2px 6px;`;
-    else if (frame.n === 2) frameCss = `border:2px solid ${ink};border-radius:8px;padding:2px 10px;`;
-    else {
-      // Catalog PNGs are sample photos (often ABC/123). Overlaying them on typed text collides.
-      // Preview uses an ink border; the Frames section still shows the real artwork.
-      frameCss = `border:2px solid ${ink};padding:3px 12px;`;
+    if (frame.n === 0) {
+      frameCss = 'text-decoration:underline;padding:0 4px;';
+    } else {
+      const endPad = Math.max(14, Math.round(s.tape * PX * 0.8));
+      frameCss = `padding:2px ${endPad}px;`;
+      const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
+      frameChrome = `<img class="frameimg${s.mirror ? ' mirror' : ''}" src="${esc(frame.img)}" alt="">${sampleArt ? `<span class="framehole" style="background:${tape[1]}"></span>` : ''}`;
     }
   }
   // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
   const sx = (s.mirror ? -1 : 1) * width;
   const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  const body = frameChrome ? `<div class="framebox">${frameChrome}${txt}</div>` : txt;
   const el = $('#tape');
-  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${txt}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
+  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${body}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
   const inner = t.querySelector('.txt');
   const applyWidthPad = () => {
