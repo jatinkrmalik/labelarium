@@ -2,7 +2,7 @@
 
 ## [Unreleased]
 
-- Make the app readable on phone, tablet, and laptop: rail from 768px, wrapping brand chips, one-line model titles, labeled Install/Pin/Search, and a Search tab that focuses the field.
+- Make the app readable on phone, tablet, and laptop: rail from 768px, wrapping brand chips, one-line model titles, labeled Install/Pin/Search, and a Search tab that focuses the field. Header controls are all 44px; Install is ink, Search is blue, Pin stays cream (red when pinned).
 - Collapse Symbols and Frames how-to so the catalog is on the first screen. Empty search offers sign/star/tape chips instead of the footer.
 - Darken `--red` for AA contrast on the paper background. 44px hit areas on footer links and home pin controls. Drop the NIIMBOT SKU from the tile subtitle.
 - Ping Bing (and other IndexNow engines) with the sitemap URLs after each GitHub Pages deploy.
