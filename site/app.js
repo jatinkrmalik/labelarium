@@ -399,6 +399,12 @@ async function render() {
 // Diagonal ABC tape. viewBox is sized for rotate(-26) of the 88×22 strip so nothing is clipped.
 const TAPE_MARK = `<svg class="logo" xmlns="http://www.w3.org/2000/svg" viewBox="-22 -16 100 70" width="57" height="40" overflow="visible" aria-hidden="true" focusable="false"><g transform="rotate(-26 28 19)"><rect x="-16" y="8" width="88" height="22" fill="#e8b820"/><rect x="-16" y="8" width="88" height="3" fill="#141414"/><rect x="-16" y="27" width="88" height="3" fill="#141414"/><text x="28" y="24" text-anchor="middle" font-family="Jost,Futura,'Century Gothic',sans-serif" font-weight="700" font-size="13" fill="#141414">ABC</text></g></svg>`;
 
+function iconBtn({ tag='button', href, cls='', label, title, extra='', inner }) {
+  const hrefAttr = href ? ` href="${esc(href)}"` : '';
+  const extraAttr = extra ? ` ${extra}` : '';
+  return `<${tag} class="iconbtn labeled ${cls}"${hrefAttr}${extraAttr} aria-label="${esc(label)}" title="${esc(title || label)}"><span class="ico" aria-hidden="true">${inner}</span><span class="lbl">${esc(label)}</span></${tag}>`;
+}
+
 function setTop(title, { back, sub, right = '', deviceId } = {}) {
   topbar.classList.toggle('home', !back);
   if (back) topbar.removeAttribute('aria-label');
@@ -494,8 +500,8 @@ const SECTIONS = [
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
-  const star = `<button class="iconbtn ${favs.includes(d.id) ? 'fav' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${d.id}')">${favs.includes(d.id) ? '●' : '○'}</button>`;
-  const search = section ? `<a class="iconbtn" href="/d/${d.id}" aria-label="Search">⌕</a>` : '';
+  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')"`, inner: favs.includes(d.id) ? '●' : '○' });
+  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, label: 'Search', inner: '⌕' }) : '';
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
@@ -867,8 +873,7 @@ function installIconSvg() {
 }
 function installIconButton() {
   if (!shouldShowInstallControls()) return '';
-  const label = installActionLabel();
-  return `<button class="iconbtn js-install" type="button" data-install="icon" aria-label="${esc(label)}" title="${esc(label)}" onclick="requestInstall()">${installIconSvg()}</button>`;
+  return iconBtn({ cls: 'js-install', label: 'Install', title: installActionLabel(), extra: 'type="button" data-install="icon" onclick="requestInstall()"', inner: installIconSvg() });
 }
 function hideInstallControls() {
   document.querySelectorAll('.js-install').forEach(el => { el.hidden = true; });
