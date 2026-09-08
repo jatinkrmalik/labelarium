@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -70,10 +71,19 @@ if data is not None:
                         if not resolved.is_file():
                             err(f"device {device_id}: data path {data_path!r} does not resolve to a file under site/")
 
+indexnow_key = re.compile(r"^[A-Za-z0-9\-]{8,128}$")
+indexnow_files = [
+    p.name for p in root.glob("*.txt")
+    if indexnow_key.fullmatch(p.stem) and p.read_text(encoding="utf-8").strip() == p.stem
+]
+if len(indexnow_files) != 1:
+    found = ", ".join(indexnow_files) or "none"
+    err(f"need exactly one IndexNow key file in site/ (<key>.txt containing the key); found {found}")
+
 if errors:
     print("CI failed:", file=sys.stderr)
     for message in errors:
         print(f"  - {message}", file=sys.stderr)
     sys.exit(1)
 
-print("OK: site layout, CNAME, and device packs")
+print("OK: site layout, CNAME, device packs, and IndexNow key")

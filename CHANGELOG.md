@@ -1,5 +1,9 @@
 # Changelog
 
+## [Unreleased]
+
+- Ping Bing (and other IndexNow engines) with the sitemap URLs after each GitHub Pages deploy.
+
 ## [0.1.1]
 
 - Redraw the ten homepage / rail device SVGs as flat top views from product photos and manuals, instead of the old schematic grids.
