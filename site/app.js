@@ -499,7 +499,7 @@ function deviceTop(d, section, sub) {
   setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
-  const SHORT = { home: 'Search', keyboard: 'Keys', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Fixes', preview: 'Preview', specs: 'Specs' };
+  const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
   const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '' : '/' + id}" class="${cur === id ? 'on' : ''}"><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
