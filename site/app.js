@@ -789,6 +789,7 @@ const MARGINS = { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 };
 function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
   const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
+  if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = d.tapes[0] ? d.tapes[0].mm : 12;
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
   main.innerHTML = `<div class="twocol"><div class="col"><div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
   <div class="card ctl" id="ctl">
