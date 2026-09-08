@@ -8,6 +8,7 @@
     "url": "https://github.com/jatinkrmalik/labelarium.git"
   },
   "scripts": {
-    "serve": "python3 -m http.server -d site 8080"
+    "prerender": "node scripts/prerender.mjs",
+    "serve": "node scripts/prerender.mjs && python3 -m http.server -d site 8080"
   }
 }

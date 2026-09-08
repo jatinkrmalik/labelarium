@@ -75,7 +75,8 @@ can be recalled with its recipe later.
 On iOS: Share → Add to Home Screen. On Android/Chrome: menu → Install app.
 
 The site is static files under `site/`: no build step, no environment variables. A fork can stay on GitHub Pages, or
-drop the `site/` folder on Netlify, Cloudflare Pages, or any web server. HTTPS is required for installation and
+run `node scripts/prerender.mjs` first (the Pages workflow does) so every `/d/…` URL has a real HTML file and
+returns 200 to crawlers, then drop the `site/` folder on Netlify, Cloudflare Pages, or any web server. HTTPS is required for installation and
 the offline cache.
 
 Routes are ordinary paths (`/d/brother-pt-d220/symbols`), not `#/` hashes. GitHub Pages serves `site/404.html`
