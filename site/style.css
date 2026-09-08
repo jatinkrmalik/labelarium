@@ -110,11 +110,11 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
   white-space: nowrap;
 }
 .iconbtn.labeled.js-install {
-  background: var(--ink);
-  color: var(--paper);
-  border-color: var(--ink);
+  background: var(--yellow);
+  color: var(--ink);
+  border-color: var(--rule);
 }
-.iconbtn.labeled.js-install:hover { background: #2c2c2c; border-color: #2c2c2c; }
+.iconbtn.labeled.js-install:hover { background: #d4a61c; border-color: var(--rule); }
 .top-right a.iconbtn.labeled {
   background: var(--blue);
   color: var(--paper);
