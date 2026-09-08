@@ -812,7 +812,7 @@ function viewPreview(d, _, q) {
   </div></div>
   <div class="col"><div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="row" style="margin-top:14px;gap:10px"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
-    <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
+    <div class="note">Preview is an approximation: fonts are web look-alikes, real print length varies slightly, and frames show as a simple border so typed text stays readable. The Frames section has the real artwork.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
   renderSaved(d);
@@ -820,6 +820,7 @@ function viewPreview(d, _, q) {
   ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
   ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
   const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
+  redrawPreview = draw;
   draw();
 }
 const savedKey = id => 'labels:' + id;
@@ -838,13 +839,15 @@ window.saveLabel = id => {
 window.loadLabel = (id, i) => { const l = store.get(savedKey(id), [])[i]; if (!l) return; store.set('preview:' + id, l.s); render(); window.scrollTo(0, 0); };
 window.deleteLabel = (id, i) => { const list = store.get(savedKey(id), []); if (!confirm(`Delete “${list[i]?.name}”?`)) return; list.splice(i, 1); store.set(savedKey(id), list); renderSaved(loaded[id]); };
 window.resetPreview = id => { localStorage.removeItem('lab:preview:' + id); render(); };
+let redrawPreview = null;
 function drawTape(d, s) {
   const PX = 9; // px per mm
   const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
   const frame = d.frames.items.find(f => String(f.n) === String(s.frame));
   const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
-  const printH = (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX; // printable height in px
-  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (frame && frame.n !== 'off' && frame.n !== 0 ? 1.25 : 1));
+  const imgFrame = frame && frame.n !== 'off' && frame.n !== 0 && frame.n !== 1 && frame.n !== 2;
+  const printH = Math.max(8, (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX);
+  const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.12 : 1));
   const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
   const ink = tape[2];
   let fx = '';
@@ -855,29 +858,61 @@ function drawTape(d, s) {
   const vertical = style === 'Vertical';
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
   const marginMm = MARGINS[s.margin];
-  let frameCss = '', frameImg = '';
+  let frameCss = 'padding:0 4px;';
   if (frame && frame.n !== 'off') {
-    if (frame.n === 0) frameCss = 'text-decoration:underline;';
+    if (frame.n === 0) frameCss = 'text-decoration:underline;padding:0 4px;';
     else if (frame.n === 1) frameCss = `border-top:2px solid ${ink};border-bottom:2px solid ${ink};padding:2px 6px;`;
     else if (frame.n === 2) frameCss = `border:2px solid ${ink};border-radius:8px;padding:2px 10px;`;
-    else frameImg = `<img class="frameimg${s.mirror ? ' mirror' : ''}" src="${frame.img}" alt="">`;
+    else {
+      // Catalog PNGs are sample photos (often ABC/123). Overlaying them on typed text collides.
+      // Preview uses an ink border; the Frames section still shows the real artwork.
+      frameCss = `border:2px solid ${ink};padding:3px 12px;`;
+    }
   }
   // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
   const sx = (s.mirror ? -1 : 1) * width;
-  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center;padding:0 ${frameImg ? Math.round(s.tape * PX * 1.15) : 4}px">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
   const el = $('#tape');
-  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${frameImg}${txt}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
+  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${txt}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
-  // scaleX does not affect layout, so widen the box by hand
-  const inner = t.querySelector('.txt'); const w = inner.getBoundingClientRect().width;
-  if (width !== 1) inner.style.margin = `0 ${(w * width - w) / 2}px`;
+  const inner = t.querySelector('.txt');
+  const applyWidthPad = () => {
+    inner.style.margin = '0';
+    if (width !== 1) {
+      const box = inner.getBoundingClientRect().width;
+      inner.style.margin = `0 ${(box * Math.abs(width) - box) / 2}px`;
+    }
+  };
+  applyWidthPad();
+  // Printers shrink type to the tape, they do not let letters spill off the strip.
+  let fh = fontPx;
+  for (let i = 0; i < 12 && inner.getBoundingClientRect().height > t.clientHeight - 2; i++) {
+    fh = Math.max(8, fh * 0.9);
+    inner.style.fontSize = fh + 'px';
+    applyWidthPad();
+  }
   const tapeW = t.getBoundingClientRect().width, tapeH = s.tape * PX;
   const totalMm = Math.round(tapeW / PX);
-  // shrink to fit the phone: real size when it fits, scaled down otherwise
-  const avail = el.parentElement.clientWidth - 28, k = Math.min(1, avail / tapeW);
-  el.className = 'tapefit'; el.style.width = `${tapeW * k}px`; el.style.height = `${tapeH * k}px`; t.style.transform = `scale(${k})`;
+  // Keep letter height. A real printer prints a longer strip; it does not squash 12 mm tape to a sliver.
+  const wrap = el.parentElement;
+  const padX = wrap ? (parseFloat(getComputedStyle(wrap).paddingLeft) || 0) + (parseFloat(getComputedStyle(wrap).paddingRight) || 0) : 28;
+  const avail = Math.max(80, (wrap ? wrap.clientWidth : tapeW) - padX);
+  let k = Math.min(1, avail / Math.max(1, tapeW));
+  const floorH = Math.min(tapeH, Math.max(56, tapeH * 0.75));
+  k = Math.max(k, floorH / Math.max(1, tapeH));
+  const shownW = tapeW * k, shownH = tapeH * k;
+  const scrolls = shownW > avail + 1;
+  el.className = 'tapefit';
+  el.style.width = `${shownW}px`;
+  el.style.height = `${shownH}px`;
+  el.style.margin = scrolls ? '0' : '0 auto';
+  t.style.transform = `scale(${k})`;
+  if (wrap) {
+    wrap.classList.toggle('scrolls', scrolls);
+    if (scrolls) wrap.scrollLeft = Math.max(0, (wrap.scrollWidth - wrap.clientWidth) / 2);
+  }
   const over = s.length && totalMm > s.length;
-  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--danger)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
+  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
   // recipe
   const r = [];
   if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
@@ -1041,7 +1076,13 @@ window.addEventListener('beforeinstallprompt', e => {
   maybeShowInstallBar();
 });
 window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
-window.addEventListener('resize', syncInstallBarOffset);
+window.addEventListener('resize', () => {
+  syncInstallBarOffset();
+  if (redrawPreview && $('#tape')) {
+    cancelAnimationFrame(drawTape._rz);
+    drawTape._rz = requestAnimationFrame(redrawPreview);
+  }
+});
 
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
