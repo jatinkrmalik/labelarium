@@ -469,7 +469,7 @@ function ensureFooter(el) {
 
 // ---------- home ----------
 function renderHome(q = {}) {
-  setTop('Labelarium', { right: installIconButton() });
+  setTop('Labelarium');
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const brand = q.brand || 'all';
@@ -493,7 +493,10 @@ function renderHome(q = {}) {
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p></div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers</h2>
-    <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+    <div class="home-toolbar">
+      <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
+      ${installIconButton()}
+    </div>
     <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
     ${siteFooter()}`;
 }
@@ -979,6 +982,13 @@ function noteInstallScreen() {
 }
 function maybeShowInstallBar() {
   noteInstallScreen();
+  // Home and device chrome already have an Install control. Don't stack a second bar.
+  if (document.querySelector('.js-install')) {
+    const bar = document.getElementById('install-bar');
+    if (bar) bar.hidden = true;
+    syncInstallBarOffset();
+    return;
+  }
   if (!store.get('install-ready', false)) return;
   if (deferredInstall) showInstallBar('chrome');
   else if (isIosDevice()) showInstallBar('ios');
