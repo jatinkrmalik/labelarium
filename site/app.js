@@ -107,10 +107,9 @@ const HOME_DESC = 'Every symbol, frame, template and shortcut of your label make
 
 function route() {
   let path = location.pathname || '/';
-  if (path.length > 1 && path.endsWith('/')) {
-    path = path.replace(/\/+$/, '') || '/';
-    history.replaceState(null, '', path + location.search + location.hash);
-  }
+  path = path.replace(/\/index\.html$/, '/').replace(/\.html$/, ''); // pre-rendered files may be reached by their file name
+  if (path.length > 1 && path.endsWith('/')) path = path.replace(/\/+$/, '') || '/';
+  if (path !== location.pathname) history.replaceState(null, '', path + location.search + location.hash); // one canonical URL per page
   const seg = path.split('/').filter(Boolean);
   const q = Object.fromEntries(new URLSearchParams(location.search));
   return { seg, q, path };
