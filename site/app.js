@@ -859,21 +859,26 @@ function drawTape(d, s) {
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
   const marginMm = MARGINS[s.margin];
   let frameCss = 'padding:0 4px;';
-  let frameChrome = '';
+  let frameBoxStyle = '';
   if (frame && frame.n !== 'off') {
     if (frame.n === 0) {
       frameCss = 'text-decoration:underline;padding:0 4px;';
     } else {
-      const endPad = Math.max(14, Math.round(s.tape * PX * 0.8));
-      frameCss = `padding:2px ${endPad}px;`;
+      // 9-slice: keep the end caps, stretch only the middle so a long label does not squash the art.
+      const tapeH = s.tape * PX;
       const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
-      frameChrome = `<img class="frameimg${s.mirror ? ' mirror' : ''}" src="${esc(frame.img)}" alt="">${sampleArt ? `<span class="framehole" style="background:${tape[1]}"></span>` : ''}`;
+      const bwY = Math.max(4, Math.round(tapeH * (sampleArt ? 0.1 : 0.16)));
+      const bwX = Math.max(12, Math.round(tapeH * (sampleArt ? 0.22 : 0.88)));
+      const slice = sampleArt ? '8% 5%' : '22% 24%';
+      frameCss = 'padding:2px 8px;';
+      frameBoxStyle = `border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(frame.img)}');border-image-slice:${slice};border-image-repeat:stretch;min-width:${2 * bwX + 40}px`;
     }
   }
   // Mirror must live in the same transform as width. An inline scaleX(width) was overriding .tape.mirror CSS.
-  const sx = (s.mirror ? -1 : 1) * width;
-  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${sx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
-  const body = frameChrome ? `<div class="framebox">${frameChrome}${txt}</div>` : txt;
+  // When a frame box is present it carries the mirror so the caps flip with the text.
+  const textSx = (s.mirror && !frameBoxStyle ? -1 : 1) * width;
+  const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${textSx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
+  const body = frameBoxStyle ? `<div class="framebox${s.mirror ? ' mirror' : ''}" style="${frameBoxStyle}">${txt}</div>` : txt;
   const el = $('#tape');
   el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${body}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
