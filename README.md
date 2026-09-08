@@ -102,6 +102,7 @@ site/                           deployable web root (GitHub Pages artifact)
   index.html  app.js  style.css app shell (History API router, search, views, previewer)
   404.html                      GitHub Pages SPA fallback (keep in sync with index.html)
   robots.txt  sitemap.xml       crawlers; path URLs on labelarium.com
+  <key>.txt                     IndexNow key (Bing); pinged after Pages deploy
   sw.js  manifest.webmanifest   PWA: precached shell, cache-first runtime, "Save offline" per device
   CNAME                         labelarium.com
   devices/index.json            list of label makers
@@ -120,7 +121,8 @@ confirms required files exist under `site/`, that `site/CNAME` is `labelarium.co
 device id in `site/devices/index.json` has a matching `device.js`.
 
 Publishing to [labelarium.com](https://labelarium.com) uses [`.github/workflows/pages.yml`](.github/workflows/pages.yml),
-which uploads the `site/` folder on push to `main`. Set the repository Pages source to **GitHub Actions**
+which uploads the `site/` folder on push to `main`. After deploy it pings [IndexNow](https://www.indexnow.org/)
+with the sitemap so Bing (and other IndexNow engines) hear about URL changes. Set the repository Pages source to **GitHub Actions**
 (Settings → Pages → Build and deployment → Source), not a branch deploy. That is a one-time repo setting
 and is not assumed to be switched yet.
 
