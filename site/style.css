@@ -75,7 +75,7 @@ code { font-family: var(--mono); font-size: .9em; background: var(--plate-2); pa
 .app.device .main { padding-bottom: 8px; }
 .topbar .inner { display: flex; align-items: center; gap: 12px; padding: 22px 16px 10px; }
 .topbar .title { flex: 1; min-width: 0; }
-.topbar .title h1 { font-size: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+.topbar .title h1 { font-size: 28px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; word-break: keep-all; hyphens: none; }
 .topbar .sub { display: block; font: 600 12px/1 var(--sans); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2); margin-top: 6px; }
 .topbar.home .inner { position: relative; padding-bottom: 0; justify-content: center; }
 .topbar.home .top-right { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); margin-left: 0; }
