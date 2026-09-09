@@ -563,6 +563,8 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
   align-items: flex-start;
   gap: 12px;
 }
+.footer .f-mid a { gap: 6px; }
+.f-gh { width: 15px; height: 15px; flex-shrink: 0; }
 .footer .sep { display: none; }
 .footer-legal {
   max-width: 36em;
