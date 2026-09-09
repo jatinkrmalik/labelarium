@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.1.2]
+
 - Pre-render a static HTML page for every device and section route at deploy time (`scripts/prerender.mjs`), with per-page title, description, canonical, Open Graph and breadcrumb JSON-LD. Deep links now return 200 to first-time visitors and crawlers instead of the 404.html fallback; CI fails if the sitemap lists a path that is not pre-rendered.
 - Make the app readable on phone, tablet, and laptop: rail from 768px, wrapping brand chips, one-line model titles, labeled Install/Pin/Search, and a Search tab that focuses the field. Header controls are all 44px; Install is tape yellow on home and device pages, Search is blue, Pin stays cream (red when pinned). Preview uses a tape width the device actually has (Brady is 12.7 mm, not a fake 12 mm). Long preview text keeps letter height and scrolls the strip (like the printer) instead of shrinking 12 mm tape to a sliver. Frame artwork keeps its end drawings (flourishes, house, icons) at native shape and only stretches the middle rail, so a long line does not crop or squash the picture. On home, Install sits to the right of the brand chips instead of doubling with a top bar. Cancelling the browser install prompt no longer hides the button.
 - Collapse Symbols and Frames how-to so the catalog is on the first screen. Empty search offers sign/star/tape chips instead of the footer.
