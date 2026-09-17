@@ -400,6 +400,13 @@ mark { background: var(--yellow); color: #141414; padding: 0 2px; }
 .hero-home h1.big { max-width: 12ch; margin: 0 auto; }
 .hero-home p { color: var(--ink-2); font: 400 17px/1.5 var(--sans); max-width: 42ch; margin: 16px auto 0; }
 .hero-home .marks { display: flex; justify-content: center; gap: 12px; margin-top: 26px; }
+.start-here { max-width: 36rem; margin: 8px auto 12px; text-align: left; }
+.start-here .start-kicker { font: 600 13px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; margin: 0 0 10px; }
+.start-here p { color: var(--ink-2); font: 400 16px/1.5 var(--sans); margin: 0; }
+.start-here-links { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
+.start-here-links a { font: 600 15px/1.3 var(--sans); color: var(--ink); }
+.pack-intro { margin: 12px 2px 4px; }
+.pack-intro a { font-weight: 600; }
 @media (min-width: 900px) {
   .hero-home { padding: 48px 16px 28px; }
 }

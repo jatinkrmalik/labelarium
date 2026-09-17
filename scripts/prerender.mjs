@@ -8,6 +8,7 @@
 //
 // Routes come from site/devices/index.json × SECTIONS below. The script fails if site/sitemap.xml
 // lists a path this list does not produce, so the two cannot drift apart silently.
+// Sitemap must list only canonical path routes (home + /d/<id> + /d/<id>/<section>); no ?brand= filters.
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,16 +62,40 @@ for (const dev of devices) {
   if (!/^[a-z0-9-]+$/.test(dev.id)) throw new Error(`unsafe device id ${dev.id}`);
   const name = `${dev.brand} ${dev.model}`;
   const home = `/d/${dev.id}`;
-  routes.push({ path: home, title: `${name} · Labelarium`, crumbs: [['Labelarium', '/'], [name, home]],
-    desc: `${name}${dev.tagline ? ` (${dev.tagline})` : ''}: every symbol, frame, template and shortcut, searchable with pictures, plus a label previewer that writes the key presses. Works offline.` });
+  let homeTitle = `${name} · Labelarium`;
+  let homeDesc = `${name}${dev.tagline ? ` (${dev.tagline})` : ''}: every symbol, frame, template and shortcut, searchable with pictures, plus a label previewer that writes the key presses. Works offline.`;
+  // Keep in sync with applyDeviceSeo in site/app.js.
+  if (dev.id === 'brady-m210') {
+    homeTitle = 'Brady M210 unofficial manual · Labelarium';
+    homeDesc = 'Unofficial searchable Brady M210 reference covering manual topics: symbols, how-to guides, and troubleshooting. Not affiliated with Brady.';
+  }
+  routes.push({ path: home, title: homeTitle, crumbs: [['Labelarium', '/'], [name, home]], desc: homeDesc });
   for (const [id, label, describe] of SECTIONS) {
-    routes.push({ path: `${home}/${id}`, title: `${label} · ${name} · Labelarium`, desc: describe(name), crumbs: [['Labelarium', '/'], [name, home], [label, `${home}/${id}`]] });
+    let title = `${label} · ${name} · Labelarium`;
+    let desc = describe(name);
+    if (dev.id === 'brady-m210' && id === 'howto') {
+      title = 'Brady M210 how-to guides · Labelarium';
+      desc = 'Unofficial step-by-step how-to guides for the Brady M210. Not affiliated with Brady.';
+    }
+    if (dev.id === 'brady-m210' && id === 'trouble') {
+      title = 'Brady M210 troubleshooting · Labelarium';
+      desc = 'Unofficial Brady M210 troubleshooting: LCD error messages, causes, and fixes. Not affiliated with Brady.';
+    }
+    routes.push({ path: `${home}/${id}`, title, desc, crumbs: [['Labelarium', '/'], [name, home], [label, `${home}/${id}`]] });
   }
 }
 
-// Every sitemap path (ignoring query strings) must be either "/" or a route we render.
+// Every sitemap path must be either "/" or a route we render. Query filters are not canonical pages.
 const sitemap = readFileSync(join(SITE, 'sitemap.xml'), 'utf8');
-const wanted = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => new URL(m[1]).pathname.replace(/\/+$/, '') || '/');
+const locUrls = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m => m[1]);
+const badLoc = locUrls.filter(u => {
+  let url;
+  try { url = new URL(u); } catch { return true; }
+  return url.protocol !== 'https:' || url.host !== 'labelarium.com' || url.search || url.hash
+    || (url.pathname !== '/' && url.pathname.endsWith('/')) || url.pathname.endsWith('.html');
+});
+if (badLoc.length) { console.error(`sitemap has ${badLoc.length} non-canonical loc(s):\n  ${badLoc.join('\n  ')}`); process.exit(1); }
+const wanted = locUrls.map(u => new URL(u).pathname.replace(/\/+$/, '') || '/');
 const have = new Set(routes.map(r => r.path));
 const missing = [...new Set(wanted)].filter(p => p !== '/' && !have.has(p));
 if (missing.length) { console.error(`sitemap lists ${missing.length} path(s) with no pre-rendered page:\n  ${missing.join('\n  ')}`); process.exit(1); }

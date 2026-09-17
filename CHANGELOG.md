@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+- Fix the invalid Product snippet Google Search Console flagged: device pages now emit plain WebPage JSON-LD, with no made-up offers, reviews, or ratings.
+- Drop `?brand=` filter URLs from the sitemap so crawlers get the 111 canonical path pages only (home plus each device hub and section).
+- Point Brady M210 title, description, and hub copy at unofficial manual / how-to / troubleshooting, and add calm Start here links from home. Brand chips still filter the grid but canonicalize to `/`.
+- Bump the service worker cache to `labelarium-v38`.
+
 ## [0.1.2]
 
 - Pre-render a static HTML page for every device and section route at deploy time (`scripts/prerender.mjs`), with per-page title, description, canonical, Open Graph and breadcrumb JSON-LD. Deep links now return 200 to first-time visitors and crawlers instead of the 404.html fallback; CI fails if the sitemap lists a path that is not pre-rendered.
