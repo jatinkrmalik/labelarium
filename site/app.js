@@ -243,14 +243,36 @@ function applyNotFoundSeo(path) {
   const p = path && path !== '/' ? path : '/';
   applySeo(title, desc, p, webPageLd(title, desc, absUrl(p)), { noindex: true });
 }
-function applyHomeSeo(q = {}) {
+function knownHomeBrand(b) {
+  return b && devices.some(d => d.brand === b) ? b : '';
+}
+function homeBrand() {
+  try { return knownHomeBrand(sessionStorage.getItem('lab:homeBrand')) || 'all'; } catch { return 'all'; }
+}
+function saveHomeBrand(b) {
+  try {
+    if (!b || b === 'all') sessionStorage.removeItem('lab:homeBrand');
+    else if (knownHomeBrand(b)) sessionStorage.setItem('lab:homeBrand', b);
+  } catch {}
+}
+function adoptHomeBrandQuery() {
+  const params = new URLSearchParams(location.search);
+  if (!params.has('brand')) return;
+  const b = params.get('brand');
+  if (knownHomeBrand(b)) saveHomeBrand(b);
+  else if (b === 'all') saveHomeBrand('all');
+  params.delete('brand');
+  const qs = params.toString();
+  history.replaceState(null, '', (location.pathname || '/') + (qs ? '?' + qs : '') + location.hash);
+}
+function applyHomeSeo() {
   const hash = routeHash();
   if (hash === 'favorites') {
     applySeo('Pinned · Labelarium', 'Label makers you pinned on Labelarium.', '/', homeJsonLd());
     return;
   }
-  const brand = q.brand;
-  if (brand && devices.some(d => d.brand === brand)) {
+  const brand = homeBrand();
+  if (brand !== 'all') {
     const names = devices.filter(d => d.brand === brand).map(d => d.name).join(', ');
     // Filtered home is not a distinct URL: keep brand in title/desc, canonicalize to /.
     applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, '/', homeJsonLd());
@@ -371,7 +393,7 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
 }
 function applyLocationSeo() {
   const { seg, q, path } = route();
-  if (!seg.length) { applyHomeSeo(q); return; }
+  if (!seg.length) { applyHomeSeo(); return; }
   if (seg[0] !== 'd' || !seg[1]) { applyNotFoundSeo(path); return; }
   const d = loaded[seg[1]];
   if (d) applyDeviceSeo(d, seg[2] || 'home', seg.slice(3), q);
@@ -391,7 +413,7 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (!seg.length) { applyHomeSeo(q); renderHome(q); ensureFooter(app); maybeShowInstallBar(); return; }
+    if (!seg.length) { adoptHomeBrandQuery(); applyHomeSeo(); renderHome(); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applyNotFoundSeo(route().path);
       setTop('Not found', { back: '/' });
@@ -498,11 +520,11 @@ function ensureFooter(el) {
 }
 
 // ---------- home ----------
-function renderHome(q = {}) {
+function renderHome() {
   setTop('Labelarium');
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
-  const brand = q.brand || 'all';
+  const brand = homeBrand();
   const brands = [...new Set(devices.map(d => d.brand))];
   const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
   const favDevs = devices.filter(d => favs.includes(d.id));
@@ -536,7 +558,11 @@ function renderHome(q = {}) {
     <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
     ${siteFooter()}`;
 }
-window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '/' : '/?brand=' + encodeURIComponent(b)); render(); };
+window.setHomeBrand = b => {
+  saveHomeBrand(b);
+  history.replaceState(null, '', '/' + (location.hash || ''));
+  render();
+};
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
 // ---------- device home + search ----------
