@@ -243,16 +243,39 @@ function applyNotFoundSeo(path) {
   const p = path && path !== '/' ? path : '/';
   applySeo(title, desc, p, webPageLd(title, desc, absUrl(p)), { noindex: true });
 }
-function applyHomeSeo(q = {}) {
+function knownHomeBrand(b) {
+  return b && devices.some(d => d.brand === b) ? b : '';
+}
+function homeBrand() {
+  try { return knownHomeBrand(sessionStorage.getItem('lab:homeBrand')) || 'all'; } catch { return 'all'; }
+}
+function saveHomeBrand(b) {
+  try {
+    if (!b || b === 'all') sessionStorage.removeItem('lab:homeBrand');
+    else if (knownHomeBrand(b)) sessionStorage.setItem('lab:homeBrand', b);
+  } catch {}
+}
+function adoptHomeBrandQuery() {
+  const params = new URLSearchParams(location.search);
+  if (!params.has('brand')) return;
+  const b = params.get('brand');
+  if (knownHomeBrand(b)) saveHomeBrand(b);
+  else if (b === 'all') saveHomeBrand('all');
+  params.delete('brand');
+  const qs = params.toString();
+  history.replaceState(null, '', (location.pathname || '/') + (qs ? '?' + qs : '') + location.hash);
+}
+function applyHomeSeo() {
   const hash = routeHash();
   if (hash === 'favorites') {
     applySeo('Pinned · Labelarium', 'Label makers you pinned on Labelarium.', '/', homeJsonLd());
     return;
   }
-  const brand = q.brand;
-  if (brand && devices.some(d => d.brand === brand)) {
+  const brand = homeBrand();
+  if (brand !== 'all') {
     const names = devices.filter(d => d.brand === brand).map(d => d.name).join(', ');
-    applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, `/?brand=${encodeURIComponent(brand)}`, homeJsonLd());
+    // Filtered home is not a distinct URL: keep brand in title/desc, canonicalize to /.
+    applySeo(`${brand} label makers · Labelarium`, `${brand} in Labelarium: ${names}. Searchable, with pictures, offline.`, '/', homeJsonLd());
     return;
   }
   applySeo(HOME_TITLE, HOME_DESC, '/', homeJsonLd());
@@ -261,8 +284,9 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
   const label = deviceLabel(d);
   const tab = deviceTab(d);
   const hash = routeHash();
-  const about = { '@type': 'Product', name: label, brand: d.brand, model: d.model };
-  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path), { about }), opts);
+  // Plain WebPage only. Do not emit Product: Google flags it without offers/review/aggregateRating,
+  // and this app must not invent those.
+  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path)), opts);
   if (!section || section === 'home') {
     const sum = packSummary(d);
     const baseDesc = sum
@@ -281,6 +305,13 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
     }
     if (hash === 'search') {
       return page(`Search · ${tab} · Labelarium`, `Search symbols, frames, templates, shortcuts and more on the ${label}.`, `/d/${d.id}`);
+    }
+    if (d.id === 'brady-m210') {
+      return page(
+        'Brady M210 unofficial manual · Labelarium',
+        'Unofficial searchable Brady M210 reference covering manual topics: symbols, how-to guides, and troubleshooting. Not affiliated with Brady.',
+        `/d/${d.id}`
+      );
     }
     return page(`${tab} · Labelarium`, baseDesc, `/d/${d.id}`);
   }
@@ -328,6 +359,13 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
     const topic = rest[0];
     const h = topic && d.howto.find(x => x.id === topic);
     if (h) return page(`${h.title} · ${tab} · Labelarium`, `${h.title} on the ${label}.`, `/d/${d.id}/howto/${h.id}`);
+    if (d.id === 'brady-m210') {
+      return page(
+        'Brady M210 how-to guides · Labelarium',
+        'Unofficial step-by-step how-to guides for the Brady M210. Not affiliated with Brady.',
+        `/d/${d.id}/howto`
+      );
+    }
     return page(`How-to guides · ${tab} · Labelarium`, `${d.howto.length} step-by-step guides for the ${label}.`, `/d/${d.id}/howto`);
   }
   if (section === 'trouble') {
@@ -336,6 +374,13 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
     }
     if (hash === 'problems') {
       return page(`Problems · ${tab} · Labelarium`, d.problems.length ? `${d.problems.length} problems and fixes for the ${label}.` : `Problems and fixes for the ${label}.`, `/d/${d.id}/trouble`);
+    }
+    if (d.id === 'brady-m210') {
+      return page(
+        'Brady M210 troubleshooting · Labelarium',
+        'Unofficial Brady M210 troubleshooting: LCD error messages, causes, and fixes. Not affiliated with Brady.',
+        `/d/${d.id}/trouble`
+      );
     }
     const desc = (d.errors.length || d.problems.length)
       ? `LCD messages and fixes for the ${label}: ${d.errors.length} messages, ${d.problems.length} problems.`
@@ -348,7 +393,7 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
 }
 function applyLocationSeo() {
   const { seg, q, path } = route();
-  if (!seg.length) { applyHomeSeo(q); return; }
+  if (!seg.length) { applyHomeSeo(); return; }
   if (seg[0] !== 'd' || !seg[1]) { applyNotFoundSeo(path); return; }
   const d = loaded[seg[1]];
   if (d) applyDeviceSeo(d, seg[2] || 'home', seg.slice(3), q);
@@ -368,7 +413,7 @@ async function render() {
   sheet.open && sheet.close();
   try {
     if (!devices.length) await loadIndex();
-    if (!seg.length) { applyHomeSeo(q); renderHome(q); ensureFooter(app); maybeShowInstallBar(); return; }
+    if (!seg.length) { adoptHomeBrandQuery(); applyHomeSeo(); renderHome(); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applyNotFoundSeo(route().path);
       setTop('Not found', { back: '/' });
@@ -475,11 +520,11 @@ function ensureFooter(el) {
 }
 
 // ---------- home ----------
-function renderHome(q = {}) {
+function renderHome() {
   setTop('Labelarium');
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
-  const brand = q.brand || 'all';
+  const brand = homeBrand();
   const brands = [...new Set(devices.map(d => d.brand))];
   const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
   const favDevs = devices.filter(d => favs.includes(d.id));
@@ -497,7 +542,13 @@ function renderHome(q = {}) {
       </span>
     </a>`;
   const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
+  const startHere = (brand === 'all' || brand === 'Brady') ? `<section class="card start-here" aria-label="Start here">
+      <p class="start-kicker">Start here</p>
+      <p>Looking up a Brady M210? This unofficial reference covers the manual, how to use the printer, and troubleshooting. Not affiliated with Brady.</p>
+      <p class="start-here-links"><a href="/d/brady-m210">Brady M210</a><a href="/d/brady-m210/howto">How to use</a><a href="/d/brady-m210/trouble">Troubleshooting</a></p>
+    </section>` : '';
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p></div>
+    ${startHere}
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers</h2>
     <div class="home-toolbar">
@@ -507,7 +558,11 @@ function renderHome(q = {}) {
     <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
     ${siteFooter()}`;
 }
-window.setHomeBrand = b => { history.replaceState(null, '', b === 'all' ? '/' : '/?brand=' + encodeURIComponent(b)); render(); };
+window.setHomeBrand = b => {
+  saveHomeBrand(b);
+  history.replaceState(null, '', '/' + (location.hash || ''));
+  render();
+};
 window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
 
 // ---------- device home + search ----------
@@ -527,7 +582,10 @@ function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
   const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')"`, inner: favs.includes(d.id) ? '●' : '○' });
   const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, label: 'Search', inner: '⌕' }) : '';
-  setTop(section ? section : d.model, { back: section ? `/d/${d.id}` : '/', sub: section ? d.model : d.brand, deviceId: d.id, right: installIconButton() + star + search });
+  const bradyHub = !section && d.id === 'brady-m210';
+  const title = bradyHub ? 'Brady M210' : (section || d.model);
+  const subtitle = bradyHub ? 'Unofficial reference' : (section ? d.model : d.brand);
+  setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: installIconButton() + star + search });
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
@@ -576,10 +634,23 @@ function viewDeviceHome(d, _, q) {
     if (i) { i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
   }
 }
+function packIntro(d) {
+  const hasHowto = d.howto && d.howto.length;
+  const hasTrouble = (d.errors && d.errors.length) || (d.problems && d.problems.length);
+  if (d.id === 'brady-m210') {
+    return `<p class="hint pack-intro">An unofficial searchable reference covering Brady M210 manual topics (symbols, <a href="/d/${d.id}/howto">how-to guides</a>, and <a href="/d/${d.id}/trouble">troubleshooting</a>). Not affiliated with Brady.</p>`;
+  }
+  const bits = [];
+  if (hasHowto) bits.push(`<a href="/d/${d.id}/howto">how-to guides</a>`);
+  if (hasTrouble) bits.push(`<a href="/d/${d.id}/trouble">troubleshooting</a>`);
+  if (!bits.length) return '';
+  const joined = bits.length === 2 ? `${bits[0]} and ${bits[1]}` : bits[0];
+  return `<p class="hint pack-intro">This pack includes ${joined}.</p>`;
+}
 function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
-  $('#sections').innerHTML = `<div class="col"><p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
+  $('#sections').innerHTML = `<div class="col">${packIntro(d)}<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
     <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" id="offline" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
@@ -776,13 +847,19 @@ function viewKeyboard(d) {
     ${band(low, 'Callouts')}${band(high, 'Callouts')}`;
 }
 function viewHowto(d, [topic]) {
-  deviceTop(d, 'How-to guides');
-  main.innerHTML = `<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
+  deviceTop(d, d.id === 'brady-m210' ? 'M210 how-to guides' : 'How-to guides');
+  const intro = d.id === 'brady-m210'
+    ? `<p class="hint pack-intro">Unofficial how-to guides for the Brady M210. Not affiliated with Brady.</p>`
+    : '';
+  main.innerHTML = `${intro}<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
   if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
 }
 function viewTrouble(d) {
-  deviceTop(d, 'Troubleshooting');
-  main.innerHTML = `<h2 id="errors">Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
+  deviceTop(d, d.id === 'brady-m210' ? 'M210 troubleshooting' : 'Troubleshooting');
+  const intro = d.id === 'brady-m210'
+    ? `<p class="hint pack-intro">Unofficial LCD error messages and fixes for the Brady M210. Not affiliated with Brady.</p>`
+    : '';
+  main.innerHTML = `${intro}<h2 id="errors">Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
     <h2 id="problems">What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
 }
 function viewSpecs(d) {
