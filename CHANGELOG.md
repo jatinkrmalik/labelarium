@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+- Redesign the UI for phone, tablet and desktop ("Tape & keys"): same paper, primaries, Bodoni and Jost, but hairline plates instead of double rules, tape-strip section headings, keycaps with depth, and LCD-style menu text.
+- Home leads with a "Find your label maker" filter, a "Continue where you left off" card and swipeable brand chips; the Brady Start here card moves below the grid.
+- Device pages get a one-row sticky app bar (icon-only actions on phones). Install moves to the rail on tablet/desktop and the More sheet on phones.
+- Symbol category pages show the symbols first; the insert recipe folds behind a one-line key path. Symbol and frame sheets add an "At a glance" key path above the steps. Frames and templates are two-up on phones.
+- Label preview keeps the tape pinned under the app bar while editing, groups controls into Text / Tape / Type / Layout, and keeps the recipe beside the controls on desktop.
+- Search suggestions on the device home are tappable chips.
+- Bump the service worker cache to `labelarium-v40`.
 - Stop writing `?brand=` chip-filter URLs so Google Search Console no longer sees alternate-canonical noise for home filters; leftover `?brand=` on `/` is adopted once into sessionStorage then stripped. The settled URL is `/`.
 - Bump the service worker cache to `labelarium-v39`.
 - Fix the invalid Product snippet Google Search Console flagged: device pages now emit plain WebPage JSON-LD, with no made-up offers, reviews, or ratings.
