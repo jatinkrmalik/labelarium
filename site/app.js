@@ -459,8 +459,8 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
   if (back) topbar.removeAttribute('aria-label');
   else topbar.setAttribute('aria-label', 'Labelarium');
   const logo = back
-    ? `<a class="iconbtn" href="${esc(back)}" aria-label="Back">‹</a>`
-    : TAPE_MARK;
+    ? `<a class="iconbtn back" href="${esc(back)}" aria-label="Back">‹</a>`
+    : `<a class="wordmark" href="/" aria-label="Labelarium home">${TAPE_MARK}<span>Labelarium</span></a>`;
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
     : '';
@@ -470,7 +470,13 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
     : '';
   const innerLabel = back ? '' : ' aria-label="Labelarium"';
   topbar.innerHTML = `<div class="inner"${innerLabel}>${logo}${deviceIcon}${titleHtml}${actions}</div>`;
+  syncTopOffset();
 }
+// Sticky search and the sticky label preview sit just under the app bar.
+function syncTopOffset() {
+  document.documentElement.style.setProperty('--top-h', Math.round(topbar.getBoundingClientRect().height) + 'px');
+}
+window.addEventListener('scroll', () => topbar.classList.toggle('scrolled', window.scrollY > 4), { passive: true });
 
 function deviceLabel(dev) {
   const brand = dev.brand || '', name = dev.name || '';
@@ -520,21 +526,25 @@ function ensureFooter(el) {
 }
 
 // ---------- home ----------
+let homeQuery = '';
 function renderHome() {
-  setTop('Labelarium');
+  setTop('Labelarium', { right: installIconButton() });
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const brand = homeBrand();
   const brands = [...new Set(devices.map(d => d.brand))];
   const list = brand === 'all' ? devices : devices.filter(d => d.brand === brand);
   const favDevs = devices.filter(d => favs.includes(d.id));
-  const card = dev => `<div class="card devtile link">
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="Pin" title="Pin to home" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
+  const last = devices.find(d => d.id === store.get('last'));
+  const model = dev => dev.model && dev.model.toLowerCase() !== String(dev.brand).toLowerCase() ? dev.model : deviceTileLabel(dev);
+  const card = dev => `<div class="card devtile link" data-q="${esc(norm(`${deviceLabel(dev)} ${dev.model} ${dev.tagline}`))}">
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin' : 'Pin'} ${esc(deviceTab(dev))}" aria-pressed="${favs.includes(dev.id)}" title="Pin to top" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
       <a class="devtile-hit" href="/d/${dev.id}">
-      <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt=""></div>
-      <div class="dev-copy"><b>${esc(deviceTileLabel(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
+      <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt="" loading="lazy"></div>
+      <div class="dev-copy"><span class="brand-k">${esc(dev.brand)}</span><b>${esc(model(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
+  const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev">›</span></a>` : '';
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
       <span class="devtile-hit">
       <span class="dev-icon" aria-hidden="true"><span class="request-q">?</span></span>
@@ -547,17 +557,37 @@ function renderHome() {
       <p>Looking up a Brady M210? This unofficial reference covers the manual, how to use the printer, and troubleshooting. Not affiliated with Brady.</p>
       <p class="start-here-links"><a href="/d/brady-m210">Brady M210</a><a href="/d/brady-m210/howto">How to use</a><a href="/d/brady-m210/trouble">Troubleshooting</a></p>
     </section>` : '';
-  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p></div>
-    ${startHere}
+  // Phone-first order: find your maker in one glance. The hero is two lines, the finder and the grid follow straight away.
+  app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p>
+    <div class="finder" role="search"><span class="mag" aria-hidden="true">⌕</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
+    ${continueCard}</div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
-    <h2>Label makers</h2>
+    <h2>Label makers <span class="muted" id="devcount">${list.length}</span></h2>
     <div class="home-toolbar">
-      <div class="chips">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
-      ${installIconButton()}
+      <div class="chips" role="group" aria-label="Filter by brand">${chip('all', 'All')}${brands.map(b => chip(b, b)).join('')}</div>
     </div>
-    <div class="devgrid">${list.map(card).join('')}${requestTile}</div>
+    <div class="devgrid" id="devgrid">${list.map(card).join('')}${requestTile}</div>
+    <p class="finder-empty" id="finder-empty" hidden>No label maker matches that. <a href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request it</a>.</p>
+    ${startHere}
     ${siteFooter()}`;
+  if (homeQuery) filterDevices(homeQuery);
 }
+window.filterDevices = v => {
+  homeQuery = v;
+  const terms = norm(v).split(/\s+/).filter(Boolean);
+  let shown = 0;
+  document.querySelectorAll('#devgrid .devtile[data-q]').forEach(el => {
+    const hit = terms.every(t => el.dataset.q.includes(t));
+    el.hidden = !hit;
+    if (hit) shown++;
+  });
+  const req = document.querySelector('#devgrid .request-tile');
+  if (req) req.hidden = !!terms.length && !shown;
+  const empty = $('#finder-empty');
+  if (empty) empty.hidden = !!shown || !terms.length;
+  const cnt = $('#devcount');
+  if (cnt) cnt.textContent = shown;
+};
 window.setHomeBrand = b => {
   saveHomeBrand(b);
   history.replaceState(null, '', '/' + (location.hash || ''));
@@ -585,12 +615,14 @@ function deviceTop(d, section, sub) {
   const bradyHub = !section && d.id === 'brady-m210';
   const title = bradyHub ? 'Brady M210' : (section || d.model);
   const subtitle = bradyHub ? 'Unofficial reference' : (section ? d.model : d.brand);
-  setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: installIconButton() + star + search });
+  // Install lives in the rail (tablet/desktop) and the More sheet (phone), so the app bar stays one row.
+  setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: search + star });
+  store.set('last', d.id);
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
   const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
-  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}</nav>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot">${installIconButton()}</div></nav>`;
   const tabIds = ['home', 'symbols', 'frames', 'preview'];
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
   app.className = 'app device';
@@ -600,7 +632,8 @@ function deviceTop(d, section, sub) {
 window.openMore = id => {
   const d = loaded[id], cur = route().seg[2] || 'home';
   const rest = SECTIONS.filter(([sid]) => !['symbols', 'frames', 'preview'].includes(sid));
-  openSheet(`<h2 class="t">More</h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>`);
+  const install = shouldShowInstallControls() ? `<div class="more-actions"><button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button><a class="btn ghost" href="/">All label makers</a></div>` : `<div class="more-actions"><a class="btn ghost" href="/">All label makers</a></div>`;
+  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
 };
 function searchBox(d, q) {
   return `<div class="search" id="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
@@ -650,10 +683,12 @@ function packIntro(d) {
 function renderSections(d) {
   const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
-  $('#sections').innerHTML = `<div class="col">${packIntro(d)}<p class="hint">Try “warning”, “no smoking”, “gift”, “serial number”, “save tape”, “reset”…</p><div class="grid">${tiles}</div></div>
-    <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:14px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.4em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
-    <div class="card" id="offline" style="margin-top:14px"><div class="row"><div><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
-    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
+  const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
+  const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';
+  $('#sections').innerHTML = `<div class="col">${suggest}<h2>Browse</h2><div class="grid">${tiles}</div>${packIntro(d)}</div>
+    <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:12px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
+    <div class="card" id="offline" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
+    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto;flex:0 0 auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
@@ -741,12 +776,17 @@ window.openZoom = (src, alt) => {
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
 sheet.addEventListener('close', () => sheet.classList.remove('zoom', 'photo'));
 const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
+// One-line summary of a recipe, e.g. [Symbol] → {Pictograph} [OK] → [Space] [OK] → {#4} [OK]
+const keypath = s => `<span class="keypath">${fmt(s)}</span>`;
+const glance = s => `<div class="glance"><div class="glance-h">At a glance</div>${keypath(s)}</div>`;
+const symbolPath = (c, n) => `[Symbol] → {${c.group}} [OK] → [${c.key}] [OK] → ${n ? `{#${n}}` : '{#}'} [OK]`;
 
 window.openSymbol = (id, catId, n) => {
   const d = loaded[id], c = d.symbols.categories.find(x => x.id === catId), it = c.items[n - 1];
   openSheet(`<div class="hero"><img src="${it.img}" alt=""></div><h2 class="t">${esc(it.name)}</h2>
     <p class="muted small">${esc(c.name)} · ${c.group} · position ${it.n} of ${c.items.length}${it.ch ? ` · looks like ${it.ch}` : ''}</p>
-    <h3 style="margin-top:14px">How to insert</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
+    ${glance(symbolPath(c, it.n))}
+    <h3>Step by step</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
     <div class="note">Recently used? Pick <b>History</b> instead. It keeps your last 7 symbols.</div>
     <p style="margin-top:12px"><a href="/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
 };
@@ -755,7 +795,8 @@ window.openFrame = (id, n) => {
   const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
   openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
-    <h3 style="margin-top:14px">How to apply</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
+    ${glance(digits ? `[Frame] → ${digits} → [OK]` : '[Frame] → {Off} → [OK]')}
+    <h3>Step by step</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
     <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b>. [OK] prints without it.</div>
     <p style="margin-top:12px"><a href="/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
 };
@@ -772,7 +813,7 @@ function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
   const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
-  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to insert any symbol</summary>${steps(d.symbols.howto)}</details></div>
+  main.innerHTML = `<div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert any symbol</span><span class="muted small">${d.symbols.howto.length} steps</span></summary>${steps(d.symbols.howto)}</details></div>
     <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
     <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
     <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
@@ -792,7 +833,9 @@ function viewCategory(d, catId) {
   let body;
   if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
   else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
-  main.innerHTML = `<div class="card"><div class="row"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>${how}</div><h2>Symbols</h2>${body}`;
+  main.innerHTML = `<div class="row" style="margin:2px 0 10px"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>
+    <div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert</span>${keypath(symbolPath(c))}</summary>${how}</details></div>
+    <h2>Symbols <span class="muted small">tap one for its exact steps</span></h2>${body}`;
 }
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
@@ -810,7 +853,7 @@ function viewFrames(d, _, q) {
   }
   if (hasWide) chips.push(chip('wide', '12 mm only'));
   const chipRow = chips.length > 1 ? `<div class="chips">${chips.join('')}</div>` : '';
-  main.innerHTML = `<div class="card"><details class="howto-fold"><summary>How to apply a frame</summary>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></details></div>
+  main.innerHTML = `<div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to apply a frame</span><span class="muted small">${d.frames.howto.length} steps</span></summary>${steps(d.frames.howto)}<div class="note">${d.frames.notes.map(fmt).join('<br>')}</div></details></div>
     ${chipRow}
     ${items.length ? `<div class="framelist">${items.map(f => frameTile(d, f)).join('')}</div>` : ''}`;
 }
@@ -878,24 +921,35 @@ function viewPreview(d, _, q) {
   const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
   if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = d.tapes[0] ? d.tapes[0].mm : 12;
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
-  main.innerHTML = `<div class="twocol"><div class="col"><div class="card"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted small" style="text-align:center;margin-top:8px"></p></div>
-  <div class="card ctl" id="ctl">
-    <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}"></label>
-    <label class="full">Line 2 <span class="muted">(9 / 12 mm tape)</span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''}></label>
-    <label>Tape width<select data-k="tape">${d.tapes.map(t => `<option value="${t.mm}" ${t.mm === +s.tape ? 'selected' : ''}>${t.mm} mm (${t.in})</option>`).join('')}</select></label>
-    <label>Tape colour<select data-k="color">${TAPES.map((t, i) => `<option value="${i}" ${i === +s.color ? 'selected' : ''}>${t[0]}</option>`).join('')}</select></label>
-    <label>Font<select data-k="font">${opt(d.fonts, s.font)}</select></label>
-    <label>Size<select data-k="size">${opt(d.sizes, s.size)}</select></label>
-    <label>Width<select data-k="width">${opt(d.widths, s.width)}</select></label>
-    <label>Style<select data-k="style">${opt(d.styles, s.style)}</select></label>
-    <label>Alignment<select data-k="align">${opt(d.alignments, s.align)}</select></label>
-    <label>Frame<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : f.n + ' · ' + f.name}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>
-    <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
-    <label>Label length (mm, 0 = Auto)<input type="number" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
-    <label>Mirror<div class="seg"><button data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
+  // Phones: the tape sticks under the app bar so you see the label change while you edit below it.
+  // Desktop: controls on the left, the recipe stays in view on the right.
+  main.innerHTML = `<div class="designer"><div class="d-left">
+  <div class="card tapecard"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted"></p></div>
+  <div class="ctl" id="ctl">
+    <fieldset class="grp"><legend>Text</legend>
+      <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}" enterkeyhint="next"></label>
+      <label class="full"><span>Line 2 <span class="muted">· 9 / 12 mm tape only</span></span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''} enterkeyhint="done"></label>
+    </fieldset>
+    <fieldset class="grp"><legend>Tape</legend>
+      <label>Width<select data-k="tape">${d.tapes.map(t => `<option value="${t.mm}" ${t.mm === +s.tape ? 'selected' : ''}>${t.mm} mm (${t.in})</option>`).join('')}</select></label>
+      <label>Colour<select data-k="color">${TAPES.map((t, i) => `<option value="${i}" ${i === +s.color ? 'selected' : ''}>${t[0]}</option>`).join('')}</select></label>
+    </fieldset>
+    <fieldset class="grp wide"><legend>Type</legend>
+      <label class="full">Font<select data-k="font">${opt(d.fonts, s.font)}</select></label>
+      <label>Size<select data-k="size">${opt(d.sizes, s.size)}</select></label>
+      <label>Width<select data-k="width">${opt(d.widths, s.width)}</select></label>
+      <label>Style<select data-k="style">${opt(d.styles, s.style)}</select></label>
+      <label>Alignment<select data-k="align">${opt(d.alignments, s.align)}</select></label>
+    </fieldset>
+    <fieldset class="grp"><legend>Layout</legend>
+      <label class="full">Frame<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : f.n + ' · ' + f.name}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>
+      <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
+      <label><span>Length <span class="muted">mm · 0 = auto</span></span><input type="number" inputmode="numeric" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
+      <label class="full">Mirror<div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
+    </fieldset>
   </div></div>
-  <div class="col"><div class="card"><div class="row" style="justify-content:space-between"><h3>Recipe for the ${esc(d.model)}</h3><span class="pill">tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
-    <div class="row" style="margin-top:14px;gap:10px"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
+  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">Tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+    <div class="btn-row"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
     <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
