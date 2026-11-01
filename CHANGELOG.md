@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.0]
+
 - Label preview, rebuilt around real tapes: frames print in the ink colour on the tape (they used to paint white scans over coloured and black tapes, hiding white text), and each brand offers its own media: Brother TZe (16 colours, including gold, silver, fluorescent and clear), DYMO D1, Brady M21 and thermal label rolls for NIIMBOT and Phomemo. Tapes have their real finish: laminate gloss, frosted clear, metallic, matte die-cut paper. Colours are picked from tape swatches.
 - The recipe now matches the label maker: Brother D210/D220 keys, the D610BT's Fn menus, DYMO LM160 keys and LM280 menus, Brady M210 keys, and app steps for the PT-P710BT, NIIMBOT D110, Phomemo M110 and Brady M211 (they used to get PT-D220 key presses). Controls a device doesn't have are hidden.
 - The whole label fits in the preview; frames run the full length of a fixed-length label. Phones and tablets switch between Design and Recipe under the pinned tape, so the steps are one tap away.
