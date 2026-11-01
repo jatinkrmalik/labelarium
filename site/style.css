@@ -837,3 +837,42 @@ h2.h3::before, h2.h3::after { display: none; }
 /* Form fields: a 3:1 outline on every surface, so each field is findable (WCAG 1.4.11). */
 :root { --field: #857d6e; }
 .ctl select, .ctl input[type=text], .ctl input[type=number], .save-form input, .share-url { border-color: var(--field); }
+
+/* ---------- Label designer: real tapes, Design / Recipe switch, "Design a label" cards ---------- */
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.sw { width: 48px; height: 34px; border-radius: 6px; border: 1px solid rgba(0, 0, 0, .16); font: 600 14px/1 var(--sans); cursor: pointer; padding: 0;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .12), 0 3px 8px -4px rgba(0, 0, 0, .3); transition: transform .12s; }
+.sw.finish-paper { border-radius: 9px; }
+.sw.on { outline: 2.5px solid var(--ink); outline-offset: 2px; transform: translateY(-1px); }
+.tape.finish-clear { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2), 0 1px 0 rgba(0, 0, 0, .12), 0 6px 14px -8px rgba(0, 0, 0, .3); }
+.tape.finish-paper { border-radius: 14px; box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 4px 10px -6px rgba(0, 0, 0, .3); }
+.tape.finish-fluoro { filter: saturate(1.15); }
+.d-switch { margin-top: 8px; min-height: 42px; }
+.d-switch .muted { font-size: 12.5px; }
+.d-switch button.on .muted { color: inherit; opacity: .75; }
+@media (min-width: 1100px) { .d-switch { display: none; } }
+@media (max-width: 1099.98px) {
+  .designer:not(.show-recipe) .d-right { display: none; }
+  .designer.show-recipe .ctl { display: none; }
+  .designer.show-recipe .d-left { grid-template-columns: minmax(0, 1fr); }
+}
+.designer-cta { display: flex; align-items: center; gap: 16px; padding: 12px 14px 12px 16px; margin: 4px 0 2px; text-decoration: none; color: inherit; }
+.designer-cta .cta-copy { flex: 1; min-width: 0; display: grid; gap: 3px; text-align: left; }
+.designer-cta .k { font: 600 10.5px/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.designer-cta b { font: 600 16px/1.2 var(--sans); }
+.designer-cta .muted { font-size: 14px; line-height: 1.35; }
+.designer-cta .chev { flex: 0 0 auto; color: var(--ink-3); }
+.mini-tape { flex: 0 0 auto; display: grid; place-items: center; width: 116px; height: 42px; padding: 0 10px; border-radius: 3px; overflow: hidden; white-space: nowrap;
+  font-size: 17px; font-weight: 600; transform: rotate(-3deg); box-shadow: 0 1px 0 rgba(0, 0, 0, .18), 0 8px 16px -8px rgba(0, 0, 0, .45); }
+.mini-tape span { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.mini-tape.finish-paper { border-radius: 8px; }
+.mini-tape.finish-clear { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .2), 0 8px 16px -8px rgba(0, 0, 0, .35); }
+@media (max-width: 379.98px) { .mini-tape { width: 88px; font-size: 15px; } .designer-cta { gap: 12px; } }
+.hero-home .designer-cta { margin-top: 10px; }
+@media (min-width: 768px) { .hero-home .designer-cta { max-width: 560px; margin: 10px auto 0; } }
+.pick-dev { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.pick-dev img { width: 40px; height: 40px; object-fit: contain; flex: 0 0 auto; }
+.pick-dev > span:not(.chev) { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.pick-dev .chev { color: var(--ink-3); }
+/* A frame encloses the whole printed area, so on a fixed-length label it runs the full length. */
+.tape .framebox { flex: 1 1 auto; }
