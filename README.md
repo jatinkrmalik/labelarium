@@ -16,29 +16,28 @@ Plain HTML/CSS/JS, zero dependencies, hosted on GitHub Pages.
 
 ## Screenshots
 
-Phone UI (iPhone frame).
+Installed as an app on iPhone and iPad, in light and dark.
 
 <p align="center">
-  <img src="site/docs/screenshots/phone-home.png" width="200" alt="Labelarium home with ten label-maker tiles">
-  <img src="site/docs/screenshots/phone-d220-home.png" width="200" alt="Brother PT-D220 device home">
-  <img src="site/docs/screenshots/phone-d220-symbols-signs.png" width="200" alt="PT-D220 Signs pictograph grid">
-  <img src="site/docs/screenshots/phone-d220-frames.png" width="200" alt="PT-D220 frames list">
+  <img src="site/docs/screenshots/phone-home.png" width="170" alt="Home on iPhone: every supported label maker as a tile, with search">
+  <img src="site/docs/screenshots/phone-d220-home.png" width="170" alt="Brother PT-D220 on iPhone: device search and section tiles">
+  <img src="site/docs/screenshots/phone-d220-symbols-signs.png" width="170" alt="PT-D220 Signs symbols on iPhone: numbered pictograph grid with the key path">
+  <img src="site/docs/screenshots/phone-d220-preview.png" width="170" alt="PT-D220 label designer on iPhone: a two-line PANTRY label">
+  <img src="site/docs/screenshots/phone-brady-error-dark.png" width="170" alt="Brady M210 No / Invalid Cartridge error page on iPhone in dark mode">
 </p>
 <p align="center">
-  <img src="site/docs/screenshots/phone-d220-keyboard.png" width="200" alt="PT-D220 keyboard map">
-  <img src="site/docs/screenshots/phone-d220-preview.png" width="200" alt="PT-D220 label preview with HOME">
-  <img src="site/docs/screenshots/phone-dymo-lm160.png" width="200" alt="DYMO LabelManager 160 device home">
+  <img src="site/docs/screenshots/ipad-d220-preview.png" width="430" alt="PT-D220 label designer on iPad: label preview and controls beside the key-by-key recipe">
+  <img src="site/docs/screenshots/ipad-d220-symbols-dark.png" width="430" alt="PT-D220 symbol categories on iPad in dark mode, with the side rail">
 </p>
 
 | Shot | What it shows |
 | --- | --- |
-| Home | Brand chips and square tiles for every supported maker |
-| Device home | Section tiles for one model (search, symbols, frames, preview, …) |
-| Symbols | Pictograph category with on-device steps |
-| Frames | Numbered frames with sheet crops |
-| Keyboard | Annotated keyboard map, tap to zoom |
-| Preview | Live tape + key-press recipe fields |
-| DYMO LM160 | Same shell on a non-Brother pack |
+| Home | Every supported maker, brand filters, search |
+| Device home | Search inside one model, plus its sections |
+| Symbols | A pictograph category: each symbol's number and the keys to insert it |
+| Label designer | Live tape preview and the exact key presses (iPad: side by side) |
+| Error page | One page per LCD message: what it means, how to fix it (dark mode) |
+| iPad symbols | All categories with the side rail (dark mode) |
 
 ## Label makers
 
@@ -110,7 +109,7 @@ site/                           deployable web root (GitHub Pages artifact)
   devices/<id>/                 device.js data + img/ assets from the official guide
   icons/og.png                  Open Graph image (1200×630)
   icons/devices/                homepage / rail printer SVGs
-  docs/screenshots/             phone product shots for this README
+  docs/screenshots/             iPhone and iPad shots for this README
   fonts/                        bundled Bodoni Moda + Jost (SIL OFL)
 docs/og/                        Open Graph source material (not in the Pages artifact)
 ```
