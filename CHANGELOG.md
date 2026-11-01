@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Overlay-style scrollbars everywhere (page, rail, sheets, recipe pane): invisible at rest, a slim rounded thumb while scrolling that hides about a second later, no track or arrow buttons. Chromium/Safari use the scrollbar pseudo-elements; Firefox uses the standard properties.
 - Dark mode that follows the system, like a native app: warm near-black paper, light ink, and every manual scan (symbols, frames, templates, fonts, keyboard) on its own light chip so nothing disappears. Theme colour per scheme for the status bar, and dark iOS launch screens (40 launch screens in all).
 - New section icons: a drawn 24px icon set (keyboard, star, frame, layout, Aa, bolt, book, warning, label tag, ruler) replaces the abstract shapes. Coloured rounded tiles in lists (like iOS Settings), monochrome line icons in the tab bar and rail. Phones stack the icon above the title; no more mid-word breaks.
 - Installed app: no website footer or "Start here" copy, no Install UI, short window titles; the keyboard zoom caption clears the home indicator.

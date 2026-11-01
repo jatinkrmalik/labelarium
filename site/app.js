@@ -569,6 +569,17 @@ function syncTopOffset() {
   document.documentElement.style.setProperty('--top-h', Math.round(topbar.getBoundingClientRect().height) + 'px');
 }
 if ('ResizeObserver' in window) new ResizeObserver(syncTopOffset).observe(topbar);
+// Overlay scrollbars: mark whatever is scrolling so CSS shows its thumb, then let it fade after a pause.
+document.addEventListener('scroll', e => {
+  // The window's own scrollbar takes its style from <body> in Chromium, so mark both for page scrolls.
+  const els = e.target === document ? [document.documentElement, document.body] : [e.target];
+  for (const el of els) {
+    if (!(el instanceof Element)) continue;
+    el.classList.add('is-scrolling');
+    clearTimeout(el._scrollIdle);
+    el._scrollIdle = setTimeout(() => el.classList.remove('is-scrolling'), 900);
+  }
+}, { capture: true, passive: true });
 window.addEventListener('scroll', () => {
   topbar.classList.toggle('scrolled', window.scrollY > 4);
   const h = document.querySelector('.hero-home h1');
