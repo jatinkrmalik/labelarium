@@ -13,8 +13,20 @@ const KEYCLASS = { OK: 'ok', Print: 'print' };
 const fmt = s => esc(s)
   .replace(/\[([^\]]+)\]/g, (_, k) => `<kbd class="key ${KEYCLASS[k] || ''}">${k}</kbd>`)
   .replace(/\{([^}]+)\}/g, '<span class="lcd">$1</span>')
-  .replace(/→/g, '<span class="arrow">→</span>');
+  .replace(/→/g, '<span class="arrow">→</span>')
+  .replace(/(<kbd [^>]*>[^<]*<\/kbd>|<span class="lcd">[^<]*<\/span>)([.,;:!?)]+)/g, '<span class="nowrap">$1$2</span>');
 const pad2 = n => String(n).padStart(2, '0');
+const TAP = matchMedia('(hover: hover) and (pointer: fine)').matches ? 'Click' : 'Tap';
+// One consistent stroke icon set (24px grid, 2px stroke), so controls never fall back to mixed-weight text glyphs.
+const ICONS = {
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>',
+  pin: '<path d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
+  pinned: '<path fill="currentColor" d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
+};
+const icon = (name, size = 20) => `<svg class="ic ic-${name}" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 const cssq = s => String(s).replace(/"/g, "'"); // font stacks go inside style="…"
 
 let devices = [];
@@ -124,15 +136,25 @@ function absUrl(path) {
 }
 function go(path, replace) {
   const next = path.startsWith('/') ? path : '/' + String(path).replace(/^#\/?/, '');
-  if (replace) history.replaceState(null, '', next);
+  if (replace || takeSheetEntry()) history.replaceState(null, '', next);
   else history.pushState(null, '', next);
   return replace ? render() : transition(render, 'forward');
 }
 // Native-feeling page changes: a short slide + fade between routes where View Transitions exist.
 // Forward pushes in from the right, Back from the left; app chrome (tabs, rail) stays put.
 const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-function transition(fn, dir) {
-  if (!document.startViewTransition || reduceMotion() || document.hidden) return Promise.resolve(fn());
+async function prepareRoute() {
+  try {
+    if (!devices.length) await loadIndex();
+    const { seg } = route();
+    if (seg[0] === 'd' && seg[1] && devices.some(x => x.id === seg[1])) await loadDevice(seg[1]);
+  } catch {} // render() reports errors itself
+}
+async function transition(fn, dir) {
+  if (!document.startViewTransition || reduceMotion() || document.hidden) return fn();
+  const at = location.href;
+  await prepareRoute(); // a slow pack download happens before the old page is frozen for the animation
+  if (location.href !== at) return; // the user moved on while it loaded; that navigation renders
   if (transition.vt) { try { transition.vt.skipTransition(); } catch {} }
   document.documentElement.dataset.nav = dir;
   // Navigation never waits on the animation: if the browser hasn't run the update within 450 ms
@@ -142,9 +164,10 @@ function transition(fn, dir) {
   const vt = transition.vt = document.startViewTransition(once);
   vt.ready.catch(() => {});
   vt.finished.catch(() => {}).then(() => { if (transition.vt === vt) { transition.vt = null; delete document.documentElement.dataset.nav; } });
+  let done = false;
   return new Promise(res => {
-    const t = setTimeout(() => { if (!ran) { try { vt.skipTransition(); } catch {} } res(once()); }, 450);
-    vt.updateCallbackDone.then(() => { clearTimeout(t); res(out); }, () => { clearTimeout(t); res(once()); });
+    const t = setTimeout(() => { if (!done) { try { vt.skipTransition(); } catch {} } res(once()); }, 450);
+    vt.updateCallbackDone.then(() => { done = true; clearTimeout(t); res(out); }, () => { done = true; clearTimeout(t); res(once()); });
   });
 }
 window.go = go;
@@ -177,11 +200,27 @@ document.addEventListener('click', e => {
   const here = location.pathname + location.search + location.hash;
   if (next === here) return;
   const samePage = url.pathname === location.pathname && url.search === location.search;
-  history.pushState(null, '', next);
+  if (takeSheetEntry()) history.replaceState(null, '', next); else history.pushState(null, '', next);
   if (samePage) { applyLocationSeo(); scrollRouteHash(); return; }
   transition(render, 'forward');
 });
-window.addEventListener('popstate', () => transition(render, 'back'));
+window.addEventListener('popstate', () => {
+  if (ignorePop) { ignorePop = false; return; }          // our own history.back() after closing a sheet
+  if (sheetEntry) { sheetEntry = false; sheet.close(); return; } // Back while a sheet is open: just close it
+  transition(render, 'back');
+});
+// Each open sheet owns one history entry so the system Back gesture closes it instead of leaving the page.
+let sheetEntry = false, ignorePop = false;
+function pushSheetEntry() {
+  if (sheetEntry) return;
+  history.pushState({ sheet: 1 }, '', location.href);
+  sheetEntry = true;
+}
+function takeSheetEntry() { // navigating from inside a sheet: reuse its entry
+  if (!sheetEntry) return false;
+  sheetEntry = false;
+  return true;
+}
 window.addEventListener('hashchange', () => { applyLocationSeo(); scrollRouteHash(); });
 
 function setMeta(key, content, attr = 'name') {
@@ -194,7 +233,8 @@ function setMeta(key, content, attr = 'name') {
   el.setAttribute('content', content);
 }
 function applySeo(title, desc, path, jsonld, opts = {}) {
-  document.title = title;
+  // Installed app: the OS window title bar shows this, so keep it short like a native window title.
+  document.title = isStandaloneApp() ? (title.replace(/ · Labelarium$/, '') || 'Labelarium') : title;
   const url = absUrl(path);
   let canon = document.head.querySelector('link[rel="canonical"]');
   if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
@@ -441,8 +481,7 @@ async function render() {
       applyNotFoundSeo(route().path);
       setTop('Not found', { back: '/' });
       app.className = 'app';
-      app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><div class="empty-actions"><a class="btn" href="/">All label makers</a></div></div>`;
-      ensureFooter(app);
+      app.innerHTML = `<div class="empty"><b>Page not found</b><br><span class="small">That link doesn’t go anywhere in Labelarium.</span><div class="empty-actions"><a class="btn" href="/">All label makers</a></div></div>`;
       maybeShowInstallBar();
       return;
     }
@@ -452,7 +491,6 @@ async function render() {
     if (!views[section]) return go(`/d/${d.id}`, true);
     applyDeviceSeo(d, section, seg.slice(3), q);
     views[section](d, seg.slice(3), q);
-    ensureFooter(main);
     maybeShowInstallBar();
     openFromQuery(d, q);
   } catch (e) {
@@ -498,7 +536,7 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
   if (back) topbar.removeAttribute('aria-label');
   else topbar.setAttribute('aria-label', 'Labelarium');
   const logo = back
-    ? `<a class="iconbtn back" href="${esc(back)}" aria-label="Back">‹</a>`
+    ? `<a class="iconbtn back" href="${esc(back)}" aria-label="Back">${icon('back', 22)}</a>`
     : `<a class="wordmark" href="/" aria-label="Labelarium home">${TAPE_MARK}<span>Labelarium</span></a>`;
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
@@ -516,7 +554,11 @@ function syncTopOffset() {
   document.documentElement.style.setProperty('--top-h', Math.round(topbar.getBoundingClientRect().height) + 'px');
 }
 if ('ResizeObserver' in window) new ResizeObserver(syncTopOffset).observe(topbar);
-window.addEventListener('scroll', () => topbar.classList.toggle('scrolled', window.scrollY > 4), { passive: true });
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 4);
+  const h = document.querySelector('.hero-home h1');
+  topbar.classList.toggle('past-hero', !!h && h.getBoundingClientRect().bottom < topbar.getBoundingClientRect().bottom);
+}, { passive: true });
 
 function deviceLabel(dev) {
   const brand = dev.brand || '', name = dev.name || '';
@@ -554,8 +596,14 @@ const MADE_BY = 'Hand-labeled with care by @jatinkrmalik'; // B
 // Document-flow site footer. Not sticky: lives at the end of the page content.
 function siteFooter() {
   return `<footer class="site-foot">
-    <p class="footer"><a class="f-left" href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><span class="f-mid"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>100% open source</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
-    <p class="footer-legal">Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. Labelarium is unofficial and not affiliated. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
+    <div class="foot-mark">${TAPE_MARK}<span>Labelarium</span></div>
+    <nav class="footer" aria-label="About Labelarium">
+      <a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg><span>Open source</span></a>
+      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener"><span aria-hidden="true">☕</span><span>Buy me a coffee</span></a>
+      <button type="button" onclick="shareApp()">${shareIcon()}<span>Share</span></button>
+    </nav>
+    <p class="foot-by"><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
+    <p class="footer-legal">Unofficial and not affiliated. Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
   </footer>`;
 }
 function ensureFooter(el) {
@@ -578,13 +626,13 @@ function renderHome() {
   const last = devices.find(d => d.id === store.get('last'));
   const model = dev => dev.model && dev.model.toLowerCase() !== String(dev.brand).toLowerCase() ? dev.model : deviceTileLabel(dev);
   const card = dev => `<div class="card devtile link" data-q="${esc(norm(`${deviceLabel(dev)} ${dev.model} ${dev.tagline}`))}">
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin' : 'Pin'} ${esc(deviceTab(dev))}" aria-pressed="${favs.includes(dev.id)}" title="Pin to top" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin' : 'Pin'} ${esc(deviceTab(dev))}" aria-pressed="${favs.includes(dev.id)}" title="Pin to top" onclick="toggleFav('${dev.id}')">${icon(favs.includes(dev.id) ? 'pinned' : 'pin', 17)}</button>
       <a class="devtile-hit" href="/d/${dev.id}">
       <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt="" loading="lazy"></div>
       <div class="dev-copy"><span class="brand-k">${esc(dev.brand)}</span><b>${esc(model(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
-  const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev">›</span></a>` : '';
+  const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>` : '';
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
       <span class="devtile-hit">
       <span class="dev-icon" aria-hidden="true"><span class="request-q">?</span></span>
@@ -595,11 +643,11 @@ function renderHome() {
   const startHere = (brand === 'all' || brand === 'Brady') ? `<section class="card start-here" aria-label="Start here">
       <p class="start-kicker">Start here</p>
       <p>Looking up a Brady M210? This unofficial reference covers the manual, how to use the printer, and troubleshooting. Not affiliated with Brady.</p>
-      <p class="start-here-links"><a href="/d/brady-m210">Brady M210</a><a href="/d/brady-m210/howto">How to use</a><a href="/d/brady-m210/trouble">Troubleshooting</a></p>
+      <p class="start-here-links"><a class="chip" href="/d/brady-m210">Brady M210</a><a class="chip" href="/d/brady-m210/howto">How to use</a><a class="chip" href="/d/brady-m210/trouble">Troubleshooting</a></p>
     </section>` : '';
   // Phone-first order: find your maker in one glance. The hero is two lines, the finder and the grid follow straight away.
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p>
-    <div class="finder" role="search"><span class="mag" aria-hidden="true">⌕</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
+    <div class="finder" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
     ${continueCard}</div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers <span class="muted" id="devcount">${list.length}</span></h2>
@@ -647,22 +695,34 @@ window.toggleFav = id => {
 };
 
 // ---------- device home + search ----------
+const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+// A pack only offers the sections it has content for (no empty "0 templates" tiles).
+const HAS = {
+  keyboard: d => d.keyboard.legend.length > 0,
+  symbols: d => d.symbols.categories.length > 0,
+  frames: d => d.frames.items.some(f => f.n !== 'off'),
+  templates: d => d.templates.text.length + d.templates.pattern.length > 0,
+  shortcuts: d => d.shortcuts.length > 0,
+  howto: d => d.howto.length > 0,
+  trouble: d => d.errors.length + d.problems.length > 0,
+};
+const sectionsFor = d => SECTIONS.filter(([id]) => !HAS[id] || HAS[id](d));
 const SECTIONS = [
   ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
   ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
-  ['frames', 'hollow', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
-  ['templates', 'tr-yellow', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
-  ['fonts', 'half', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
-  ['shortcuts', 'dia', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
-  ['howto', 'lines', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
-  ['trouble', 'cross', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
+  ['frames', 'hollow', 'Frames', d => `${plural(d.frames.items.filter(f => f.n !== 'off').length, 'design')}, by number`],
+  ['templates', 'tr-yellow', 'Templates', d => [d.templates.text.length && `${d.templates.text.length} text`, d.templates.pattern.length && `${d.templates.pattern.length} pattern`].filter(Boolean).join(' · ')],
+  ['fonts', 'half', 'Fonts & styles', d => [plural(d.fonts.length, 'font'), d.styles.length > 1 && plural(d.styles.length, 'style')].filter(Boolean).join(' · ')],
+  ['shortcuts', 'dia', 'Shortcuts', d => plural(d.shortcuts.length, 'key combo')],
+  ['howto', 'lines', 'How-to guides', d => `${plural(d.howto.length, 'step-by-step guide')}`],
+  ['trouble', 'cross', 'Troubleshooting', d => [d.errors.length && plural(d.errors.length, 'message'), d.problems.length && plural(d.problems.length, 'fix', 'fixes')].filter(Boolean).join(' · ')],
   ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
-  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')"`, inner: favs.includes(d.id) ? '●' : '○' });
-  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, label: 'Search', inner: '⌕' }) : '';
+  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')" aria-pressed="${favs.includes(d.id)}"`, inner: icon(favs.includes(d.id) ? 'pinned' : 'pin', 18) });
+  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, cls: 'top-search', label: 'Search', inner: icon('search', 18) }) : '';
   const bradyHub = !section && d.id === 'brady-m210';
   const title = bradyHub ? 'Brady M210' : (section || d.model);
   const subtitle = bradyHub ? 'Unofficial reference' : (section ? d.model : d.brand);
@@ -670,24 +730,28 @@ function deviceTop(d, section, sub) {
   setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: search + star });
   store.set('last', d.id);
   const cur = route().seg[2] || 'home';
-  const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
+  const all = [['home', 'ring', 'Search'], ...sectionsFor(d).map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><i class="mark ${ico}" aria-hidden="true"></i><span>${short ? SHORT[id] : name}</span></a>`;
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><span class="nav-ico">${id === 'home' ? icon('search', 19) : `<i class="mark ${ico}" aria-hidden="true"></i>`}</span><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot"><button type="button" class="iconbtn" aria-label="Share" title="Share" onclick="sharePage()">${shareIcon()}</button>${installIconButton()}</div></nav>`;
-  const tabIds = ['home', 'symbols', 'frames', 'preview'];
-  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><i class="mark dots" aria-hidden="true"></i><span>More</span></button></nav>`;
+  const tabIds = ['home', ...['symbols', 'frames', 'templates', 'keyboard'].filter(id => all.some(x => x[0] === id)).slice(0, 2), 'preview'];
+  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><span class="nav-ico"><i class="mark dots" aria-hidden="true"></i></span><span>More</span></button></nav>`;
   app.className = 'app device';
   app.innerHTML = `${rail}<section class="main" id="main"></section>${tabs}`;
   main = $('#main');
+  const on = app.querySelector('.rail a.on');
+  if (on) requestAnimationFrame(() => on.scrollIntoView({ block: 'nearest' }));
 }
 window.openMore = id => {
   const d = loaded[id], cur = route().seg[2] || 'home';
-  const rest = SECTIONS.filter(([sid]) => !['symbols', 'frames', 'preview'].includes(sid));
-  const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>`;
+  const inTabs = ['symbols', 'frames', 'templates', 'keyboard'].filter(x => sectionsFor(d).some(([s]) => s === x)).slice(0, 2).concat('preview');
+  const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
+  const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
+    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}</a></div>`;
   openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
 };
 function searchBox(d, q) {
-  return `<div class="search" id="search" role="search"><span class="mag" aria-hidden="true">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','');document.getElementById('q').focus()">×</button>` : ''}</div>`;
+  return `<div class="search" id="search" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','');document.getElementById('q').focus()">${icon('close', 16)}</button>` : ''}</div>`;
 }
 let searchTimer;
 window.onSearch = (id, v) => {
@@ -719,6 +783,7 @@ function viewDeviceHome(d, _, q) {
   }
 }
 function packIntro(d) {
+  if (d.id !== 'brady-m210') return '';
   const hasHowto = d.howto && d.howto.length;
   const hasTrouble = (d.errors && d.errors.length) || (d.problems && d.problems.length);
   if (d.id === 'brady-m210') {
@@ -732,7 +797,7 @@ function packIntro(d) {
   return `<p class="hint pack-intro">This pack includes ${joined}.</p>`;
 }
 function renderSections(d) {
-  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
+  const tiles = sectionsFor(d).map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
   const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';
@@ -774,26 +839,30 @@ function renderResults(d, q, firstPaint) {
     else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
     else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
     else if (type === 'symbol-category') html += g.map(r => catCard(d, r.cat)).join('');
-    else if (type === 'howto') html += g.map(r => `<a class="card link" href="/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'howto') html += g.map(r => `<a class="card link" href="/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
     else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
-    else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
     else if (type === 'style') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></a>`).join('');
     else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
     else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
-    else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
   }
   box.innerHTML = html;
 }
-window.saveOffline = async id => {
-  const d = loaded[id], meta = devices.find(x => x.id === id);
+function offlineUrls(d, id) {
+  const meta = devices.find(x => x.id === id);
   const urls = [meta.data, d.keyboard.image, d.symbols.accented.image, ...d.symbols.categories.flatMap(c => [c.img, ...c.items.map(i => i.img)]),
     ...d.frames.items.map(f => f.img), ...d.templates.text.map(t => t.img), ...d.templates.pattern.map(t => t.img), ...d.fonts.map(f => f.img),
-    ...['sizes', 'widths', 'styles', 'alignments'].flatMap(k => d[k].map(x => x.img))];
-  urls.push(`/icons/devices/${id}.svg`);
+    ...['sizes', 'widths', 'styles', 'alignments'].flatMap(k => d[k].map(x => x.img)), `/icons/devices/${id}.svg`];
+  return [...new Set(urls.filter(Boolean))];
+}
+window.saveOffline = async id => {
+  const d = loaded[id], meta = devices.find(x => x.id === id);
+  const urls = offlineUrls(d, id);
   const btn = document.querySelector('#offline .btn'); if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
   try {
     if (navigator.storage?.persist) navigator.storage.persist().catch(() => {}); // ask the browser not to evict it
-    await swAsk({ type: 'precache', id, urls: [...new Set(urls.filter(Boolean))] }, 'precached', 120000);
+    await swAsk({ type: 'precache', id, urls }, 'precached', 120000);
     store.set('offline:' + id, true);
     haptic();
     toast(`${deviceTab(meta)} works offline now`, canInstall() ? { action: 'Install app', onAction: requestInstall, ms: 6000 } : {});
@@ -814,7 +883,7 @@ async function swAsk(msg, okType, ms) {
     const sw = navigator.serviceWorker;
     const t = setTimeout(() => { sw.removeEventListener('message', h); rej(new Error('timed out')); }, ms);
     function h(e) {
-      if (e.data?.id !== msg.id) return;
+      if (e.data?.id && e.data.id !== msg.id) return;
       if (e.data.type === okType) { clearTimeout(t); sw.removeEventListener('message', h); res(); }
       else if (e.data.type === 'precache-failed') { clearTimeout(t); sw.removeEventListener('message', h); rej(new Error(e.data.error || 'download failed')); }
     }
@@ -835,15 +904,16 @@ function tplTile(d, t) {
 }
 function catCard(d, c) {
   const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
-  return `<a class="card link" href="/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></a>`;
+  return `<a class="card link" href="/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`;
 }
-function openSheet(html) {
-  sheet.classList.remove('zoom');
-  sheet.innerHTML = `<div class="inner"><div class="grab" aria-hidden="true"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button>${html}</div>`;
+function openSheet(html, cls = '') {
+  sheet.classList.remove('zoom', 'narrow', 'zoomed');
+  if (cls) sheet.classList.add(cls);
+  sheet.innerHTML = `<div class="inner"><div class="grab" aria-hidden="true"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">${icon('close', 18)}</button>${html}</div>`;
   const t = sheet.querySelector('h2.t');
   if (t) { t.id = 'sheet-t'; sheet.setAttribute('aria-labelledby', 'sheet-t'); sheet.removeAttribute('aria-label'); }
   sheet.style.transform = '';
-  sheet.showModal();
+  if (!sheet.open) { sheet.showModal(); pushSheetEntry(); }
 }
 // Bottom sheet: drag down from the handle or the top of the content to dismiss (phones), like a native sheet.
 (() => {
@@ -897,18 +967,21 @@ function announce(msg) {
   setTimeout(() => { el.textContent = msg; }, 50);
 }
 function zoomable(src, alt, extraClass) {
-  return `<button type="button" class="${extraClass} zoomable" data-src="${esc(src)}" data-alt="${esc(alt)}" onclick="openZoom(this.dataset.src, this.dataset.alt)"><img src="${esc(src)}" alt="${esc(alt)}"><span class="kbd-hint">Tap to zoom</span></button>`;
+  return `<button type="button" class="${extraClass} zoomable" data-src="${esc(src)}" data-alt="${esc(alt)}" onclick="openZoom(this.dataset.src, this.dataset.alt)"><img src="${esc(src)}" alt="${esc(alt)}"><span class="kbd-hint">${TAP} to zoom</span></button>`;
 }
 window.openZoom = (src, alt) => {
   sheet.classList.add('zoom');
   sheet.classList.toggle('photo', /\.jpe?g$/i.test(src));
   sheet.removeAttribute('aria-labelledby'); sheet.setAttribute('aria-label', alt || 'Zoomed image');
   sheet.style.transform = '';
-  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button><div class="zoom-hero"><img src="${esc(src)}" alt="${esc(alt)}"></div></div>`;
-  sheet.showModal();
+  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">${icon('close', 18)}</button><div class="zoom-hero" onclick="document.getElementById('sheet').classList.toggle('zoomed')"><img src="${esc(src)}" alt="${esc(alt)}"></div><p class="zoom-hint">${TAP} the picture to zoom in or out</p></div>`;
+  if (!sheet.open) { sheet.showModal(); pushSheetEntry(); }
 };
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
-sheet.addEventListener('close', () => sheet.classList.remove('zoom', 'photo'));
+sheet.addEventListener('close', () => {
+  sheet.classList.remove('zoom', 'photo');
+  if (sheetEntry) { sheetEntry = false; ignorePop = true; history.back(); } // closed by ×, Esc, swipe or backdrop: drop its entry
+});
 const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
 // One-line summary of a recipe, e.g. [Symbol] → {Pictograph} [OK] → [Space] [OK] → {#4} [OK]
 const keypath = s => `<span class="keypath">${fmt(s)}</span>`;
@@ -927,7 +1000,7 @@ window.openSymbol = (id, catId, n) => {
 window.openFrame = (id, n) => {
   const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
   const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
-  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
+  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted">${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     ${glance(digits ? `[Frame] → ${digits} → [OK]` : '[Frame] → {Off} → [OK]')}
     <h3>Step by step</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
@@ -936,7 +1009,7 @@ window.openFrame = (id, n) => {
 };
 window.openTemplate = (id, kind, n) => {
   const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
-  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
+  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted">${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
     <p><span class="pill warn">12 mm (0.47") tape only</span></p>
     <h3 style="margin-top:14px">How to use</h3>${steps((kind === 'text' ? d.templates.textHowto : d.templates.patternHowto).map(s => s.replace('the design (number below)', `design number ${pad2(t.n)}`).replace('pick the pattern', `pick pattern ${pad2(t.n)}`)))}
     <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>
@@ -947,18 +1020,18 @@ window.openTemplate = (id, kind, n) => {
 function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
-  const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
+  const grp = g => { const cs = d.symbols.categories.filter(c => c.group === g); return cs.length ? `<div class="catgrid">${cs.map(c => catCard(d, c)).join('')}</div>` : ''; };
   main.innerHTML = `<div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert any symbol</span><span class="muted small">${d.symbols.howto.length} steps</span></summary>${steps(d.symbols.howto)}</details></div>
-    <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
-    <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
-    <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
+    ${grp('Basic') ? `<h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}` : ''}
+    ${grp('Pictograph') ? `<h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}` : ''}
+    ${Object.keys(d.symbols.accented.table || {}).length ? `<h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>` : ''}`;
 }
 function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters');
     main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
-      <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
+      <div class="card acc-table" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
   const c = d.symbols.categories.find(x => x.id === catId);
@@ -970,7 +1043,7 @@ function viewCategory(d, catId) {
   else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
   main.innerHTML = `<div class="row" style="margin:2px 0 10px"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>
     <div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert</span>${keypath(symbolPath(c))}</summary>${how}</details></div>
-    <h2>Symbols <span class="muted small">tap one for its exact steps</span></h2>${body}`;
+    <h2>Symbols <span class="muted small">${TAP.toLowerCase()} one for its exact steps</span></h2>${body}`;
 }
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
@@ -1006,12 +1079,12 @@ function viewTemplates(d) {
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
   const list = (title, arr, id) => `<h2 id="${esc(id)}">${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
-  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
+  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} The samples on screen are close approximations of the printed font.</div></div>
     ${list('Fonts', d.fonts, 'fonts')}${list('Sizes', d.sizes, 'sizes')}${list('Widths', d.widths, 'widths')}${list('Styles', d.styles, 'styles')}${list('Alignment', d.alignments, 'alignment')}`;
 }
 function viewShortcuts(d) {
   deviceTop(d, 'Shortcuts');
-  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p><div class="list plate">${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}</div>`;
+  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p><div class="list plate sc">${d.shortcuts.map(s => `<div class="card"><div class="sc-keys">${fmt(s.keys)}</div><div class="sc-what"><b>${esc(s.action)}</b></div></div>`).join('')}</div>`;
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
@@ -1057,7 +1130,7 @@ function viewPreview(d, _, q) {
   // Clamp everything that came from storage or a shared link into what this device actually has.
   const clampI = (v, arr) => Math.min(Math.max(0, Math.round(+v) || 0), Math.max(0, arr.length - 1));
   for (const [k, arr] of [['font', d.fonts], ['size', d.sizes], ['width', d.widths], ['style', d.styles], ['align', d.alignments], ['color', TAPES]]) s[k] = clampI(s[k], arr);
-  if (!(s.margin in MARGINS)) s.margin = 'Full';
+  if (!Object.hasOwn(MARGINS, s.margin)) s.margin = 'Full';
   if (!d.frames.items.some(f => String(f.n) === String(s.frame))) s.frame = 'off';
   s.length = Math.min(300, Math.max(0, +s.length || 0)); s.mirror = !!s.mirror;
   s.text1 = String(s.text1 ?? ''); s.text2 = String(s.text2 ?? '');
@@ -1095,9 +1168,9 @@ function viewPreview(d, _, q) {
       <div class="full ctl-lbl" role="group" aria-labelledby="mirror-l"><span id="mirror-l">Mirror</span><div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}" aria-pressed="${!s.mirror}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}" aria-pressed="${!!s.mirror}">On</button></div></div>
     </fieldset>
   </div></div>
-  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">Tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">${TAP} a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="btn-row"><button type="button" class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button type="button" class="btn ghost" onclick="shareLabel('${d.id}')">${shareIcon()} Share recipe</button><button type="button" class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
-    <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
+    <div class="note">Preview is an approximation: fonts are on-screen look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   const tick = li => { const on = li.classList.toggle('done'); li.setAttribute('aria-checked', on); haptic(); };
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) tick(li); });
@@ -1115,7 +1188,7 @@ function renderSaved(d) {
   const box = $('#saved'); if (!box) return;
   const list = store.get(savedKey(d.id), []);
   if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label”. It comes back with its full recipe.</p>'; return; }
-  box.innerHTML = `<div class="list plate">${list.map((l, i) => `<div class="card saved"><button type="button" class="saved-open" onclick="loadLabel('${d.id}',${i})"><i class="mark strip" aria-hidden="true"></i><span style="min-width:0;flex:1"><b>${esc(l.name)}</b><span class="small muted saved-sub">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</span></span></button><button type="button" class="iconbtn" aria-label="Share ${esc(l.name)}" title="Share" onclick="shareLabel('${d.id}',${i})">${shareIcon()}</button><button type="button" class="iconbtn" aria-label="Delete ${esc(l.name)}" title="Delete" onclick="deleteLabel('${d.id}',${i})">×</button></div>`).join('')}</div>`;
+  box.innerHTML = `<div class="list plate">${list.map((l, i) => `<div class="card saved"><button type="button" class="saved-open" onclick="loadLabel('${d.id}',${i})"><i class="mark strip" aria-hidden="true"></i><span style="min-width:0;flex:1"><b>${esc(l.name)}</b><span class="small muted saved-sub">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</span></span></button><button type="button" class="iconbtn" aria-label="Share ${esc(l.name)}" title="Share" onclick="shareLabel('${d.id}',${i})">${shareIcon()}</button><button type="button" class="iconbtn" aria-label="Delete ${esc(l.name)}" title="Delete" onclick="deleteLabel('${d.id}',${i})">${icon('close', 18)}</button></div>`).join('')}</div>`;
 }
 // In-app sheet instead of window.prompt(), which looks like a browser, not an app.
 window.saveLabel = id => {
@@ -1124,8 +1197,8 @@ window.saveLabel = id => {
     <form class="save-form" onsubmit="event.preventDefault();confirmSaveLabel('${id}', this.elements.name.value)">
       <label class="ctl-lbl" for="save-name">Name</label>
       <input id="save-name" name="name" type="text" maxlength="60" value="${esc(s.text1 || 'My label')}" enterkeyhint="done" autocomplete="off" required>
-      <div class="btn-row"><button type="submit" class="btn">Save</button><button type="button" class="btn ghost" onclick="document.getElementById('sheet').close()">Cancel</button></div>
-    </form>`);
+      <div class="btn-row dialog-actions"><button type="button" class="btn ghost" onclick="document.getElementById('sheet').close()">Cancel</button><button type="submit" class="btn">Save</button></div>
+    </form>`, 'narrow');
   const i = $('#save-name'); if (i) { i.focus(); i.select(); }
 };
 window.confirmSaveLabel = (id, name) => {
@@ -1344,7 +1417,7 @@ function showInstallBar() {
   }
   bar.innerHTML = `<img src="/icons/icon-192.png" alt="" width="40" height="40" class="install-bar-ico"><p><b>Labelarium app</b><span>Full screen, works offline, no app store.</span></p>
     <button class="btn" type="button" onclick="requestInstall()">${PLATFORM === 'chromium' || deferredInstall ? 'Install' : 'How'}</button>
-    <button class="iconbtn" type="button" aria-label="Not now" onclick="dismissInstall()">×</button>`;
+    <button class="iconbtn" type="button" aria-label="Not now" onclick="dismissInstall()">${icon('close', 18)}</button>`;
   bar.hidden = false;
   requestAnimationFrame(syncInstallBarOffset);
 }
@@ -1368,7 +1441,13 @@ function maybeShowInstallBar() {
     syncInstallBarOffset();
     return;
   }
-  if (store.get('install-ready', false)) showInstallBar();
+  if (!store.get('install-ready', false)) return;
+  let shown = false; try { shown = sessionStorage.getItem('lab:install-bar') === '1'; } catch {}
+  const bar = document.getElementById('install-bar');
+  if (shown) { if (bar && !bar.dataset.path) bar.dataset.path = location.pathname; if (bar && bar.dataset.path !== location.pathname) { bar.hidden = true; syncInstallBarOffset(); } return; }
+  showInstallBar();
+  const b = document.getElementById('install-bar');
+  if (b && !b.hidden) { b.dataset.path = location.pathname; try { sessionStorage.setItem('lab:install-bar', '1'); } catch {} }
 }
 // The install sheet: what you get, then either the browser's own prompt or the exact steps for this browser.
 function openInstallHelp() {
@@ -1478,6 +1557,7 @@ window.shareLabel = (id, i) => {
 function openFromQuery(d, q) {
   if (!q.open) return;
   const [k, a, b] = String(q.open).split(':');
+  history.replaceState(null, '', location.pathname + location.hash); // the sheet opens once; Back returns to the page
   try {
     if (k === 'sym' && d.symbols.categories.some(c => c.id === a && c.items[+b - 1])) openSymbol(d.id, a, +b);
     else if (k === 'frame' && d.frames.items.some(f => String(f.n) === a)) openFrame(d.id, a);
@@ -1487,10 +1567,14 @@ function openFromQuery(d, q) {
 
 // ---------- offline + updates ----------
 // Offline flags can outlive their cache (cleared site data, old builds): trust the cache, not the flag.
+// Saves made before per-device caches (v40 and older) were wiped by the upgrade: re-save them quietly when online.
 async function syncSavedFlags() {
   if (!('caches' in window)) return;
   for (const x of devices) {
-    if (store.get('offline:' + x.id, false) && !(await caches.has('labelarium-saved-' + x.id))) store.set('offline:' + x.id, false);
+    if (!store.get('offline:' + x.id, false) || await caches.has('labelarium-saved-' + x.id)) continue;
+    if (!navigator.onLine) continue; // keep the flag; try again next time
+    try { const d = await loadDevice(x.id); await swAsk({ type: 'precache', id: x.id, urls: offlineUrls(d, x.id) }, 'precached', 180000); }
+    catch { store.set('offline:' + x.id, false); }
   }
 }
 const BUILD = 'v41'; // must equal sw.js VERSION suffix

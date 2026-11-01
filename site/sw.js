@@ -48,15 +48,33 @@ async function navigate(e) {
     return (await shell()) || Response.error(); // offline, or slower than 4 s
   }
 }
-async function networkFirst(e) {
+function networkFirst(e) {
   const net = fetch(e.request).then(res => keep(e, VERSION, res));
-  net.catch(() => {});
-  try { return await withTimeout(net, 4000); }
-  catch { return (await caches.match(e.request, { ignoreSearch: true })) || net; }
+  e.waitUntil(net.catch(() => {})); // a response slower than the timeout still lands in the cache for next time
+  return (async () => {
+    try { return await withTimeout(net, 4000); }
+    catch {
+      // This release's copy first, so old saved pack data never meets new app code.
+      const cur = await (await caches.open(VERSION)).match(e.request, { ignoreSearch: true });
+      return cur || (await caches.match(e.request, { ignoreSearch: true })) || net;
+    }
+  })();
 }
+// Images: serve from cache at once, then refresh that cache entry in the background (stale-while-revalidate),
+// so a redrawn image reaches returning users and saved packs stay current.
 async function cacheFirst(e) {
-  const hit = await caches.match(e.request); // also finds files in labelarium-saved-* caches
-  return hit || keep(e, IMG_CACHE, await fetch(e.request));
+  for (const name of await caches.keys()) {
+    if (name !== IMG_CACHE && !name.startsWith(SAVED) && name !== VERSION) continue;
+    const c = await caches.open(name);
+    const hit = await c.match(e.request);
+    if (hit) {
+      if (self.navigator.onLine !== false) {
+        e.waitUntil(fetch(e.request).then(res => { if (res.status === 200 && res.type === 'basic') return c.put(e.request, res); }).catch(() => {}));
+      }
+      return hit;
+    }
+  }
+  return keep(e, IMG_CACHE, await fetch(e.request));
 }
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);

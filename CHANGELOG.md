@@ -2,6 +2,17 @@
 
 ## [Unreleased]
 
+- One SVG icon set (back, close, search, pin, chevrons) replaces text glyphs (‹ × ⌕ ○ ● ›) that rendered in mixed weights; the pin is a real pin, filled red when pinned. Nav icons share one box so tab and rail labels line up.
+- System Back closes an open sheet instead of leaving the page (Android back gesture, browser Back); a link inside a sheet replaces its history entry. Opening a sheet from a sheet (Install from More) no longer throws.
+- Sections a pack doesn't have are no longer offered (no "0 text · 0 pattern" tiles, rail items or empty "Basic" headings), counts are pluralised, and the bottom tabs fill a missing section with the next one the pack has.
+- App screens drop the website footer and the "this pack includes…" link sentence; the home footer becomes a compact About block and About moves into the More sheet. The install banner shows at most once per session, scrolls away, and never on tablets, desktops or short screens (the app bar and rail carry Install). Plain-language "Page not found".
+- Fold cover screens: makers become one row each (art left), frames two-up, specs stacked, titles shrink and never break mid-word, and the header drops its Search button (the tab is right there).
+- Phones held sideways: the search box keeps its icon and clear button, the rail goes icon-only and scrolls to the active item, the home hero compacts, and the label designer becomes two panes (label left, controls right).
+- Tablets and desktops: symbol categories, shortcuts, fonts and accented letters use grids; long text keeps a readable measure; the keyboard diagram is larger; the recipe column stays beside the designer; the toast centres on the content.
+- Sheets: the close button gets its own header row, actions stay visible at the bottom of tall dialogs, Save is a compact dialog with Cancel then Save, keyboard zoom opens fitted to the window (tap or click to zoom in), and landscape sheets use a compact hero.
+- Home: the big "Labelarium" title hands over to the app bar as you scroll (iOS large-title pattern); laptops and installed windows get a shorter hero so makers are above the fold. Installed windows get short window titles.
+- Interface copy says "Click" with a mouse and "Tap" on touch; symbol names get two lines instead of an ellipsis; trailing punctuation never wraps away from a key chip.
+- Service worker: images refresh in the background after being served from cache (redrawn art reaches returning users, saved packs stay current); the offline fallback prefers this release's files; slow responses still land in the cache. Offline saves made before per-device caches are re-saved quietly instead of being lost. The page waits for a pack to load before starting a page transition, so a slow network never freezes the old page.
 - Show the whole printer on home tiles. The square device art was being cropped at the bottom by its 4:3 well at every screen size; it is now sized by the box. The pin button moves off the artwork.
 - Fit every screen from a 280 px Fold cover screen to a 1920 px desktop: no sideways scrolling at 280 px (section tiles go single column, tabs and symbol grid shrink), long titles wrap to two lines on phones, font rows and the keyboard legend wrap.
 - Phones held sideways (and other short screens) get the side rail instead of bottom tabs, and only the app bar stays sticky, so content gets the screen. Notch and rounded-corner safe areas are respected on all four sides.
