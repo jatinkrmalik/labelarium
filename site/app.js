@@ -36,6 +36,9 @@ const ICONS = {
   preview: '<path d="M3 7.4A2 2 0 0 1 5 5.4h9.6l6.4 6.6-6.4 6.6H5a2 2 0 0 1-2-2z"/><circle cx="15" cy="12" r="1.3"/><path d="M6.5 12h4.5"/>',
   specs: '<rect x="2.5" y="8" width="19" height="8" rx="1.6"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/>',
   ext: '<path d="M7 17 17 7M9 7h8v8"/>',
+  'theme-auto': '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/>',
+  'theme-light': '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M5.5 18.5 7 17M17 7l1.5-1.5"/>',
+  'theme-dark': '<path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z"/>',
   cup: '<path d="M4 8.5h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M12 3.5v2"/>',
   more: '<circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
 };
@@ -469,10 +472,25 @@ function ensureFooter(el) {
   if (el.classList.contains('has-q')) el.querySelector(':scope > .site-foot').hidden = true;
 }
 
+// ---------- appearance: Auto follows the system, Light and Dark override it ----------
+// The choice is applied before first paint by window.labTheme (inline in index.html), which swaps dark.css's media.
+const APPEARANCE = [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']];
+const appearance = () => { const m = store.get('appearance'); return m === 'light' || m === 'dark' ? m : 'auto'; };
+const appearanceControl = () => `<div class="seg appearance" role="radiogroup" aria-label="Appearance">${APPEARANCE.map(([m, name]) =>
+  `<button type="button" role="radio" aria-checked="${m === appearance()}" onclick="setAppearance('${m}')">${icon('theme-' + m, 17)}<span>${name}</span></button>`).join('')}</div>`;
+const appearanceButton = () => iconBtn({ cls: 'js-appearance', label: 'Appearance', title: 'Appearance: Auto, Light or Dark', extra: 'aria-haspopup="dialog" onclick="openAppearance()"', inner: icon('theme-' + appearance(), 18) });
+window.openAppearance = () => openSheet(`<div class="appearance-sheet"><h2 class="t">Appearance</h2>${appearanceControl()}<p class="hint">Auto matches your device's light or dark setting.</p></div>`, 'narrow');
+window.setAppearance = m => {
+  try { if (m === 'auto') localStorage.removeItem('lab:appearance'); else store.set('appearance', m); } catch {}
+  window.labTheme?.(m);
+  document.querySelectorAll('.appearance [role=radio]').forEach((b, i) => b.setAttribute('aria-checked', String(APPEARANCE[i % 3][0] === m)));
+  document.querySelectorAll('.js-appearance .ico').forEach(el => { el.innerHTML = icon('theme-' + m, 18); });
+};
+
 // ---------- home ----------
 let homeQuery = '';
 function renderHome() {
-  setTop('Labelarium', { right: installIconButton() });
+  setTop('Labelarium', { right: appearanceButton() + installIconButton() });
   app.className = 'app'; main = app;
   const favs = store.get('favs', []);
   const brand = homeBrand();
@@ -587,7 +605,7 @@ function deviceTop(d, section, sub, back) {
   const all = [['home', 'ring', 'Search'], ...sectionsFor(d).map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
   const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><span class="nav-ico">${id === 'home' ? icon('search', 21) : icon(id, 21)}</span><span>${short ? SHORT[id] : name}</span></a>`;
-  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot"><button type="button" class="iconbtn" aria-label="Share" title="Share" onclick="sharePage()">${shareIcon()}</button>${installIconButton()}</div></nav>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot"><button type="button" class="iconbtn" aria-label="Share" title="Share" onclick="sharePage()">${shareIcon()}</button>${appearanceButton()}${installIconButton()}</div></nav>`;
   const tabIds = tabSlots(d);
   const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><span class="nav-ico">${icon('more', 21)}</span><span>More</span></button></nav>`;
   app.className = 'app device';
@@ -602,7 +620,8 @@ window.openMore = id => {
   const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
   const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
     <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
-  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
+  const look = `<div class="more-appearance"><span>Appearance</span>${appearanceControl()}</div>`;
+  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${look}${install}`);
 };
 function searchBox(d, q) {
   return `<div class="search" id="search" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','');document.getElementById('q').focus()">${icon('close', 16)}</button>` : ''}</div>`;
@@ -656,11 +675,11 @@ function renderSections(d) {
   const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
   const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';
   $('#sections').innerHTML = `<div class="col">${suggest}<h2>Browse</h2><div class="grid">${tiles}</div>${packIntro(d)}</div>
-    <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:12px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
+    <div class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:12px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" id="offline" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     ${saved ? `<button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="removeOffline('${d.id}')" aria-label="Remove the offline copy">Saved ✓ · Remove</button>` : `<button type="button" class="btn" style="margin-left:auto;flex:0 0 auto" onclick="saveOffline('${d.id}')">Save offline</button>`}</div></div>
     <div class="card share-card" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Know someone with a ${esc(d.model)}?</b><div class="muted small">Send them this pack. It opens straight to the symbols and key presses.</div></div>
-    <button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="shareDevice('${d.id}')">${shareIcon()} Share</button></div></div></aside>`;
+    <button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="shareDevice('${d.id}')">${shareIcon()} Share</button></div></div></div>`;
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
@@ -884,7 +903,7 @@ function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters', undefined, `/d/${d.id}/symbols`);
-    main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
+    main.innerHTML = `<div class="card"><h2 class="h3">How to type them</h2>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
       <div class="card acc-table" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
@@ -933,7 +952,7 @@ function viewTemplates(d) {
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
   const list = (title, arr, id) => `<h2 id="${esc(id)}">${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
-  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} The samples on screen are close approximations of the printed font.</div></div>
+  main.innerHTML = `<div class="card"><h2 class="h3">How to change text settings</h2>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} The samples on screen are close approximations of the printed font.</div></div>
     ${list('Fonts', d.fonts, 'fonts')}${list('Sizes', d.sizes, 'sizes')}${list('Widths', d.widths, 'widths')}${list('Styles', d.styles, 'styles')}${list('Alignment', d.alignments, 'alignment')}`;
 }
 function viewShortcuts(d) {
@@ -959,7 +978,7 @@ function viewHowto(d, [topic]) {
     deviceTop(d, plain(h.title), undefined, `/d/${d.id}/howto`);
     const at = d.howto.indexOf(h);
     const more = [...d.howto.slice(at + 1), ...d.howto.slice(0, at)].slice(0, 6);
-    main.innerHTML = `<div class="card"><h3>Step by step</h3>${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}
+    main.innerHTML = `<div class="card"><h2 class="h3">Step by step</h2>${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}
       <div class="btn-row"><button type="button" class="btn ghost" onclick="sharePage()">${shareIcon()} Share this guide</button></div></div>
       <h2>More guides</h2><div class="list plate">${more.map(x => chevRow(`/d/${d.id}/howto/${x.id}`, `<b>${esc(x.title)}</b><div class="muted small">${plural(x.steps.length, 'step')}</div>`)).join('')}</div>
       <p class="hint"><a href="/d/${d.id}/howto">All ${d.howto.length} ${esc(d.model)} guides</a></p>`;
@@ -978,8 +997,8 @@ function viewTrouble(d, [slug]) {
     deviceTop(d, t.kind === 'error' ? plain(t.msg) : plain(t.problem), undefined, `/d/${d.id}/trouble`);
     const others = (t.kind === 'error' ? d.errors : d.problems).filter(x => x !== t);
     main.innerHTML = `<div class="card trouble-detail">${t.kind === 'error'
-        ? `<p class="small muted" style="margin:0 0 8px">The ${esc(d.model)} shows:</p><div class="lcd lcd-big">${esc(t.msg)}</div><h3>What it means</h3><p>${fmt(t.cause)}</p><h3>How to fix it</h3><div class="note">${fmt(t.fix)}</div>`
-        : `<h3>How to fix it</h3><div class="note">${fmt(t.fix)}</div>`}
+        ? `<p class="small muted" style="margin:0 0 8px">The ${esc(d.model)} shows:</p><div class="lcd lcd-big">${esc(t.msg)}</div><h2 class="h3">What it means</h2><p>${fmt(t.cause)}</p><h2 class="h3">How to fix it</h2><div class="note">${fmt(t.fix)}</div>`
+        : `<h2 class="h3">How to fix it</h2><div class="note">${fmt(t.fix)}</div>`}
       <div class="btn-row"><button type="button" class="btn ghost" onclick="sharePage()">${shareIcon()} Share this fix</button></div></div>
       ${others.length ? `<h2>${t.kind === 'error' ? 'Other error messages' : 'Other problems'}</h2><div class="list plate">${others.map(t.kind === 'error' ? errRow : probRow).join('')}</div>` : ''}
       <p class="hint"><a href="/d/${d.id}/trouble">All ${esc(d.model)} troubleshooting</a></p>`;
@@ -1045,11 +1064,11 @@ function viewPreview(d, _, q) {
       <div class="full ctl-lbl" role="group" aria-labelledby="mirror-l"><span id="mirror-l">Mirror</span><div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}" aria-pressed="${!s.mirror}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}" aria-pressed="${!!s.mirror}">On</button></div></div>
     </fieldset>
   </div></div>
-  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">${TAP} a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+  <div class="d-right"><div class="card"><div class="recipe-h"><h2 class="h3">Recipe for the ${esc(d.model)}</h2><span class="muted">${TAP} a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="btn-row"><button type="button" class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button type="button" class="btn ghost" onclick="shareLabel('${d.id}')">${shareIcon()} Share recipe</button><button type="button" class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
     <div class="note">Preview is an approximation: fonts are on-screen look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
-  const tick = li => { const on = li.classList.toggle('done'); li.setAttribute('aria-checked', on); haptic(); };
+  const tick = li => { const on = li.classList.toggle('done'); li.querySelector('[role=checkbox]')?.setAttribute('aria-checked', on); haptic(); };
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) tick(li); });
   $('#recipe').addEventListener('keydown', e => { const li = e.target.closest('li'); if (li && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); tick(li); } });
   renderSaved(d);
@@ -1203,7 +1222,7 @@ function drawTape(d, s) {
   if (s.length) r.push(`[Label] → {Label Length} → [OK] → [◀] / [▶] to ${s.length} mm → [OK].`);
   if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK] → {Mirror Print?} → [OK]. Use clear tape.`);
   else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
-  $('#recipe').innerHTML = r.map(x => `<li role="checkbox" aria-checked="false" tabindex="0">${fmt(x)}</li>`).join('');
+  $('#recipe').innerHTML = r.map(x => `<li><span class="tick-t" role="checkbox" aria-checked="false" tabindex="0">${fmt(x)}</span></li>`).join('');
 }
 
 // ---------- install (PWA) ----------
@@ -1382,7 +1401,7 @@ async function shareLink({ title, text, path }) {
     try { await navigator.share(data); return; } catch (e) { if (e.name === 'AbortError') return; }
   }
   try { await navigator.clipboard.writeText(data.url); toast('Link copied. Paste it anywhere.'); haptic(); }
-  catch { openSheet(`<h2 class="t">Share</h2><p class="muted small">Copy this link:</p><input class="share-url" readonly value="${esc(data.url)}" onfocus="this.select()">`); }
+  catch { openSheet(`<h2 class="t">Share</h2><p class="muted small">Copy this link:</p><input class="share-url" aria-label="Link to share" readonly value="${esc(data.url)}" onfocus="this.select()">`); }
 }
 window.shareApp = () => shareLink({ title: 'Labelarium', text: 'Every symbol, frame and key press for your label maker, with pictures. Free, works offline:', path: '/' });
 window.shareDevice = id => {
@@ -1453,7 +1472,7 @@ async function syncSavedFlags() {
     catch { store.set('offline:' + x.id, false); }
   }
 }
-const BUILD = 'v42'; // must equal sw.js VERSION suffix
+const BUILD = 'v43'; // must equal sw.js VERSION suffix
 window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
 
 window.addEventListener('resize', () => {

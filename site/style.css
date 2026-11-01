@@ -707,46 +707,7 @@ details .body, .note { max-width: 78ch; }
   .topbar .dev-top { display: none; }
 }
 
-/* ---------- Dark mode: follows the system, like a native app ---------- */
-/* Pictures from the manuals are black-on-white scans, so in dark mode each one sits on its own light chip. */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #12110e; --plate: #1c1a16; --plate-2: #221f1a; --sunk: #2b2822;
-    --ink: #f1ece2; --ink-2: #b9b1a2; --ink-3: #969080;
-    --line: #2c2924; --line-2: #3d3931; --rule: #f1ece2;
-    --red: #ec6b5f; --blue: #8aa6f0; --yellow: #f0c02e; --tape: #f5cb3a;
-    --lcd: #2e3a26; --lcd-ink: #d4e6bb;
-    --well: #f4efe5;
-    --shadow: 0 1px 0 rgba(0, 0, 0, .3);
-    --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 10px 26px -10px rgba(0, 0, 0, .6);
-    color-scheme: dark;
-  }
-  /* text on yellow tape stays ink-black */
-  .pill.warn, mark, .iconbtn.labeled.js-install, .toast button { color: #16150f; }
-  .toast { background: #f1ece2; color: #16150f; }
-  .toast button { background: rgba(22, 21, 15, .08); color: #7a5a00; }
-  .search input, .finder input { border-color: var(--line-2); }
-  .search input:focus, .finder input:focus { border-color: var(--blue); }
-  .btn { border-color: var(--ink); }
-  /* image wells */
-  .glyph img, .frame-img, .tpl-img, .font-img, .card.link .img-card img, .continue img, .rail .dev-rail, .topbar .dev-top {
-    background: var(--well); border-radius: 7px; padding: 3px; box-sizing: content-box;
-  }
-  .frame-img, .tpl-img { padding: 4px 8px; }
-  .sheet .hero, .kbd-card, button.img-card.zoomable, .sheet.zoom .zoom-hero { background: var(--well); border-color: transparent; }
-  .kbd-card .kbd-hint, button.img-card.zoomable .kbd-hint { color: #6e675b; }
-  .devtile .dev-icon { background: #2a2721; }
-  .chars .c { background: var(--plate-2); }
-  .tapewrap { background: repeating-linear-gradient(45deg, #1c1a16 0 10px, #16140f 10px 20px); }
-  .tape { box-shadow: 0 1px 0 rgba(0,0,0,.6), 0 8px 18px -6px rgba(0,0,0,.8); }
-  .sheet { box-shadow: 0 -10px 40px rgba(0, 0, 0, .6); }
-  .sheet::backdrop { background: rgba(0, 0, 0, .6); }
-  .install-bar-ico, .app-hero img { box-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
-  .devtile .star.on, .iconbtn.fav { color: var(--red); }
-  .iconbtn.labeled.fav { color: #fff; }
-  img.share-url { filter: none; }
-}
-
+/* Dark mode lives in dark.css (applied by system setting or the Appearance control). */
 /* ---------- Section icons: coloured tiles (lists) and line icons (navigation) ---------- */
 .app-ico { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: 0 0 auto; color: #fff; background: var(--ai, #16150f);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08), 0 1px 2px rgba(22, 21, 15, .18); }
@@ -761,7 +722,6 @@ details .body, .note { max-width: 78ch; }
 .ai-trouble { --ai: #d9622b; }
 .ai-preview { --ai: #f0c02e; color: #16150f; }
 .ai-specs { --ai: #6e675b; }
-@media (prefers-color-scheme: dark) { .ai-keyboard { --ai: #4a463d; } .ai-specs { --ai: #5a5448; } }
 /* tiles: icon on the left spanning title + count */
 .tile { grid-template-columns: 32px 1fr; column-gap: 12px; }
 .tile .ico { grid-row: 1 / span 2; height: auto; align-self: center; }
@@ -796,11 +756,6 @@ input, textarea { caret-color: var(--blue); }
 .finder-empty a { text-decoration: none; font-weight: 600; border-bottom: 1.5px solid var(--red); }
 .footer .ic { width: 16px; height: 16px; }
 .card.link .img-card img { max-height: 28px; }
-@media (prefers-color-scheme: dark) {
-  .ai-keyboard { --ai: #6b6457; }
-  .ai-specs { --ai: #7c7466; }
-  input, textarea { caret-color: var(--tape); }
-}
 /* Final QA round 2 */
 .tile { align-content: start; }
 .continue { text-align: left; }
@@ -861,5 +816,24 @@ details .body > ol, details .body > p, .note { line-height: 1.6; }
 
 /* ---------- Detail pages (one guide, one error) ---------- */
 .lcd.lcd-big { display: block; font-size: 20px; padding: 14px 16px; border-radius: 8px; text-align: center; letter-spacing: .02em; }
-.trouble-detail h3 { margin-top: 18px; }
+.trouble-detail h2.h3 { margin-top: 18px; }
 .trouble-detail p { color: var(--ink-2); }
+
+/* Appearance control (Auto · Light · Dark): in the More sheet and its own small sheet */
+.appearance { margin-top: 4px; }
+.appearance button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; color: var(--ink-2); }
+.appearance button[aria-checked="true"] { background: var(--ink); color: var(--paper); }
+.appearance .ic { width: 17px; height: 17px; flex: 0 0 auto; }
+.more-appearance { margin-top: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
+.more-appearance > span, .appearance-sheet .hint { display: block; font-size: 13px; color: var(--ink-3); }
+.more-appearance > span { margin: 0 0 6px 2px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; font-size: 12px; }
+.appearance-sheet .hint { margin: 10px 2px 0; }
+.iconbtn.labeled.js-appearance { padding: 0; width: 44px; justify-content: center; }
+.iconbtn.labeled.js-appearance .lbl { display: none; }
+/* Card titles that sit directly under the page title are h2 for heading order, but look like h3. */
+h2.h3 { display: block; margin: 0; font: 600 16px/1.3 var(--sans); letter-spacing: 0; text-transform: none; color: var(--ink); }
+h2.h3::before, h2.h3::after { display: none; }
+.recipe .tick-t { display: block; border-radius: 6px; outline-offset: 3px; }
+/* Form fields: a 3:1 outline on every surface, so each field is findable (WCAG 1.4.11). */
+:root { --field: #857d6e; }
+.ctl select, .ctl input[type=text], .ctl input[type=number], .save-form input, .share-url { border-color: var(--field); }
