@@ -1,0 +1,45 @@
+/* Labelarium dark theme. Loaded by index.html with media="(prefers-color-scheme: dark)" (Auto);
+   the Appearance control switches that to "all" (Dark) or "not all" (Light). */
+/* Pictures from the manuals are black-on-white scans, so in dark mode each one sits on its own light chip. */
+:root {
+  --paper: #12110e; --plate: #1c1a16; --plate-2: #221f1a; --sunk: #2b2822;
+  --ink: #f1ece2; --ink-2: #b9b1a2; --ink-3: #969080;
+  --line: #2c2924; --line-2: #3d3931; --rule: #f1ece2;
+  --red: #ec6b5f; --blue: #8aa6f0; --yellow: #f0c02e; --tape: #f5cb3a;
+  --lcd: #2e3a26; --lcd-ink: #d4e6bb;
+  --well: #f4efe5;
+  --field: #7a7366;
+  --shadow: 0 1px 0 rgba(0, 0, 0, .3);
+  --shadow-lift: 0 2px 4px rgba(0, 0, 0, .35), 0 10px 26px -10px rgba(0, 0, 0, .6);
+  color-scheme: dark;
+}
+/* text on yellow tape stays ink-black */
+.pill.warn, mark, .iconbtn.labeled.js-install, .toast button { color: #16150f; }
+.toast { background: #f1ece2; color: #16150f; }
+.toast button { background: rgba(22, 21, 15, .08); color: #7a5a00; }
+.search input, .finder input { border-color: var(--field); }
+.search input:focus, .finder input:focus { border-color: var(--blue); }
+.btn { border-color: var(--ink); }
+/* image wells */
+.glyph img, .frame-img, .tpl-img, .font-img, .card.link .img-card img, .continue img, .rail .dev-rail, .topbar .dev-top {
+  background: var(--well); border-radius: 7px; padding: 3px; box-sizing: content-box;
+}
+.frame-img, .tpl-img { padding: 4px 8px; }
+.sheet .hero, .kbd-card, button.img-card.zoomable, .sheet.zoom .zoom-hero { background: var(--well); border-color: transparent; }
+.kbd-card .kbd-hint, button.img-card.zoomable .kbd-hint { color: #6e675b; }
+.devtile .dev-icon { background: #2a2721; }
+.chars .c { background: var(--plate-2); }
+.tapewrap { background: repeating-linear-gradient(45deg, #1c1a16 0 10px, #16140f 10px 20px); }
+.tape { box-shadow: 0 1px 0 rgba(0,0,0,.6), 0 8px 18px -6px rgba(0,0,0,.8); }
+.sheet { box-shadow: 0 -10px 40px rgba(0, 0, 0, .6); }
+.sheet::backdrop { background: rgba(0, 0, 0, .6); }
+.install-bar-ico, .app-hero img { box-shadow: 0 1px 6px rgba(0, 0, 0, .5); }
+.devtile .star.on, .iconbtn.fav { color: var(--red); }
+.iconbtn.labeled.fav { color: #fff; }
+img.share-url { filter: none; }
+.ai-keyboard { --ai: #4a463d; } .ai-specs { --ai: #5a5448; }
+.ai-keyboard { --ai: #6b6457; }
+.ai-specs { --ai: #7c7466; }
+input, textarea { caret-color: var(--tape); }
+/* keyboard legend numbers: white needs the deeper red to reach 4.5:1 */
+.legend b { background: #c23229; }

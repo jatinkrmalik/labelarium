@@ -92,6 +92,8 @@
 <link rel="preload" href="/fonts/jost-600.woff2" as="font" type="font/woff2" crossorigin>
 <script>try{localStorage.removeItem("lab:theme")}catch(e){}document.documentElement.classList.add("js");setTimeout(function(){var h=document.documentElement;if(!h.classList.contains("app-ready"))h.classList.remove("js")},4000)</script>
 <link rel="stylesheet" href="/style.css">
+<link rel="stylesheet" href="/dark.css" media="(prefers-color-scheme: dark)" id="dark-css">
+<script>window.labTheme=function(m){var h=document.documentElement,q="(prefers-color-scheme: dark)",L="#f2ede3",D="#12110e";m=m==="light"||m==="dark"?m:"auto";if(m==="auto")h.removeAttribute("data-theme");else h.setAttribute("data-theme",m);document.getElementById("dark-css").media=m==="auto"?q:m==="dark"?"all":"not all";document.querySelector("meta[name=color-scheme]").content=m==="auto"?"light dark":m;document.querySelectorAll("meta[name=theme-color]").forEach(function(t){t.content=m==="auto"?(t.media.indexOf("dark")>-1?D:L):m==="dark"?D:L})};try{labTheme(JSON.parse(localStorage.getItem("lab:appearance")))}catch(e){}</script>
 </head>
 <body>
 <header class="topbar" id="topbar"></header>

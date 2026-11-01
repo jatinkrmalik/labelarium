@@ -4,12 +4,13 @@
 // - Images and fonts: cache first.
 // - "Save offline" puts each label maker in its own cache (labelarium-saved-<id>) that releases never delete.
 // Bump VERSION on every app-shell change; it must match BUILD in app.js (CI checks).
-const VERSION = 'labelarium-v42';
+const VERSION = 'labelarium-v43';
 const IMG_CACHE = 'labelarium-img';   // runtime images: survives releases, trimmed to IMG_MAX entries
 const SAVED = 'labelarium-saved-';    // + device id
 const IMG_MAX = 600;
 const IMG = /\.(png|jpe?g|svg|webp|gif|avif|ico)$/i;
-const SHELL = ['./', 'index.html', '404.html', 'style.css', 'app.js', 'pack.js', 'manifest.webmanifest', 'devices/index.json',
+const SHELL = ['./', 'index.html', '404.html', 'style.css',
+  'dark.css', 'app.js', 'pack.js', 'manifest.webmanifest', 'devices/index.json',
   'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png', 'icons/favicon.ico', 'icons/favicon-32.png',
   'fonts/bodoni-moda-400.woff2', 'fonts/bodoni-moda-400-italic.woff2', 'fonts/jost-400.woff2', 'fonts/jost-500.woff2', 'fonts/jost-600.woff2'];
 
