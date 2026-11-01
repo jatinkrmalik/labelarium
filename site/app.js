@@ -629,7 +629,7 @@ function siteFooter() {
       <button type="button" onclick="shareApp()">${shareIcon()}<span>Share</span></button>
     </nav>
     <p class="foot-by"><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
-    <p class="footer-legal">Unofficial and not affiliated. Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
+    <p class="footer-legal">Unofficial and not affiliated. Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a> · <a href="/privacy.html">Privacy</a></p>
   </footer>`;
 }
 function ensureFooter(el) {
@@ -781,7 +781,7 @@ window.openMore = id => {
   const inTabs = tabSlots(d).slice(1);
   const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
   const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
-    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
+    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a><a href="/privacy.html">Privacy${icon('chev', 16)}</a></div>`;
   openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
 };
 function searchBox(d, q) {
