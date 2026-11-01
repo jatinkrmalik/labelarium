@@ -13,8 +13,35 @@ const KEYCLASS = { OK: 'ok', Print: 'print' };
 const fmt = s => esc(s)
   .replace(/\[([^\]]+)\]/g, (_, k) => `<kbd class="key ${KEYCLASS[k] || ''}">${k}</kbd>`)
   .replace(/\{([^}]+)\}/g, '<span class="lcd">$1</span>')
-  .replace(/→/g, '<span class="arrow">→</span>');
+  .replace(/→ /g, '→\u00a0').replace(/→/g, '<span class="arrow">→</span>')
+  .replace(/(<kbd [^>]*>[^<]*<\/kbd>|<span class="lcd">[^<]*<\/span>)([.,;:!?)]+)/g, '<span class="nowrap">$1$2</span>');
 const pad2 = n => String(n).padStart(2, '0');
+const TAP = matchMedia('(hover: hover) and (pointer: fine)').matches ? 'Click' : 'Tap';
+// One consistent stroke icon set (24px grid, 2px stroke), so controls never fall back to mixed-weight text glyphs.
+const ICONS = {
+  back: '<path d="M15 5l-7 7 7 7"/>',
+  close: '<path d="M6 6l12 12M18 6L6 18"/>',
+  search: '<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/>',
+  chev: '<path d="M9 5l7 7-7 7"/>',
+  pin: '<path d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
+  pinned: '<path fill="currentColor" d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>',
+  symbols: '<path d="M12 3.2l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.6l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',
+  frames: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"/><rect x="7" y="9" width="10" height="6" rx="1"/>',
+  templates: '<rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M10 9.5V20"/>',
+  fonts: '<path d="M3.5 18.5 8.5 5l5 13.5M5.4 13.6h6.2"/><circle cx="17.6" cy="15.3" r="3.2"/><path d="M20.8 12v6.5"/>',
+  shortcuts: '<path d="M13.5 2.8 5 13.8h6.2L10.5 21.2l8.5-11h-6.2z"/>',
+  howto: '<path d="M12 6.6C10 5 7 4.4 3.5 4.8v13.6c3.5-.4 6.5.2 8.5 1.8 2-1.6 5-2.2 8.5-1.8V4.8C17 4.4 14 5 12 6.6z"/><path d="M12 6.6v13.6"/>',
+  trouble: '<path d="M10.3 4.3 2.6 17.6a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/>',
+  preview: '<path d="M3 7.4A2 2 0 0 1 5 5.4h9.6l6.4 6.6-6.4 6.6H5a2 2 0 0 1-2-2z"/><circle cx="15" cy="12" r="1.3"/><path d="M6.5 12h4.5"/>',
+  specs: '<rect x="2.5" y="8" width="19" height="8" rx="1.6"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/>',
+  ext: '<path d="M7 17 17 7M9 7h8v8"/>',
+  cup: '<path d="M4 8.5h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M12 3.5v2"/>',
+  more: '<circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
+};
+// iOS Settings-style tile: the section's glyph on its own colour.
+const appIcon = id => `<span class="app-ico ai-${id}" aria-hidden="true">${icon(id, 18)}</span>`;
+const icon = (name, size = 20) => `<svg class="ic ic-${name}" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 const cssq = s => String(s).replace(/"/g, "'"); // font stacks go inside style="…"
 
 let devices = [];
@@ -124,9 +151,39 @@ function absUrl(path) {
 }
 function go(path, replace) {
   const next = path.startsWith('/') ? path : '/' + String(path).replace(/^#\/?/, '');
-  if (replace) history.replaceState(null, '', next);
+  if (replace || takeSheetEntry()) history.replaceState(null, '', next);
   else history.pushState(null, '', next);
-  return render();
+  return replace ? render() : transition(render, 'forward');
+}
+// Native-feeling page changes: a short slide + fade between routes where View Transitions exist.
+// Forward pushes in from the right, Back from the left; app chrome (tabs, rail) stays put.
+const reduceMotion = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+async function prepareRoute() {
+  try {
+    if (!devices.length) await loadIndex();
+    const { seg } = route();
+    if (seg[0] === 'd' && seg[1] && devices.some(x => x.id === seg[1])) await loadDevice(seg[1]);
+  } catch {} // render() reports errors itself
+}
+async function transition(fn, dir) {
+  if (!document.startViewTransition || reduceMotion() || document.hidden) return fn();
+  const at = location.href;
+  await prepareRoute(); // a slow pack download happens before the old page is frozen for the animation
+  if (location.href !== at) return; // the user moved on while it loaded; that navigation renders
+  if (transition.vt) { try { transition.vt.skipTransition(); } catch {} }
+  document.documentElement.dataset.nav = dir;
+  // Navigation never waits on the animation: if the browser hasn't run the update within 450 ms
+  // (backgrounded window, throttled frames), skip the transition and render now. Runs once either way.
+  let ran = false, out;
+  const once = () => { if (!ran) { ran = true; out = fn(); } return out; };
+  const vt = transition.vt = document.startViewTransition(once);
+  vt.ready.catch(() => {});
+  vt.finished.catch(() => {}).then(() => { if (transition.vt === vt) { transition.vt = null; delete document.documentElement.dataset.nav; } });
+  let done = false;
+  return new Promise(res => {
+    const t = setTimeout(() => { if (!done) { try { vt.skipTransition(); } catch {} } res(once()); }, 450);
+    vt.updateCallbackDone.then(() => { done = true; clearTimeout(t); res(out); }, () => { done = true; clearTimeout(t); res(once()); });
+  });
 }
 window.go = go;
 
@@ -158,11 +215,27 @@ document.addEventListener('click', e => {
   const here = location.pathname + location.search + location.hash;
   if (next === here) return;
   const samePage = url.pathname === location.pathname && url.search === location.search;
-  history.pushState(null, '', next);
+  if (takeSheetEntry()) history.replaceState(null, '', next); else history.pushState(null, '', next);
   if (samePage) { applyLocationSeo(); scrollRouteHash(); return; }
-  render();
+  transition(render, 'forward');
 });
-window.addEventListener('popstate', () => render());
+window.addEventListener('popstate', () => {
+  if (ignorePop) { ignorePop = false; return; }          // our own history.back() after closing a sheet
+  if (sheetEntry) { sheetEntry = false; sheet.close(); return; } // Back while a sheet is open: just close it
+  transition(render, 'back');
+});
+// Each open sheet owns one history entry so the system Back gesture closes it instead of leaving the page.
+let sheetEntry = false, ignorePop = false;
+function pushSheetEntry() {
+  if (sheetEntry) return;
+  history.pushState({ sheet: 1 }, '', location.href);
+  sheetEntry = true;
+}
+function takeSheetEntry() { // navigating from inside a sheet: reuse its entry
+  if (!sheetEntry) return false;
+  sheetEntry = false;
+  return true;
+}
 window.addEventListener('hashchange', () => { applyLocationSeo(); scrollRouteHash(); });
 
 function setMeta(key, content, attr = 'name') {
@@ -175,7 +248,8 @@ function setMeta(key, content, attr = 'name') {
   el.setAttribute('content', content);
 }
 function applySeo(title, desc, path, jsonld, opts = {}) {
-  document.title = title;
+  // Installed app: the OS window title bar shows this, so keep it short like a native window title.
+  document.title = isStandaloneApp() ? (title.replace(/ · Labelarium$/, '') || 'Labelarium') : title;
   const url = absUrl(path);
   let canon = document.head.querySelector('link[rel="canonical"]');
   if (!canon) { canon = document.createElement('link'); canon.rel = 'canonical'; document.head.appendChild(canon); }
@@ -185,12 +259,14 @@ function applySeo(title, desc, path, jsonld, opts = {}) {
   setMeta('og:title', title, 'property');
   setMeta('og:description', desc, 'property');
   setMeta('og:url', url, 'property');
-  setMeta('og:image', OG_IMAGE, 'property');
-  setMeta('og:image:alt', OG_ALT, 'property');
+  const img = opts.image || OG_IMAGE, alt = opts.imageAlt || OG_ALT;
+  setMeta('og:image', img, 'property');
+  setMeta('og:image:secure_url', img, 'property');
+  setMeta('og:image:alt', alt, 'property');
   setMeta('twitter:title', title);
   setMeta('twitter:description', desc);
-  setMeta('twitter:image', OG_IMAGE);
-  setMeta('twitter:image:alt', OG_ALT);
+  setMeta('twitter:image', img);
+  setMeta('twitter:image:alt', alt);
   const ld = document.getElementById('jsonld');
   if (ld) ld.textContent = JSON.stringify(jsonld || webPageLd(title, desc, url));
 }
@@ -286,7 +362,9 @@ function applyDeviceSeo(d, section, rest = [], q = {}) {
   const hash = routeHash();
   // Plain WebPage only. Do not emit Product: Google flags it without offers/review/aggregateRating,
   // and this app must not invent those.
-  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path)), opts);
+  // Keep in sync with scripts/prerender.mjs: each device has its own link-preview card.
+  const og = { image: `${SITE}/icons/og/${d.id}.png`, imageAlt: `${label} on Labelarium` };
+  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path)), { ...og, ...opts });
   if (!section || section === 'home') {
     const sum = packSummary(d);
     const baseDesc = sum
@@ -412,14 +490,13 @@ async function render() {
   const { seg, q } = route();
   sheet.open && sheet.close();
   try {
-    if (!devices.length) await loadIndex();
+    if (!devices.length) { await loadIndex(); syncSavedFlags(); }
     if (!seg.length) { adoptHomeBrandQuery(); applyHomeSeo(); renderHome(); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applyNotFoundSeo(route().path);
-      setTop('Not found', { back: '/' });
+      setTop('Nothing here', { back: '/' });
       app.className = 'app';
-      app.innerHTML = `<div class="empty">Nothing at this address.<br><span class="small">Older links used a #/ hash; this app now uses ordinary paths.</span><br><br><a href="/">Back to all label makers</a></div>`;
-      ensureFooter(app);
+      app.innerHTML = `<div class="empty"><b>Nothing here</b><br><span class="small">This screen isn’t available. It may have moved.</span><div class="empty-actions"><a class="btn" href="/">Back to label makers</a></div></div>`;
       maybeShowInstallBar();
       return;
     }
@@ -429,19 +506,34 @@ async function render() {
     if (!views[section]) return go(`/d/${d.id}`, true);
     applyDeviceSeo(d, section, seg.slice(3), q);
     views[section](d, seg.slice(3), q);
-    ensureFooter(main);
     maybeShowInstallBar();
+    openFromQuery(d, q);
   } catch (e) {
     setTop('Labelarium', { back: '/' });
     applySeo('Not found · Labelarium', e.message || 'That page is not in Labelarium.', route().path || '/', null, { noindex: true });
     app.className = 'app';
-    app.innerHTML = `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="/">Back to all label makers</a></div>`;
+    const offline = !navigator.onLine || /fetch|import|network|load/i.test(String(e.message));
+    const saved = devices.filter(x => store.get('offline:' + x.id, false));
+    app.innerHTML = offline
+      ? `<div class="empty offline-state"><b>You’re offline</b><br><span class="small">This label maker isn’t saved on this device yet. It opens as soon as you’re back online.</span>${saved.length ? `<p class="small" style="margin-top:18px">Saved for offline:</p><div class="empty-actions">${saved.map(x => `<a class="chip" href="/d/${x.id}">${esc(deviceTab(x))}</a>`).join('')}</div>` : ''}<br><a href="/">All label makers</a></div>`
+      : `<div class="empty">Something went wrong.<br><span class="small">${esc(e.message)}</span><br><br><a href="/">Back to all label makers</a></div>`;
     ensureFooter(app);
     console.error(e);
   } finally {
     if (routeHash()) requestAnimationFrame(scrollRouteHash);
     else if (!route().q.q) window.scrollTo(0, 0);
+    focusPage();
   }
+}
+let lastPath = null;
+function focusPage() {
+  const path = location.pathname;
+  if (lastPath === null || lastPath === path) { lastPath = path; return; } // first paint and in-page re-renders keep focus where it is
+  lastPath = path;
+  const active = document.activeElement;
+  if (active && active !== document.body && document.contains(active)) return;
+  const h = document.querySelector('.topbar h1') || document.querySelector('#app h1');
+  if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
 }
 
 // Diagonal ABC tape. viewBox is sized for rotate(-26) of the 88×22 strip so nothing is clipped.
@@ -459,7 +551,7 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
   if (back) topbar.removeAttribute('aria-label');
   else topbar.setAttribute('aria-label', 'Labelarium');
   const logo = back
-    ? `<a class="iconbtn back" href="${esc(back)}" aria-label="Back">‹</a>`
+    ? `<a class="iconbtn back" href="${esc(back)}" aria-label="Back">${icon('back', 22)}</a>`
     : `<a class="wordmark" href="/" aria-label="Labelarium home">${TAPE_MARK}<span>Labelarium</span></a>`;
   const deviceIcon = deviceId
     ? `<img class="dev-top" src="/icons/devices/${esc(deviceId)}.svg" alt="" width="48" height="48">`
@@ -476,7 +568,23 @@ function setTop(title, { back, sub, right = '', deviceId } = {}) {
 function syncTopOffset() {
   document.documentElement.style.setProperty('--top-h', Math.round(topbar.getBoundingClientRect().height) + 'px');
 }
-window.addEventListener('scroll', () => topbar.classList.toggle('scrolled', window.scrollY > 4), { passive: true });
+if ('ResizeObserver' in window) new ResizeObserver(syncTopOffset).observe(topbar);
+// Overlay scrollbars: mark whatever is scrolling so CSS shows its thumb, then let it fade after a pause.
+document.addEventListener('scroll', e => {
+  // The window's own scrollbar takes its style from <body> in Chromium, so mark both for page scrolls.
+  const els = e.target === document ? [document.documentElement, document.body] : [e.target];
+  for (const el of els) {
+    if (!(el instanceof Element)) continue;
+    el.classList.add('is-scrolling');
+    clearTimeout(el._scrollIdle);
+    el._scrollIdle = setTimeout(() => el.classList.remove('is-scrolling'), 900);
+  }
+}, { capture: true, passive: true });
+window.addEventListener('scroll', () => {
+  topbar.classList.toggle('scrolled', window.scrollY > 4);
+  const h = document.querySelector('.hero-home h1');
+  topbar.classList.toggle('past-hero', !!h && h.getBoundingClientRect().bottom < topbar.getBoundingClientRect().bottom);
+}, { passive: true });
 
 function deviceLabel(dev) {
   const brand = dev.brand || '', name = dev.name || '';
@@ -514,8 +622,14 @@ const MADE_BY = 'Hand-labeled with care by @jatinkrmalik'; // B
 // Document-flow site footer. Not sticky: lives at the end of the page content.
 function siteFooter() {
   return `<footer class="site-foot">
-    <p class="footer"><a class="f-left" href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><span class="f-mid"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg>100% open source</a></span><a class="f-right" href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
-    <p class="footer-legal">Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. Labelarium is unofficial and not affiliated. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
+    <div class="foot-mark">${TAPE_MARK}<span>Labelarium</span></div>
+    <nav class="footer" aria-label="About Labelarium">
+      <a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg><span>Open source</span></a>
+      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">${icon('cup', 16)}<span>Buy me a coffee</span></a>
+      <button type="button" onclick="shareApp()">${shareIcon()}<span>Share</span></button>
+    </nav>
+    <p class="foot-by"><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
+    <p class="footer-legal">Unofficial and not affiliated. Brother, DYMO, NIIMBOT, Brady, Phomemo and related marks belong to their owners. <a href="https://github.com/jatinkrmalik/labelarium/blob/main/TRADEMARK.md" target="_blank" rel="noopener">Trademarks</a></p>
   </footer>`;
 }
 function ensureFooter(el) {
@@ -538,28 +652,28 @@ function renderHome() {
   const last = devices.find(d => d.id === store.get('last'));
   const model = dev => dev.model && dev.model.toLowerCase() !== String(dev.brand).toLowerCase() ? dev.model : deviceTileLabel(dev);
   const card = dev => `<div class="card devtile link" data-q="${esc(norm(`${deviceLabel(dev)} ${dev.model} ${dev.tagline}`))}">
-      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin' : 'Pin'} ${esc(deviceTab(dev))}" aria-pressed="${favs.includes(dev.id)}" title="Pin to top" onclick="toggleFav('${dev.id}')">${favs.includes(dev.id) ? '●' : '○'}</button>
+      <button class="star ${favs.includes(dev.id) ? 'on' : ''}" aria-label="${favs.includes(dev.id) ? 'Unpin' : 'Pin'} ${esc(deviceTab(dev))}" aria-pressed="${favs.includes(dev.id)}" title="Pin to top" onclick="toggleFav('${dev.id}')">${icon(favs.includes(dev.id) ? 'pinned' : 'pin', 17)}</button>
       <a class="devtile-hit" href="/d/${dev.id}">
       <div class="dev-icon"><img src="/icons/devices/${esc(dev.id)}.svg" alt="" loading="lazy"></div>
       <div class="dev-copy"><span class="brand-k">${esc(dev.brand)}</span><b>${esc(model(dev))}</b><div class="muted">${esc(dev.tagline)}</div></div>
       </a>
     </div>`;
-  const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev">›</span></a>` : '';
+  const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>` : '';
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
       <span class="devtile-hit">
       <span class="dev-icon" aria-hidden="true"><span class="request-q">?</span></span>
       <span class="dev-copy"><b>Request a label maker</b><span class="muted">Don't see yours?</span></span>
       </span>
     </a>`;
-  const chip = (id, label) => `<button class="chip ${brand === id ? 'on' : ''}" onclick="setHomeBrand('${id}')">${label}</button>`;
+  const chip = (id, label) => `<button type="button" class="chip ${brand === id ? 'on' : ''}" aria-pressed="${brand === id}" onclick="setHomeBrand('${id}')">${label}</button>`;
   const startHere = (brand === 'all' || brand === 'Brady') ? `<section class="card start-here" aria-label="Start here">
       <p class="start-kicker">Start here</p>
       <p>Looking up a Brady M210? This unofficial reference covers the manual, how to use the printer, and troubleshooting. Not affiliated with Brady.</p>
-      <p class="start-here-links"><a href="/d/brady-m210">Brady M210</a><a href="/d/brady-m210/howto">How to use</a><a href="/d/brady-m210/trouble">Troubleshooting</a></p>
+      <p class="start-here-links"><a class="chip" href="/d/brady-m210">Brady M210</a><a class="chip" href="/d/brady-m210/howto">How to use</a><a class="chip" href="/d/brady-m210/trouble">Troubleshooting</a></p>
     </section>` : '';
   // Phone-first order: find your maker in one glance. The hero is two lines, the finder and the grid follow straight away.
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p>
-    <div class="finder" role="search"><span class="mag" aria-hidden="true">⌕</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
+    <div class="finder" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
     ${continueCard}</div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers <span class="muted" id="devcount">${list.length}</span></h2>
@@ -568,6 +682,10 @@ function renderHome() {
     </div>
     <div class="devgrid" id="devgrid">${list.map(card).join('')}${requestTile}</div>
     <p class="finder-empty" id="finder-empty" hidden>No label maker matches that. <a href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener">Request it</a>.</p>
+    <section class="card share-home" aria-label="Share Labelarium">
+      <div><b>Know someone with a label maker?</b><p class="muted small">Send them Labelarium. Free, no sign-up, works offline.</p></div>
+      <button type="button" class="btn" onclick="shareApp()">${shareIcon()} Share Labelarium</button>
+    </section>
     ${startHere}
     ${siteFooter()}`;
   if (homeQuery) filterDevices(homeQuery);
@@ -587,31 +705,58 @@ window.filterDevices = v => {
   if (empty) empty.hidden = !!shown || !terms.length;
   const cnt = $('#devcount');
   if (cnt) cnt.textContent = shown;
+  if (terms.length) announce(shown ? `${shown} label maker${shown === 1 ? '' : 's'}` : 'No label maker matches');
 };
 window.setHomeBrand = b => {
   saveHomeBrand(b);
   history.replaceState(null, '', '/' + (location.hash || ''));
   render();
 };
-window.toggleFav = id => { const f = store.get('favs', []); store.set('favs', f.includes(id) ? f.filter(x => x !== id) : [...f, id]); render(); };
+window.toggleFav = id => {
+  const f = store.get('favs', []), on = !f.includes(id);
+  store.set('favs', on ? [...f, id] : f.filter(x => x !== id));
+  render(); haptic();
+  const dev = devices.find(x => x.id === id);
+  toast(on ? `Pinned ${dev ? deviceTab(dev) : ''} to the top` : 'Unpinned');
+};
 
 // ---------- device home + search ----------
+const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
+// A pack only offers the sections it has content for (no empty "0 templates" tiles).
+const HAS = {
+  keyboard: d => d.keyboard.legend.length > 0,
+  symbols: d => d.symbols.categories.length > 0,
+  frames: d => d.frames.items.some(f => f.n !== 'off'),
+  templates: d => d.templates.text.length + d.templates.pattern.length > 0,
+  shortcuts: d => d.shortcuts.length > 0,
+  howto: d => d.howto.length > 0,
+  trouble: d => d.errors.length + d.problems.length > 0,
+};
+const sectionsFor = d => SECTIONS.filter(([id]) => !HAS[id] || HAS[id](d));
+// Bottom tabs keep fixed slots across every pack: Search · Symbols · Frames · Preview (+ More).
+function tabSlots(d) {
+  const has = id => !HAS[id] || HAS[id](d);
+  const pick = (...ids) => ids.find(has);
+  const second = pick('symbols', 'keyboard', 'howto');
+  const third = ['frames', 'templates', 'keyboard', 'howto'].filter(id => id !== second).find(has);
+  return ['home', second, third, 'preview'].filter(Boolean);
+}
 const SECTIONS = [
   ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
   ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
-  ['frames', 'hollow', 'Frames', d => `${d.frames.items.length - 1} designs, by number`],
-  ['templates', 'tr-yellow', 'Templates', d => `${d.templates.text.length} text · ${d.templates.pattern.length} pattern`],
-  ['fonts', 'half', 'Fonts & styles', d => `${d.fonts.length} fonts · ${d.styles.length} styles`],
-  ['shortcuts', 'dia', 'Shortcuts', d => `${d.shortcuts.length} key combos`],
-  ['howto', 'lines', 'How-to guides', d => `${d.howto.length} step-by-step guides`],
-  ['trouble', 'cross', 'Troubleshooting', d => `${d.errors.length} messages · ${d.problems.length} fixes`],
+  ['frames', 'hollow', 'Frames', d => `${plural(d.frames.items.filter(f => f.n !== 'off').length, 'design')}, by number`],
+  ['templates', 'tr-yellow', 'Templates', d => [d.templates.text.length && `${d.templates.text.length} text`, d.templates.pattern.length && `${d.templates.pattern.length} pattern`].filter(Boolean).join(' · ')],
+  ['fonts', 'half', 'Fonts & styles', d => [plural(d.fonts.length, 'font'), d.styles.length > 1 && plural(d.styles.length, 'style')].filter(Boolean).join(' · ')],
+  ['shortcuts', 'dia', 'Shortcuts', d => plural(d.shortcuts.length, 'key combo')],
+  ['howto', 'lines', 'How-to guides', d => `${plural(d.howto.length, 'step-by-step guide')}`],
+  ['trouble', 'cross', 'Troubleshooting', d => [d.errors.length && plural(d.errors.length, 'message'), d.problems.length && plural(d.problems.length, 'fix', 'fixes')].filter(Boolean).join(' · ')],
   ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub) {
   const favs = store.get('favs', []);
-  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')"`, inner: favs.includes(d.id) ? '●' : '○' });
-  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, label: 'Search', inner: '⌕' }) : '';
+  const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')" aria-pressed="${favs.includes(d.id)}"`, inner: icon(favs.includes(d.id) ? 'pinned' : 'pin', 18) });
+  const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, cls: 'top-search', label: 'Search', inner: icon('search', 18) }) : '';
   const bradyHub = !section && d.id === 'brady-m210';
   const title = bradyHub ? 'Brady M210' : (section || d.model);
   const subtitle = bradyHub ? 'Unofficial reference' : (section ? d.model : d.brand);
@@ -619,24 +764,28 @@ function deviceTop(d, section, sub) {
   setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: search + star });
   store.set('last', d.id);
   const cur = route().seg[2] || 'home';
-  const all = [['home', 'ring', 'Search'], ...SECTIONS.map(([id, ico, name]) => [id, ico, name])];
+  const all = [['home', 'ring', 'Search'], ...sectionsFor(d).map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><i class="mark ${ico}"></i><span>${short ? SHORT[id] : name}</span></a>`;
-  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot">${installIconButton()}</div></nav>`;
-  const tabIds = ['home', 'symbols', 'frames', 'preview'];
-  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<a href="#" class="${tabIds.includes(cur) ? '' : 'on'}" onclick="event.preventDefault();openMore('${d.id}')"><i class="mark dots"></i><span>More</span></a></nav>`;
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><span class="nav-ico">${id === 'home' ? icon('search', 21) : icon(id, 21)}</span><span>${short ? SHORT[id] : name}</span></a>`;
+  const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot"><button type="button" class="iconbtn" aria-label="Share" title="Share" onclick="sharePage()">${shareIcon()}</button>${installIconButton()}</div></nav>`;
+  const tabIds = tabSlots(d);
+  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><span class="nav-ico">${icon('more', 21)}</span><span>More</span></button></nav>`;
   app.className = 'app device';
   app.innerHTML = `${rail}<section class="main" id="main"></section>${tabs}`;
   main = $('#main');
+  const on = app.querySelector('.rail a.on');
+  if (on) requestAnimationFrame(() => on.scrollIntoView({ block: 'nearest' }));
 }
 window.openMore = id => {
   const d = loaded[id], cur = route().seg[2] || 'home';
-  const rest = SECTIONS.filter(([sid]) => !['symbols', 'frames', 'preview'].includes(sid));
-  const install = shouldShowInstallControls() ? `<div class="more-actions"><button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button><a class="btn ghost" href="/">All label makers</a></div>` : `<div class="more-actions"><a class="btn ghost" href="/">All label makers</a></div>`;
-  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
+  const inTabs = tabSlots(d).slice(1);
+  const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
+  const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
+    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
+  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
 };
 function searchBox(d, q) {
-  return `<div class="search" id="search"><span class="mag">⌕</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button class="clr" onclick="onSearch('${d.id}','')">×</button>` : ''}</div>`;
+  return `<div class="search" id="search" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','');document.getElementById('q').focus()">${icon('close', 16)}</button>` : ''}</div>`;
 }
 let searchTimer;
 window.onSearch = (id, v) => {
@@ -668,6 +817,7 @@ function viewDeviceHome(d, _, q) {
   }
 }
 function packIntro(d) {
+  if (d.id !== 'brady-m210') return '';
   const hasHowto = d.howto && d.howto.length;
   const hasTrouble = (d.errors && d.errors.length) || (d.problems && d.problems.length);
   if (d.id === 'brady-m210') {
@@ -681,14 +831,16 @@ function packIntro(d) {
   return `<p class="hint pack-intro">This pack includes ${joined}.</p>`;
 }
 function renderSections(d) {
-  const tiles = SECTIONS.map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
+  const tiles = sectionsFor(d).map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico">${appIcon(id)}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
   const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';
   $('#sections').innerHTML = `<div class="col">${suggest}<h2>Browse</h2><div class="grid">${tiles}</div>${packIntro(d)}</div>
     <aside class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:12px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" id="offline" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
-    <button class="btn ${saved ? 'ghost' : ''}" style="margin-left:auto;flex:0 0 auto" onclick="saveOffline('${d.id}')">${saved ? 'Saved ✓' : 'Save offline'}</button></div></div></aside>`;
+    ${saved ? `<button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="removeOffline('${d.id}')" aria-label="Remove the offline copy">Saved ✓ · Remove</button>` : `<button type="button" class="btn" style="margin-left:auto;flex:0 0 auto" onclick="saveOffline('${d.id}')">Save offline</button>`}</div></div>
+    <div class="card share-card" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Know someone with a ${esc(d.model)}?</b><div class="muted small">Send them this pack. It opens straight to the symbols and key presses.</div></div>
+    <button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="shareDevice('${d.id}')">${shareIcon()} Share</button></div></div></aside>`;
 }
 function renderResults(d, q, firstPaint) {
   const box = $('#results'), sections = $('#sections');
@@ -698,6 +850,7 @@ function renderResults(d, q, firstPaint) {
   if (!q) { box.innerHTML = ''; sections.hidden = false; if (!sections.innerHTML) renderSections(d); return; }
   sections.hidden = true;
   const res = search(d, q);
+  announce(res.length ? `${res.length} result${res.length === 1 ? '' : 's'}` : `Nothing matches ${q}`);
   if (!res.length) {
     box.innerHTML = `<div class="empty">Nothing matches “${esc(q)}”.<p class="small">Try a simpler word</p>
       <div class="empty-actions">
@@ -720,30 +873,58 @@ function renderResults(d, q, firstPaint) {
     else if (type === 'frame') html += `<div class="framelist">${g.map(r => frameTile(d, r.item)).join('')}</div>`;
     else if (type === 'template') html += `<div class="framelist">${g.map(r => tplTile(d, r.item)).join('')}</div>`;
     else if (type === 'symbol-category') html += g.map(r => catCard(d, r.cat)).join('');
-    else if (type === 'howto') html += g.map(r => `<a class="card link" href="/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'howto') html += g.map(r => `<a class="card link" href="/d/${d.id}/howto/${r.item.id}"><div><b>${hi(r.item.title)}</b><div class="muted small">${fmt(r.item.steps[0])}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
     else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
-    else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
     else if (type === 'style') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></a>`).join('');
     else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
     else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
-    else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev">›</span></a>`).join('');
+    else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
   }
   box.innerHTML = html;
 }
-window.saveOffline = async id => {
-  const d = loaded[id], meta = devices.find(x => x.id === id);
+function offlineUrls(d, id) {
+  const meta = devices.find(x => x.id === id);
   const urls = [meta.data, d.keyboard.image, d.symbols.accented.image, ...d.symbols.categories.flatMap(c => [c.img, ...c.items.map(i => i.img)]),
     ...d.frames.items.map(f => f.img), ...d.templates.text.map(t => t.img), ...d.templates.pattern.map(t => t.img), ...d.fonts.map(f => f.img),
-    ...['sizes', 'widths', 'styles', 'alignments'].flatMap(k => d[k].map(x => x.img))];
-  const btn = document.querySelector('#sections .btn'); if (btn) btn.textContent = 'Saving…';
+    ...['sizes', 'widths', 'styles', 'alignments'].flatMap(k => d[k].map(x => x.img)), `/icons/devices/${id}.svg`];
+  return [...new Set(urls.filter(Boolean))];
+}
+window.saveOffline = async id => {
+  const d = loaded[id], meta = devices.find(x => x.id === id);
+  const urls = offlineUrls(d, id);
+  const btn = document.querySelector('#offline .btn'); if (btn) { btn.textContent = 'Saving…'; btn.disabled = true; }
   try {
-    const reg = await navigator.serviceWorker?.ready;
-    if (!reg?.active) throw new Error('Service worker not available (needs https or localhost).');
-    await new Promise((res, rej) => { const t = setTimeout(() => rej(new Error('Timed out')), 60000); navigator.serviceWorker.addEventListener('message', function h(e) { if (e.data?.type === 'precached') { clearTimeout(t); navigator.serviceWorker.removeEventListener('message', h); res(); } }); reg.active.postMessage({ type: 'precache', urls }); });
+    if (navigator.storage?.persist) navigator.storage.persist().catch(() => {}); // ask the browser not to evict it
+    await swAsk({ type: 'precache', id, urls }, 'precached', 120000);
     store.set('offline:' + id, true);
-  } catch (e) { alert('Could not save offline: ' + e.message); }
-  renderSections(d);
+    haptic();
+    toast(`${deviceTab(meta)} works offline now`, canInstall() ? { action: 'Install app', onAction: requestInstall, ms: 6000 } : {});
+  } catch (e) { toast('Could not save offline: ' + e.message); }
+  if ($('#sections')) renderSections(d);
 };
+window.removeOffline = async id => {
+  try { await swAsk({ type: 'unsave', id }, 'unsaved', 15000); } catch {}
+  store.set('offline:' + id, false);
+  if ($('#sections') && loaded[id]) renderSections(loaded[id]);
+  toast('Offline copy removed');
+};
+// Post a message to the service worker and wait for its reply for this device.
+async function swAsk(msg, okType, ms) {
+  const reg = await Promise.race([navigator.serviceWorker?.ready, new Promise(res => setTimeout(res, 4000))]);
+  if (!reg?.active) throw new Error('needs https or localhost');
+  return new Promise((res, rej) => {
+    const sw = navigator.serviceWorker;
+    const t = setTimeout(() => { sw.removeEventListener('message', h); rej(new Error('timed out')); }, ms);
+    function h(e) {
+      if (e.data?.id && e.data.id !== msg.id) return;
+      if (e.data.type === okType) { clearTimeout(t); sw.removeEventListener('message', h); res(); }
+      else if (e.data.type === 'precache-failed') { clearTimeout(t); sw.removeEventListener('message', h); rej(new Error(e.data.error || 'download failed')); }
+    }
+    sw.addEventListener('message', h);
+    reg.active.postMessage(msg);
+  });
+}
 
 // ---------- tiles & sheets ----------
 function glyphTile(d, it, showName) {
@@ -757,24 +938,84 @@ function tplTile(d, t) {
 }
 function catCard(d, c) {
   const preview = c.items.length ? c.items.slice(0, 4).map(i => `<img src="${i.img}" alt="" style="height:22px">`).join(' ') : `<span style="font-size:1.1rem">${esc(c.chars.split(' ').slice(0, 8).join(' '))}</span>`;
-  return `<a class="card link" href="/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev">›</span></a>`;
+  return `<a class="card link" href="/d/${d.id}/symbols/${c.id}"><div style="min-width:0"><b>${esc(c.name)}</b> <span class="pill">${c.group}</span> <span class="pill">key ${esc(c.key)}</span><div class="row img-card" style="gap:6px;margin-top:6px;flex-wrap:nowrap;overflow:hidden">${preview}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`;
 }
-function openSheet(html) {
-  sheet.classList.remove('zoom');
-  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button>${html}</div>`;
-  sheet.showModal();
+function openSheet(html, cls = '') {
+  sheet.classList.remove('zoom', 'narrow', 'zoomed');
+  if (cls) sheet.classList.add(cls);
+  sheet.innerHTML = `<div class="inner"><div class="grab" aria-hidden="true"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">${icon('close', 18)}</button>${html}</div>`;
+  const t = sheet.querySelector('h2.t');
+  if (t) { t.id = 'sheet-t'; sheet.setAttribute('aria-labelledby', 'sheet-t'); sheet.removeAttribute('aria-label'); }
+  sheet.style.transform = '';
+  if (!sheet.open) { sheet.showModal(); pushSheetEntry(); }
+}
+// Bottom sheet: drag down from the handle or the top of the content to dismiss (phones), like a native sheet.
+(() => {
+  let y0 = null, dy = 0, t0 = 0;
+  const inner = () => sheet.querySelector('.inner');
+  sheet.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' || innerWidth >= 700) return;
+    const fromHandle = e.target.closest('.grab');
+    if (!fromHandle && (inner()?.scrollTop > 0 || e.target.closest('input, select, textarea, .zoom-hero, .tapewrap'))) return;
+    y0 = e.clientY; dy = 0; t0 = performance.now();
+  });
+  sheet.addEventListener('pointermove', e => {
+    if (y0 === null) return;
+    dy = Math.max(0, e.clientY - y0);
+    if (dy > 6) { sheet.classList.add('dragging'); sheet.style.transform = `translateY(${dy}px)`; }
+  });
+  const end = () => {
+    if (y0 === null) return;
+    const fast = dy / Math.max(1, performance.now() - t0) > 0.6;
+    sheet.classList.remove('dragging');
+    if (dy > 120 || (fast && dy > 40)) { sheet.classList.add('settle'); sheet.style.transform = 'translateY(100%)'; setTimeout(() => { sheet.close(); sheet.classList.remove('settle'); sheet.style.transform = ''; }, 200); }
+    else if (dy > 0) { sheet.classList.add('settle'); sheet.style.transform = ''; setTimeout(() => sheet.classList.remove('settle'), 220); }
+    y0 = null; dy = 0;
+  };
+  sheet.addEventListener('pointerup', end);
+  sheet.addEventListener('pointercancel', end);
+})();
+// Toast: one at a time, bottom of the screen above the tabs, optional action (Undo, Reload…).
+let toastTimer;
+function toast(msg, { action, onAction, ms = 3800 } = {}) {
+  let el = document.getElementById('toast');
+  if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); if ('popover' in el) el.popover = 'manual'; document.body.append(el); }
+  el.innerHTML = `<span>${esc(msg)}</span>${action ? `<button type="button">${esc(action)}</button>` : ''}`;
+  if (action) el.querySelector('button').onclick = () => { el.classList.remove('show'); onAction && onAction(); };
+  el.classList.remove('show');
+  // Re-enter the top layer each time so the toast sits above an open sheet (<dialog> is top layer too).
+  if (el.popover) { try { if (el.matches(':popover-open')) el.hidePopover(); el.showPopover(); } catch {} }
+  void el.offsetWidth; // restart the slide-in
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), ms);
+}
+window.toast = toast;
+// A tiny tap of haptic feedback on Android for toggles and saves (no-op elsewhere).
+const haptic = () => { try { navigator.vibrate && !reduceMotion() && navigator.vibrate(8); } catch {} };
+// Polite live region for result counts (search, device finder).
+function announce(msg) {
+  let el = document.getElementById('sr-live');
+  if (!el) { el = document.createElement('div'); el.id = 'sr-live'; el.className = 'sr-only'; el.setAttribute('aria-live', 'polite'); document.body.append(el); }
+  el.textContent = '';
+  setTimeout(() => { el.textContent = msg; }, 50);
 }
 function zoomable(src, alt, extraClass) {
-  return `<button type="button" class="${extraClass} zoomable" data-src="${esc(src)}" data-alt="${esc(alt)}" onclick="openZoom(this.dataset.src, this.dataset.alt)"><img src="${esc(src)}" alt="${esc(alt)}"><span class="kbd-hint">Tap to zoom</span></button>`;
+  return `<button type="button" class="${extraClass} zoomable" data-src="${esc(src)}" data-alt="${esc(alt)}" onclick="openZoom(this.dataset.src, this.dataset.alt)"><img src="${esc(src)}" alt="${esc(alt)}"><span class="kbd-hint">${TAP} to zoom</span></button>`;
 }
 window.openZoom = (src, alt) => {
   sheet.classList.add('zoom');
   sheet.classList.toggle('photo', /\.jpe?g$/i.test(src));
-  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">×</button><div class="zoom-hero"><img src="${esc(src)}" alt="${esc(alt)}"></div></div>`;
-  sheet.showModal();
+  sheet.removeAttribute('aria-labelledby'); sheet.setAttribute('aria-label', alt || 'Zoomed image');
+  sheet.style.transform = '';
+  sheet.innerHTML = `<div class="inner"><div class="grab"></div><button class="iconbtn close" aria-label="Close" onclick="document.getElementById('sheet').close()">${icon('close', 18)}</button><div class="zoom-hero" onclick="document.getElementById('sheet').classList.toggle('zoomed')"><img src="${esc(src)}" alt="${esc(alt)}"></div><p class="zoom-hint">${TAP} the picture to zoom in or out</p></div>`;
+  if (!sheet.open) { sheet.showModal(); pushSheetEntry(); }
 };
 sheet.addEventListener('click', e => { if (e.target === sheet) sheet.close(); });
-sheet.addEventListener('close', () => sheet.classList.remove('zoom', 'photo'));
+sheet.addEventListener('close', () => {
+  sheet.classList.remove('zoom', 'photo');
+  if (sheetEntry) { sheetEntry = false; ignorePop = true; history.back(); } // closed by ×, Esc, swipe or backdrop: drop its entry
+});
 const steps = arr => `<ol class="steps">${arr.map(s => `<li>${fmt(s)}</li>`).join('')}</ol>`;
 // One-line summary of a recipe, e.g. [Symbol] → {Pictograph} [OK] → [Space] [OK] → {#4} [OK]
 const keypath = s => `<span class="keypath">${fmt(s)}</span>`;
@@ -788,42 +1029,43 @@ window.openSymbol = (id, catId, n) => {
     ${glance(symbolPath(c, it.n))}
     <h3>Step by step</h3>${steps([`Press [Symbol].`, `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump to {${c.name}} (or [◀] / [▶] to it) → [OK].`, `[◀] / [▶] to symbol number ${it.n} → [OK].`])}
     <div class="note">Recently used? Pick <b>History</b> instead. It keeps your last 7 symbols.</div>
-    <p style="margin-top:12px"><a href="/d/${id}/symbols/${c.id}" onclick="document.getElementById('sheet').close()">See all ${esc(c.name)} symbols ›</a></p>`);
+    <div class="btn-row"><button type="button" class="btn ghost" onclick="shareSymbol('${id}','${c.id}',${it.n})">${shareIcon()} Share</button><a class="btn ghost" href="/d/${id}/symbols/${c.id}">All ${esc(c.name)} ›</a></div>`);
 };
 window.openFrame = (id, n) => {
   const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
   const digits = f.n === 'off' ? null : String(f.n).split('').map(x => `[${x}]`).join(' ');
-  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted" style="font-weight:400">· ${esc(f.name)}</span></h2>
+  openSheet(`<div class="hero"><img src="${f.img}" alt=""></div><h2 class="t">${f.n === 'off' ? 'No frame' : `Frame ${f.n}`} <span class="muted">${esc(f.name)}</span></h2>
     ${f.wide ? '<p><span class="pill warn">12 mm (0.47") tape only</span></p>' : ''}
     ${glance(digits ? `[Frame] → ${digits} → [OK]` : '[Frame] → {Off} → [OK]')}
     <h3>Step by step</h3>${steps(digits ? ['Press [Frame].', `Type ${digits} (or [◀] / [▶] to ${f.n}).`, 'Press [OK].'] : ['Press [Frame].', '[◀] / [▶] to {Off}.', 'Press [OK].'])}
     <div class="note">Frames apply to the whole label. On narrower tape than allowed you get <b>No Frame OK?</b>. [OK] prints without it.</div>
-    <p style="margin-top:12px"><a href="/d/${id}/preview?frame=${f.n}" onclick="document.getElementById('sheet').close()">Try it in Label preview ›</a></p>`);
+    <div class="btn-row"><button type="button" class="btn ghost" onclick="shareFrame('${id}','${f.n}')">${shareIcon()} Share</button><a class="btn" href="/d/${id}/preview?frame=${f.n}">Try it in Label preview</a></div>`);
 };
 window.openTemplate = (id, kind, n) => {
   const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
-  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted" style="font-weight:400">· ${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
+  openSheet(`<div class="hero"><img src="${t.img}" alt=""></div><h2 class="t">${kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)} <span class="muted">${esc(t.name)}</span></h2><p class="small">${esc(t.desc)}</p>
     <p><span class="pill warn">12 mm (0.47") tape only</span></p>
     <h3 style="margin-top:14px">How to use</h3>${steps((kind === 'text' ? d.templates.textHowto : d.templates.patternHowto).map(s => s.replace('the design (number below)', `design number ${pad2(t.n)}`).replace('pick the pattern', `pick pattern ${pad2(t.n)}`)))}
-    <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>`);
+    <div class="note">${d.templates.notes.map(fmt).join('<br>')}</div>
+    <div class="btn-row"><button type="button" class="btn ghost" onclick="shareTemplate('${id}','${kind}',${t.n})">${shareIcon()} Share</button></div>`);
 };
 
 // ---------- sections ----------
 function viewSymbols(d, [catId]) {
   if (catId) return viewCategory(d, catId);
   deviceTop(d, 'Symbols');
-  const grp = g => d.symbols.categories.filter(c => c.group === g).map(c => catCard(d, c)).join('');
+  const grp = g => { const cs = d.symbols.categories.filter(c => c.group === g); return cs.length ? `<div class="catgrid">${cs.map(c => catCard(d, c)).join('')}</div>` : ''; };
   main.innerHTML = `<div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert any symbol</span><span class="muted small">${d.symbols.howto.length} steps</span></summary>${steps(d.symbols.howto)}</details></div>
-    <h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}
-    <h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}
-    <h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev">›</span></a>`;
+    ${grp('Basic') ? `<h2>Basic <span class="muted small">(text characters)</span></h2>${grp('Basic')}` : ''}
+    ${grp('Pictograph') ? `<h2>Pictograph <span class="muted small">(pictures)</span></h2>${grp('Pictograph')}` : ''}
+    ${Object.keys(d.symbols.accented.table || {}).length ? `<h2>Accented letters</h2><a class="card link" href="/d/${d.id}/symbols/accented"><div><b>Accent key table</b><div class="muted small">á ç ñ ö ß ž … via the [Accent] key</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>` : ''}`;
 }
 function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
     deviceTop(d, 'Accented letters');
     main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
-      <div class="card" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
+      <div class="card acc-table" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
   const c = d.symbols.categories.find(x => x.id === catId);
@@ -835,7 +1077,7 @@ function viewCategory(d, catId) {
   else body = `<div class="card"><div class="chars">${c.chars.split(' ').map((ch, i) => `<span class="c" title="position ${i + 1}">${esc(ch)}</span>`).join('')}</div>${c.charsNote ? `<p class="muted small">${esc(c.charsNote)}</p>` : ''}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
   main.innerHTML = `<div class="row" style="margin:2px 0 10px"><span class="pill">${c.group}</span><span class="pill">shortcut key: ${esc(c.key)}</span><span class="pill">${c.items.length || c.chars.split(' ').length}${c.charsNote ? '+' : ''} symbols</span></div>
     <div class="card fold"><details class="howto-fold"><summary><span class="sum-t">How to insert</span>${keypath(symbolPath(c))}</summary>${how}</details></div>
-    <h2>Symbols <span class="muted small">tap one for its exact steps</span></h2>${body}`;
+    <h2>Symbols <span class="muted small">${TAP.toLowerCase()} one for its exact steps</span></h2>${body}`;
 }
 function viewFrames(d, _, q) {
   deviceTop(d, 'Frames');
@@ -845,7 +1087,7 @@ function viewFrames(d, _, q) {
   const hasPictures = numbered.some(f => +f.n > 17);
   const hasWide = d.frames.items.some(f => f.wide);
   const items = d.frames.items.filter(f => filter === 'all' || (filter === 'basic' && f.n !== 'off' && f.n <= 17) || (filter === 'pictures' && f.n !== 'off' && f.n > 17) || (filter === 'wide' && f.wide));
-  const chip = (id, label) => `<button class="chip ${filter === id ? 'on' : ''}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
+  const chip = (id, label) => `<button type="button" class="chip ${filter === id ? 'on' : ''}" aria-pressed="${filter === id}" onclick="setFilter('${d.id}','${id}')">${label}</button>`;
   const chips = [chip('all', 'All')];
   if (hasBasic && hasPictures) {
     chips.push(chip('basic', 'Boxes & lines (0–17)'));
@@ -871,12 +1113,12 @@ function viewTemplates(d) {
 function viewFonts(d) {
   deviceTop(d, 'Fonts & styles');
   const list = (title, arr, id) => `<h2 id="${esc(id)}">${title}</h2><div class="fontlist plate">${arr.map((f, i) => `<div class="card"><span class="pill">${i + 1}</span><img class="font-img" src="${f.img}" alt=""><div><b>${esc(f.name)}</b>${f.desc ? `<div class="muted small">${esc(f.desc)}</div>` : ''}</div>${f.css ? `<span class="font-sample" style="font-family:${cssq(f.css)};font-weight:${f.weight};font-style:${f.style}">Abc 1</span>` : ''}</div>`).join('')}</div>`;
-  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} Web previews on the right are approximations of the printed font.</div></div>
+  main.innerHTML = `<div class="card"><h3>How to change text settings</h3>${steps(['Press [Font].', '[◀] / [▶] to {Font}, {Size}, {Width}, {Style} or {Alignment} → [OK].', '[◀] / [▶] to the setting → [OK].'])}<div class="note">${esc(d.fontNote)} The samples on screen are close approximations of the printed font.</div></div>
     ${list('Fonts', d.fonts, 'fonts')}${list('Sizes', d.sizes, 'sizes')}${list('Widths', d.widths, 'widths')}${list('Styles', d.styles, 'styles')}${list('Alignment', d.alignments, 'alignment')}`;
 }
 function viewShortcuts(d) {
   deviceTop(d, 'Shortcuts');
-  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p><div class="list plate">${d.shortcuts.map(s => `<div class="card"><div>${fmt(s.keys)}</div><div style="margin-top:6px"><b>${esc(s.action)}</b></div></div>`).join('')}</div>`;
+  main.innerHTML = `<p class="hint">Key combos and hidden tricks. Menu shortcuts work from the text screen.</p><div class="list plate sc">${d.shortcuts.map(s => `<div class="card"><div class="sc-keys">${fmt(s.keys)}</div><div class="sc-what"><b>${esc(s.action)}</b></div></div>`).join('')}</div>`;
 }
 function viewKeyboard(d) {
   deviceTop(d, 'Keyboard map');
@@ -895,7 +1137,7 @@ function viewHowto(d, [topic]) {
     ? `<p class="hint pack-intro">Unofficial how-to guides for the Brady M210. Not affiliated with Brady.</p>`
     : '';
   main.innerHTML = `${intro}<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
-  if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: 'smooth' }), 50);
+  if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: reduceMotion() ? 'auto' : 'smooth' }), 50);
 }
 function viewTrouble(d) {
   deviceTop(d, d.id === 'brady-m210' ? 'M210 troubleshooting' : 'Troubleshooting');
@@ -909,7 +1151,7 @@ function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
   main.innerHTML = `<div class="card"><dl class="kv">${d.specs.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('')}</dl></div>
     <h2>Tape widths</h2><div class="list plate">${d.tapes.map(t => `<div class="card"><b>${t.mm} mm <span class="muted">(${t.in})</span></b> <span class="pill">${t.lines} line${t.lines > 1 ? 's' : ''}</span><div class="small muted">${esc(t.note)}</div></div>`).join('')}</div>
-    <h2>Links</h2><div class="list plate">${d.links.map(([t, u]) => `<div class="card link" onclick="window.open('${u}','_blank')"><b>${esc(t)}</b><span class="chev">↗</span></div>`).join('')}</div>`;
+    <h2>Links</h2><div class="list plate">${d.links.map(([t, u]) => `<a class="card link" href="${esc(u)}" target="_blank" rel="noopener"><b>${esc(t)}</b><span class="chev" aria-hidden="true">↗</span><span class="sr-only">(opens in a new tab)</span></a>`).join('')}</div>`;
 }
 
 // ---------- label preview / designer ----------
@@ -918,13 +1160,25 @@ const TAPES = [['White · black text', '#ffffff', '#111'], ['Yellow · black tex
 const MARGINS = { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 };
 function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
-  const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {});
+  const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {}, q.label ? decodeLabel(q.label) : {});
+  // Clamp everything that came from storage or a shared link into what this device actually has.
+  const clampI = (v, arr) => Math.min(Math.max(0, Math.round(+v) || 0), Math.max(0, arr.length - 1));
+  for (const [k, arr] of [['font', d.fonts], ['size', d.sizes], ['width', d.widths], ['style', d.styles], ['align', d.alignments], ['color', TAPES]]) s[k] = clampI(s[k], arr);
+  if (!Object.hasOwn(MARGINS, s.margin)) s.margin = 'Full';
+  if (!d.frames.items.some(f => String(f.n) === String(s.frame))) s.frame = 'off';
+  s.length = Math.min(300, Math.max(0, +s.length || 0)); s.mirror = !!s.mirror;
+  s.text1 = String(s.text1 ?? ''); s.text2 = String(s.text2 ?? '');
+  if (q.label) {
+    store.set('preview:' + d.id, s);
+    history.replaceState(null, '', `/d/${d.id}/preview`);
+    setTimeout(() => toast('Shared label loaded', { action: 'Save', onAction: () => saveLabel(d.id), ms: 7000 }), 300);
+  }
   if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = d.tapes[0] ? d.tapes[0].mm : 12;
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
   // Phones: the tape sticks under the app bar so you see the label change while you edit below it.
   // Desktop: controls on the left, the recipe stays in view on the right.
   main.innerHTML = `<div class="designer"><div class="d-left">
-  <div class="card tapecard"><div class="tapewrap"><div id="tape"></div></div><p id="len" class="muted"></p></div>
+  <div class="card tapecard"><div class="tapewrap" tabindex="0" role="region" aria-label="Label preview"><div id="tape"></div></div><p id="len" class="muted"></p></div>
   <div class="ctl" id="ctl">
     <fieldset class="grp"><legend>Text</legend>
       <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}" enterkeyhint="next"></label>
@@ -945,18 +1199,20 @@ function viewPreview(d, _, q) {
       <label class="full">Frame<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : f.n + ' · ' + f.name}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>
       <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <label><span>Length <span class="muted">mm · 0 = auto</span></span><input type="number" inputmode="numeric" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
-      <label class="full">Mirror<div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}">On</button></div></label>
+      <div class="full ctl-lbl" role="group" aria-labelledby="mirror-l"><span id="mirror-l">Mirror</span><div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}" aria-pressed="${!s.mirror}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}" aria-pressed="${!!s.mirror}">On</button></div></div>
     </fieldset>
   </div></div>
-  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">Tap a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
-    <div class="btn-row"><button class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
-    <div class="note">Preview is an approximation: fonts are web look-alikes, and real print length varies slightly.</div></div>
+  <div class="d-right"><div class="card"><div class="recipe-h"><h3>Recipe for the ${esc(d.model)}</h3><span class="muted">${TAP} a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+    <div class="btn-row"><button type="button" class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button type="button" class="btn ghost" onclick="shareLabel('${d.id}')">${shareIcon()} Share recipe</button><button type="button" class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
+    <div class="note">Preview is an approximation: fonts are on-screen look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
-  $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) li.classList.toggle('done'); });
+  const tick = li => { const on = li.classList.toggle('done'); li.setAttribute('aria-checked', on); haptic(); };
+  $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) tick(li); });
+  $('#recipe').addEventListener('keydown', e => { const li = e.target.closest('li'); if (li && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); tick(li); } });
   renderSaved(d);
   const ctl = $('#ctl');
   ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
-  ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); draw(); });
+  ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); draw(); });
   const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
   redrawPreview = draw;
   draw();
@@ -966,16 +1222,35 @@ function renderSaved(d) {
   const box = $('#saved'); if (!box) return;
   const list = store.get(savedKey(d.id), []);
   if (!list.length) { box.innerHTML = '<p class="hint">Nothing saved yet. Design a label above and press “Save this label”. It comes back with its full recipe.</p>'; return; }
-  box.innerHTML = list.map((l, i) => `<div class="card link saved" onclick="loadLabel('${d.id}',${i})"><i class="mark strip"></i><div style="min-width:0;flex:1"><b>${esc(l.name)}</b><div class="small muted" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</div></div><button class="iconbtn" aria-label="Delete" title="Delete" onclick="event.stopPropagation();deleteLabel('${d.id}',${i})">×</button></div>`).join('');
+  box.innerHTML = `<div class="list plate">${list.map((l, i) => `<div class="card saved"><button type="button" class="saved-open" onclick="loadLabel('${d.id}',${i})"><i class="mark strip" aria-hidden="true"></i><span style="min-width:0;flex:1"><b>${esc(l.name)}</b><span class="small muted saved-sub">${esc(l.s.text1)}${l.s.text2 ? ' / ' + esc(l.s.text2) : ''} · ${l.s.tape} mm${l.s.frame !== 'off' ? ' · frame ' + l.s.frame : ''} · ${esc(d.fonts[l.s.font]?.name || '')}</span></span></button><button type="button" class="iconbtn" aria-label="Share ${esc(l.name)}" title="Share" onclick="shareLabel('${d.id}',${i})">${shareIcon()}</button><button type="button" class="iconbtn" aria-label="Delete ${esc(l.name)}" title="Delete" onclick="deleteLabel('${d.id}',${i})">${icon('close', 18)}</button></div>`).join('')}</div>`;
 }
+// In-app sheet instead of window.prompt(), which looks like a browser, not an app.
 window.saveLabel = id => {
-  const d = loaded[id], s = store.get('preview:' + id, {});
-  const name = prompt('Name this label', s.text1 || 'My label'); if (!name) return;
-  const list = store.get(savedKey(id), []); list.unshift({ name, s, ts: Date.now() }); store.set(savedKey(id), list.slice(0, 50));
-  renderSaved(d);
+  const s = store.get('preview:' + id, {});
+  openSheet(`<h2 class="t" id="sheet-t">Save this label <span class="muted">It comes back with its full recipe.</span></h2>
+    <form class="save-form" onsubmit="event.preventDefault();confirmSaveLabel('${id}', this.elements.name.value)">
+      <label class="ctl-lbl" for="save-name">Name</label>
+      <input id="save-name" name="name" type="text" maxlength="60" value="${esc(s.text1 || 'My label')}" enterkeyhint="done" autocomplete="off" required>
+      <div class="btn-row dialog-actions"><button type="button" class="btn ghost" onclick="document.getElementById('sheet').close()">Cancel</button><button type="submit" class="btn">Save</button></div>
+    </form>`, 'narrow');
+  const i = $('#save-name'); if (i) { i.focus(); i.select(); }
 };
-window.loadLabel = (id, i) => { const l = store.get(savedKey(id), [])[i]; if (!l) return; store.set('preview:' + id, l.s); render(); window.scrollTo(0, 0); };
-window.deleteLabel = (id, i) => { const list = store.get(savedKey(id), []); if (!confirm(`Delete “${list[i]?.name}”?`)) return; list.splice(i, 1); store.set(savedKey(id), list); renderSaved(loaded[id]); };
+window.confirmSaveLabel = (id, name) => {
+  name = String(name || '').trim(); if (!name) return;
+  const s = store.get('preview:' + id, {});
+  const list = store.get(savedKey(id), []); list.unshift({ name, s, ts: Date.now() }); store.set(savedKey(id), list.slice(0, 50));
+  sheet.close();
+  renderSaved(loaded[id]);
+  haptic();
+  toast(`Saved “${name}”`);
+};
+window.loadLabel = (id, i) => { const l = store.get(savedKey(id), [])[i]; if (!l) return; store.set('preview:' + id, l.s); render(); window.scrollTo(0, 0); toast(`Loaded “${l.name}”`); };
+// Delete straight away with Undo, like a native list, instead of a confirm() dialog.
+window.deleteLabel = (id, i) => {
+  const list = store.get(savedKey(id), []); const [gone] = list.splice(i, 1); if (!gone) return;
+  store.set(savedKey(id), list); renderSaved(loaded[id]); haptic();
+  toast(`Deleted “${gone.name}”`, { action: 'Undo', onAction: () => { const l = store.get(savedKey(id), []); l.splice(i, 0, gone); store.set(savedKey(id), l); renderSaved(loaded[id]); } });
+};
 window.resetPreview = id => { localStorage.removeItem('lab:preview:' + id); render(); };
 let redrawPreview = null;
 function drawTape(d, s) {
@@ -1055,7 +1330,7 @@ function drawTape(d, s) {
   const avail = Math.max(80, (wrap ? wrap.clientWidth : tapeW) - padX);
   let k = Math.min(1, avail / Math.max(1, tapeW));
   // Framed labels keep full tape height so flourishes are not clipped by the scale-down.
-  const floorH = imgFrame ? tapeH : Math.min(tapeH, Math.max(56, tapeH * 0.75));
+  const floorH = Math.min(imgFrame ? tapeH : Math.min(tapeH, Math.max(56, tapeH * 0.75)), Math.max(48, innerHeight * 0.2));
   k = Math.max(k, floorH / Math.max(1, tapeH));
   const shownW = tapeW * k, shownH = tapeH * k;
   const scrolls = shownW > avail + 1;
@@ -1066,7 +1341,8 @@ function drawTape(d, s) {
   t.style.transform = `scale(${k})`;
   if (wrap) {
     wrap.classList.toggle('scrolls', scrolls);
-    if (scrolls) wrap.scrollLeft = 0;
+    // Start a long strip centred on the text, not on the blank lead-in margin.
+    if (scrolls) wrap.scrollLeft = Math.max(0, (wrap.scrollWidth - wrap.clientWidth) / 2);
   }
   const over = s.length && totalMm > s.length;
   $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
@@ -1084,31 +1360,55 @@ function drawTape(d, s) {
   if (s.length) r.push(`[Label] → {Label Length} → [OK] → [◀] / [▶] to ${s.length} mm → [OK].`);
   if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK] → {Mirror Print?} → [OK]. Use clear tape.`);
   else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
-  $('#recipe').innerHTML = r.map(x => `<li>${fmt(x)}</li>`).join('');
+  $('#recipe').innerHTML = r.map(x => `<li role="checkbox" aria-checked="false" tabindex="0">${fmt(x)}</li>`).join('');
 }
 
 // ---------- install (PWA) ----------
-// Android Chrome fires beforeinstallprompt after installability + engagement heuristics.
-// iOS Safari has no beforeinstallprompt; Add to Home Screen is Share-sheet only.
-// Capture the prompt immediately; only show the bar after a few distinct device screens.
-// Explicit Install controls (home and device topbar icons) ignore the bar's 7-day snooze.
+// Chromium (Chrome, Edge, Samsung, Android) fires beforeinstallprompt when the app is installable: we show Install only then.
+// Safari (iOS, iPadOS, macOS), Firefox Android and in-app browsers never fire it, so they get short, platform-specific steps.
+// The install bar appears after a few distinct device screens; explicit Install controls ignore its 7-day snooze.
 let deferredInstall = null;
 const INSTALL_SCREENS = 3;
 const INSTALL_SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
 function isStandaloneApp() {
   return window.matchMedia('(display-mode: standalone)').matches
     || window.matchMedia('(display-mode: fullscreen)').matches
+    || window.matchMedia('(display-mode: window-controls-overlay)').matches
     || window.navigator.standalone === true;
 }
 function isIosDevice() {
   return /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 }
-function shouldShowInstallControls() {
-  return !isStandaloneApp() && !store.get('install-done', false);
+function installPlatform() {
+  const ua = navigator.userAgent;
+  if (/FBAN|FBAV|Instagram|Line\/|LinkedInApp|Snapchat|musical_ly|TikTok/i.test(ua)) return 'inapp';
+  if (isIosDevice()) return /CriOS|FxiOS|EdgiOS/.test(ua) ? 'ios-other' : 'ios';
+  if (/SamsungBrowser/.test(ua)) return 'samsung';
+  if (/Android/.test(ua) && /Firefox\//.test(ua)) return 'firefox-android';
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints === 0 && /Version\/[\d.]+.*Safari/.test(ua) && !/Chrome|Chromium|Edg\/|Firefox|OPR/.test(ua)) return 'mac-safari';
+  if ('onbeforeinstallprompt' in window) return 'chromium';
+  return 'other';
 }
+const INSTALL_STEPS = {
+  ios: ['Tap <b>Share</b> <span class="muted">(on iOS 26 it sits under <b>•••</b> next to the address bar)</span>.', 'Scroll down and tap <b>Add to Home Screen</b>.', 'Keep <b>Open as Web App</b> on, then tap <b>Add</b>.'],
+  'ios-other': ['Tap <b>Share</b> in the browser menu.', 'Tap <b>Add to Home Screen</b>, then <b>Add</b>.'],
+  'mac-safari': ['In the menu bar choose <b>File → Add to Dock…</b>', 'Click <b>Add</b>. Labelarium opens in its own window from the Dock.'],
+  'firefox-android': ['Tap <b>⋮</b> in the toolbar.', 'Tap <b>Add app to Home screen</b>, then <b>Add</b>.'],
+  samsung: ['Tap <b>≡</b> in the toolbar.', 'Tap <b>Add page to → Home screen</b>.'],
+  chromium: ['Click the install icon at the right end of the address bar.', 'Or open the browser menu → <b>Cast, save and share → Install page as app</b> (Edge: <b>Apps → Install this site as an app</b>).'],
+  inapp: ['This in-app browser can’t install apps.', 'Tap <b>•••</b> or <b>⋮</b> → <b>Open in browser</b>, then install from there.'],
+};
+const PLATFORM = installPlatform();
+const MANUAL = PLATFORM in INSTALL_STEPS && PLATFORM !== 'chromium';
+function canInstall() {
+  return !isStandaloneApp() && (!!deferredInstall || (MANUAL && !store.get('install-done', false)));
+}
+// One class on <html> decides whether any Install control shows (CSS: html:not(.can-install) .js-install).
+function syncInstallUi() { document.documentElement.classList.toggle('can-install', canInstall()); }
+function shouldShowInstallControls() { return !isStandaloneApp(); }
 function installActionLabel() {
-  return isIosDevice() ? 'Add to Home Screen' : 'Install';
+  return PLATFORM === 'mac-safari' ? 'Add to Dock' : isIosDevice() ? 'Add to Home Screen' : 'Install app';
 }
 function installIconSvg() {
   return `<svg class="install-ico" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" d="M12 4v11M8.5 11.5 12 15l3.5-3.5M6 19.5h12"/></svg>`;
@@ -1117,12 +1417,10 @@ function installIconButton() {
   if (!shouldShowInstallControls()) return '';
   return iconBtn({ cls: 'js-install', label: 'Install', title: installActionLabel(), extra: 'type="button" data-install="icon" onclick="requestInstall()"', inner: installIconSvg() });
 }
-function hideInstallControls() {
-  document.querySelectorAll('.js-install').forEach(el => { el.hidden = true; });
-}
+function hideInstallControls() { syncInstallUi(); }
 function syncInstallBarOffset() {
   const bar = document.getElementById('install-bar');
-  const h = bar && !bar.hidden ? Math.round(bar.getBoundingClientRect().height) : 0;
+  const h = bar && !bar.hidden && getComputedStyle(bar).position === 'sticky' ? Math.round(bar.getBoundingClientRect().height) : 0;
   document.documentElement.style.setProperty('--install-bar-h', h + 'px');
 }
 
@@ -1135,30 +1433,25 @@ if (store.get('install-hide', false) === true) {
 function hideInstallBar(persist) {
   const bar = document.getElementById('install-bar');
   if (bar) bar.hidden = true;
-  if (persist) {
-    store.set('install-done', true);
-    hideInstallControls();
-  }
+  if (persist) store.set('install-done', true);
+  syncInstallUi();
   syncInstallBarOffset();
 }
-function showInstallBar(kind) {
-  if (isStandaloneApp() || store.get('install-done', false)) return;
+function showInstallBar() {
+  if (!canInstall()) return;
   if (Date.now() < store.get('install-hide-until', 0)) return;
   let bar = document.getElementById('install-bar');
   if (!bar) {
     bar = document.createElement('div');
     bar.id = 'install-bar';
     bar.className = 'install-bar';
+    bar.setAttribute('role', 'region');
+    bar.setAttribute('aria-label', 'Install Labelarium');
     document.body.prepend(bar);
   }
-  if (kind === 'ios') {
-    bar.innerHTML = `<p>Add Labelarium to your Home Screen to use it locally, even offline. Tap <b>Share</b>, then <b>Add to Home Screen</b>.</p>
-      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
-  } else {
-    bar.innerHTML = `<p>Install Labelarium on your phone. Use it locally, even offline.</p>
-      <button class="btn" type="button" onclick="acceptInstall()">Install</button>
-      <button class="iconbtn" type="button" aria-label="Dismiss" onclick="dismissInstall()">×</button>`;
-  }
+  bar.innerHTML = `<img src="/icons/icon-192.png" alt="" width="40" height="40" class="install-bar-ico"><p><b>Labelarium app</b><span>Full screen, works offline, no app store.</span></p>
+    <button class="btn" type="button" onclick="requestInstall()">${PLATFORM === 'chromium' || deferredInstall ? 'Install' : 'How'}</button>
+    <button class="iconbtn" type="button" aria-label="Not now" onclick="dismissInstall()">${icon('close', 18)}</button>`;
   bar.hidden = false;
   requestAnimationFrame(syncInstallBarOffset);
 }
@@ -1174,65 +1467,153 @@ function noteInstallScreen() {
 }
 function maybeShowInstallBar() {
   noteInstallScreen();
-  // Home and device chrome already have an Install control. Don't stack a second bar.
-  if (document.querySelector('.js-install')) {
+  syncInstallUi();
+  // A visible Install button is already on screen (home app bar, tablet rail): don't stack a second prompt.
+  if ([...document.querySelectorAll('.js-install')].some(el => el.getClientRects().length)) {
     const bar = document.getElementById('install-bar');
     if (bar) bar.hidden = true;
     syncInstallBarOffset();
     return;
   }
   if (!store.get('install-ready', false)) return;
-  if (deferredInstall) showInstallBar('chrome');
-  else if (isIosDevice()) showInstallBar('ios');
+  let shown = false; try { shown = sessionStorage.getItem('lab:install-bar') === '1'; } catch {}
+  const bar = document.getElementById('install-bar');
+  if (shown) { if (bar && !bar.dataset.path) bar.dataset.path = location.pathname; if (bar && bar.dataset.path !== location.pathname) { bar.hidden = true; syncInstallBarOffset(); } return; }
+  showInstallBar();
+  const b = document.getElementById('install-bar');
+  if (b && !b.hidden) { b.dataset.path = location.pathname; try { sessionStorage.setItem('lab:install-bar', '1'); } catch {} }
 }
-function openInstallHelp(kind) {
-  if (kind === 'ios') {
-    openSheet(`<h2 class="t">Add to Home Screen</h2>
-      <p>Add Labelarium to your Home Screen to use it locally, even offline.</p>
-      <ol class="steps">
-        <li>Tap <b>Share</b>.</li>
-        <li>Tap <b>Add to Home Screen</b>.</li>
-      </ol>`);
-    return;
-  }
-  const body = window.isSecureContext
-    ? `<p>This browser has not offered an install prompt.</p>
-      <p class="small muted">Browse a few device screens and try again. Chrome and Edge can install over HTTPS. On iPhone, use Share, then Add to Home Screen.</p>`
-    : `<p>Installing needs a secure context. Open this site over HTTPS, or on localhost.</p>`;
-  openSheet(`<h2 class="t">Install</h2>${body}`);
+// The install sheet: what you get, then either the browser's own prompt or the exact steps for this browser.
+function openInstallHelp() {
+  const s = INSTALL_STEPS[PLATFORM];
+  const perks = `<ul class="perks"><li><b>Opens like an app</b>Its own icon, full screen, no browser bars.</li><li><b>Works offline</b>Save a label maker and look things up with no signal.</li><li><b>No app store, no account</b>Free, tiny, and updates itself.</li></ul>`;
+  const done = /^(ios|mac-safari)/.test(PLATFORM) ? `<button class="btn ghost" type="button" onclick="markInstalled()">I’ve added it</button>` : '';
+  const steps = s ? `<h3>${deferredInstall ? 'If nothing happens' : 'How to install'}</h3><ol class="steps">${s.map(x => `<li>${x}</li>`).join('')}</ol>`
+    : '<p class="note">Open labelarium.com in Safari, Chrome or Edge to install it.</p>';
+  openSheet(`<div class="app-hero"><img src="/icons/icon-192.png" alt="" width="64" height="64"><div><h2 class="t">Labelarium</h2><p class="muted small">The label maker companion</p></div></div>
+    ${perks}${deferredInstall ? `<div class="btn-row"><button class="btn" type="button" onclick="acceptInstall()">${installIconSvg()} Install app</button></div>` : ''}${steps}${done ? `<div class="btn-row">${done}</div>` : ''}`);
 }
+window.markInstalled = () => { store.set('install-done', true); hideInstallBar(false); sheet.close(); toast('Nice. Open Labelarium from your Home Screen.'); };
 window.dismissInstall = () => {
   hideInstallBar(false);
   store.set('install-hide-until', Date.now() + INSTALL_SNOOZE_MS);
 };
 window.acceptInstall = async () => {
-  if (!deferredInstall) return;
-  deferredInstall.prompt();
-  let outcome = 'dismissed';
-  try {
-    const choice = await deferredInstall.userChoice;
-    if (choice && choice.outcome) outcome = choice.outcome;
-  } catch {}
+  if (!deferredInstall) return openInstallHelp();
+  const p = deferredInstall;
   deferredInstall = null;
+  if (sheet.open) sheet.close();
+  p.prompt();
+  let outcome = 'dismissed';
+  try { const choice = await p.userChoice; if (choice && choice.outcome) outcome = choice.outcome; } catch {}
   if (outcome === 'accepted') hideInstallBar(true);
+  syncInstallUi();
 };
 window.requestInstall = async () => {
-  if (isStandaloneApp() || store.get('install-done', false)) {
-    hideInstallControls();
-    return;
-  }
-  if (deferredInstall) {
-    await acceptInstall();
-    return;
-  }
-  openInstallHelp(isIosDevice() ? 'ios' : 'pending');
+  if (isStandaloneApp()) return syncInstallUi();
+  if (deferredInstall) return acceptInstall();
+  openInstallHelp();
 };
 window.addEventListener('beforeinstallprompt', e => {
   e.preventDefault();
   deferredInstall = e;
+  store.set('install-done', false); // came back after an uninstall
+  syncInstallUi();
   maybeShowInstallBar();
 });
-window.addEventListener('appinstalled', () => { deferredInstall = null; hideInstallBar(true); });
+window.addEventListener('appinstalled', () => {
+  deferredInstall = null;
+  hideInstallBar(true);
+  toast('Labelarium is installed. Open it from your apps.');
+});
+
+// ---------- share ----------
+// Native share sheet where it exists (phones, Safari, Edge, Chrome on Windows/ChromeOS); otherwise copy the link.
+// Shared URLs always land on pre-rendered pages (good link previews) and use ?open= / ?label= for the detail.
+function shareIcon() {
+  return `<svg class="share-ico" viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 3v12M7.5 7.5 12 3l4.5 4.5M5 13v6.5h14V13"/></svg>`;
+}
+async function shareLink({ title, text, path }) {
+  const data = { title, text, url: absUrl(path) };
+  if (navigator.share && (!navigator.canShare || navigator.canShare(data))) {
+    try { await navigator.share(data); return; } catch (e) { if (e.name === 'AbortError') return; }
+  }
+  try { await navigator.clipboard.writeText(data.url); toast('Link copied. Paste it anywhere.'); haptic(); }
+  catch { openSheet(`<h2 class="t">Share</h2><p class="muted small">Copy this link:</p><input class="share-url" readonly value="${esc(data.url)}" onfocus="this.select()">`); }
+}
+const plain = s => String(s).replace(/[[\]{}]/g, '');
+window.shareApp = () => shareLink({ title: 'Labelarium', text: 'Every symbol, frame and key press for your label maker, with pictures. Free, works offline:', path: '/' });
+window.shareDevice = id => {
+  const d = loaded[id] || devices.find(x => x.id === id);
+  shareLink({ title: `${deviceTab(d)} · Labelarium`, text: `Every symbol, frame and shortcut on the ${deviceTab(d)}, with the exact key presses:`, path: `/d/${id}` });
+};
+window.sharePage = () => {
+  const { seg } = route();
+  if (seg[0] === 'd' && seg[1] && !seg[2]) return shareDevice(seg[1]);
+  shareLink({ title: document.title, text: document.querySelector('meta[name=description]')?.content || '', path: location.pathname });
+};
+window.shareSymbol = (id, catId, n) => {
+  const d = loaded[id], c = d.symbols.categories.find(x => x.id === catId), it = c.items[n - 1];
+  shareLink({ title: `${it.name} · ${deviceTab(d)}`, text: `How to type “${it.name}” on a ${d.model}: ${plain(symbolPath(c, n))}`, path: `/d/${id}/symbols?open=sym:${catId}:${n}` });
+};
+window.shareFrame = (id, n) => {
+  const d = loaded[id], f = d.frames.items.find(x => String(x.n) === String(n));
+  shareLink({ title: `Frame ${f.n}: ${f.name} · ${deviceTab(d)}`, text: `Frame ${f.n} (${f.name}) on a ${d.model}:`, path: `/d/${id}/frames?open=frame:${f.n}` });
+};
+window.shareTemplate = (id, kind, n) => {
+  const d = loaded[id], t = d.templates[kind].find(x => x.n === n);
+  shareLink({ title: `${t.name} template · ${deviceTab(d)}`, text: `The “${t.name}” template on a ${d.model}:`, path: `/d/${id}/templates?open=tpl:${kind}:${n}` });
+};
+// A label design travels in the URL: whitelisted keys, type-checked and clamped on the way in.
+const LABEL_KEYS = { text1: 's', text2: 's', tape: 'n', color: 'n', font: 'n', size: 'n', width: 'n', style: 'n', align: 'n', frame: 's', margin: 's', length: 'n', mirror: 'b' };
+const b64u = s => btoa(String.fromCharCode(...new TextEncoder().encode(s))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = s => new TextDecoder().decode(Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0)));
+const encodeLabel = s => b64u(JSON.stringify(Object.fromEntries(Object.keys(LABEL_KEYS).filter(k => s[k] !== undefined).map(k => [k, s[k]]))));
+function decodeLabel(str) {
+  try {
+    const o = JSON.parse(unb64u(String(str).slice(0, 2000))), out = {};
+    for (const [k, t] of Object.entries(LABEL_KEYS)) {
+      const v = o[k];
+      if (t === 's' && (typeof v === 'string' || typeof v === 'number')) out[k] = String(v).slice(0, 80);
+      if (t === 'n' && Number.isFinite(v)) out[k] = v;
+      if (t === 'b' && typeof v === 'boolean') out[k] = v;
+    }
+    return out;
+  } catch { return {}; }
+}
+window.shareLabel = (id, i) => {
+  const d = loaded[id], l = i == null ? { s: store.get('preview:' + id, {}) } : store.get(savedKey(id), [])[i];
+  if (!l) return;
+  const txt = l.s.text1 || 'my label';
+  shareLink({ title: `“${txt}” · ${deviceTab(d)} label`, text: `How to print “${txt}” on a ${d.model}, key by key:`, path: `/d/${id}/preview?label=${encodeLabel(l.s)}` });
+};
+// Deep links from shares: open the right sheet once the page is drawn.
+function openFromQuery(d, q) {
+  if (!q.open) return;
+  const [k, a, b] = String(q.open).split(':');
+  history.replaceState(null, '', location.pathname + location.hash); // the sheet opens once; Back returns to the page
+  try {
+    if (k === 'sym' && d.symbols.categories.some(c => c.id === a && c.items[+b - 1])) openSymbol(d.id, a, +b);
+    else if (k === 'frame' && d.frames.items.some(f => String(f.n) === a)) openFrame(d.id, a);
+    else if (k === 'tpl' && /^(text|pattern)$/.test(a) && d.templates[a].some(t => t.n === +b)) openTemplate(d.id, a, +b);
+  } catch {}
+}
+
+// ---------- offline + updates ----------
+// Offline flags can outlive their cache (cleared site data, old builds): trust the cache, not the flag.
+// Saves made before per-device caches (v40 and older) were wiped by the upgrade: re-save them quietly when online.
+async function syncSavedFlags() {
+  if (!('caches' in window)) return;
+  for (const x of devices) {
+    if (!store.get('offline:' + x.id, false) || await caches.has('labelarium-saved-' + x.id)) continue;
+    if (!navigator.onLine) continue; // keep the flag; try again next time
+    try { const d = await loadDevice(x.id); await swAsk({ type: 'precache', id: x.id, urls: offlineUrls(d, x.id) }, 'precached', 180000); }
+    catch { store.set('offline:' + x.id, false); }
+  }
+}
+const BUILD = 'v41'; // must equal sw.js VERSION suffix
+window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
+
 window.addEventListener('resize', () => {
   syncInstallBarOffset();
   if (redrawPreview && $('#tape')) {
@@ -1244,5 +1625,18 @@ window.addEventListener('resize', () => {
 // ---------- boot ----------
 try { localStorage.removeItem('lab:theme'); } catch {}
 migrateHash();
-if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(console.warn);
+syncInstallUi();
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  const sw = navigator.serviceWorker, num = s => +String(s).replace(/\D/g, '');
+  sw.register('/sw.js', { scope: '/' })
+    .then(reg => document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') reg.update().catch(() => {}); }))
+    .catch(console.warn);
+  // The shell is network-first, so a page loaded online already runs fresh code. Only a page served from cache
+  // can be older than its service worker: offer a reload then.
+  sw.addEventListener('message', e => {
+    if (e.data?.type === 'version' && num(e.data.version) > num(BUILD)) toast('A new version of Labelarium is ready.', { action: 'Reload', onAction: () => location.reload(), ms: 12000 });
+  });
+  sw.addEventListener('controllerchange', () => sw.controller?.postMessage({ type: 'version' }));
+  sw.controller?.postMessage({ type: 'version' });
+}
 render();
