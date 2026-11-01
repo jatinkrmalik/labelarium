@@ -1,17 +1,36 @@
 {
+  "id": "/",
   "name": "Labelarium",
   "short_name": "Labelarium",
-  "description": "Every symbol, frame, template and shortcut of your label maker. Searchable, offline.",
+  "description": "Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.",
+  "lang": "en",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
-  "id": "/",
   "display": "standalone",
-  "orientation": "portrait",
   "background_color": "#f2ede3",
   "theme_color": "#f2ede3",
+  "categories": ["utilities", "productivity"],
+  "prefer_related_applications": false,
   "icons": [
-    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
-    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
-    { "src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
-  ]
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "screenshots": [
+    { "src": "/screenshots/narrow-home.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Pick your label maker" },
+    { "src": "/screenshots/narrow-symbols.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Every built-in symbol, with the key presses" },
+    { "src": "/screenshots/narrow-preview.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "Design a label, get the exact recipe" },
+    { "src": "/screenshots/narrow-keyboard.png", "sizes": "1080x1920", "type": "image/png", "form_factor": "narrow", "label": "What every key does" },
+    { "src": "/screenshots/wide-device.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Search and browse on desktop" },
+    { "src": "/screenshots/wide-preview.png", "sizes": "1920x1080", "type": "image/png", "form_factor": "wide", "label": "Label preview with the recipe beside it" }
+  ],
+  "shortcuts": [
+    { "name": "Pinned label makers", "short_name": "Pinned", "url": "/#favorites", "icons": [{ "src": "/icons/shortcuts/pinned-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Brother P-touch PT-D220", "short_name": "PT-D220", "url": "/d/brother-pt-d220#search", "icons": [{ "src": "/icons/shortcuts/brother-pt-d220-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "Brother P-touch PT-D210", "short_name": "PT-D210", "url": "/d/brother-pt-d210#search", "icons": [{ "src": "/icons/shortcuts/brother-pt-d210-96.png", "sizes": "96x96", "type": "image/png" }] },
+    { "name": "DYMO LabelManager 160", "short_name": "LM160", "url": "/d/dymo-lm160#search", "icons": [{ "src": "/icons/shortcuts/dymo-lm160-96.png", "sizes": "96x96", "type": "image/png" }] }
+  ],
+  "launch_handler": { "client_mode": ["navigate-existing", "auto"] },
+  "handle_links": "preferred"
 }

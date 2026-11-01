@@ -2,6 +2,21 @@
 
 ## [Unreleased]
 
+- Show the whole printer on home tiles. The square device art was being cropped at the bottom by its 4:3 well at every screen size; it is now sized by the box. The pin button moves off the artwork.
+- Fit every screen from a 280 px Fold cover screen to a 1920 px desktop: no sideways scrolling at 280 px (section tiles go single column, tabs and symbol grid shrink), long titles wrap to two lines on phones, font rows and the keyboard legend wrap.
+- Phones held sideways (and other short screens) get the side rail instead of bottom tabs, and only the app bar stays sticky, so content gets the screen. Notch and rounded-corner safe areas are respected on all four sides.
+- Label preview: the long strip starts centred on your text instead of the blank lead-in, the recipe column is no longer sticky (its bottom was unreachable on laptops), and the pinned tape stays compact on short phones.
+- Feel like an installed app: page-to-page slide transitions (View Transitions, off with reduced motion), swipe-down to close sheets, pressed states instead of hover on touch, no text selection or long-press callouts on controls, haptic tick on Android, no overscroll bounce when installed.
+- Replace browser `prompt()` / `confirm()` / `alert()` with in-app UI: a naming sheet for "Save this label", instant delete with Undo, and toasts that sit above open sheets.
+- Share: a Share button on device pages, the More sheet and rail, symbol / frame / template sheets, saved labels ("Share recipe"), and a "Share Labelarium" card on home. Uses the system share sheet, falls back to copying the link. Shared links open the exact symbol, frame or template (`?open=`), and a shared label design arrives in the previewer (`?label=`, whitelisted and clamped).
+- Per-device link previews: each label maker has its own 1200×630 Open Graph card (`site/icons/og/<id>.png`), used by `scripts/prerender.mjs` and the live page meta.
+- Install: Install only appears where it can work (Chromium after `beforeinstallprompt`), with short, specific steps for iPhone/iPad Safari, Mac Safari (Add to Dock), Firefox Android, Samsung Internet and in-app browsers. A richer install sheet; the install bar now actually shows on phones; prompts after "Save offline". Uninstalling brings Install back.
+- Manifest: no orientation lock (foldables and tablets rotate), store screenshots for Chrome's richer install dialog (narrow and wide), app shortcuts, `lang`, categories, `launch_handler` (one window) and `handle_links`. iOS launch screens for current iPhones and iPads so the installed app never opens on a white flash. Icon backgrounds re-tinted to the paper colour.
+- Service worker: "Save offline" now lives in a per-device cache that updates no longer wipe (previously every release silently deleted saved devices while the app still said "Saved ✓"); responses are cloned before the page reads them; navigations fall back to the app shell after 4 s instead of hanging on a bad connection; navigation preload; the runtime image cache is capped. A "new version" toast appears only when a cached page is older than its service worker. Offline visits to an unsaved device explain what's going on and list the saved ones.
+- Accessibility: focus moves to the page title on navigation; spec links, saved labels and recipe steps are keyboard operable; chips, toggles and nav state are exposed (`aria-pressed`, `aria-current`); sheets are named; search and finder results are announced; `--ink-3` darkened to pass contrast; focus rings survive forced-colors mode; 44 px touch targets in the app bar, rail and search.
+- CI checks every manifest image and iOS launch screen exists at its declared size, the service worker's shell list exists, and `sw.js` VERSION matches `app.js` BUILD.
+- Bump the service worker cache to `labelarium-v41`.
+
 - Redesign the UI for phone, tablet and desktop ("Tape & keys"): same paper, primaries, Bodoni and Jost, but hairline plates instead of double rules, tape-strip section headings, keycaps with depth, and LCD-style menu text.
 - Home leads with a "Find your label maker" filter, a "Continue where you left off" card and swipeable brand chips; the Brady Start here card moves below the grid.
 - Device pages get a one-row sticky app bar (icon-only actions on phones). Install moves to the rail on tablet/desktop and the More sheet on phones.

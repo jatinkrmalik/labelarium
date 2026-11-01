@@ -37,7 +37,7 @@ const template = readFileSync(join(SITE, 'index.html'), 'utf8');
 const devices = JSON.parse(readFileSync(join(SITE, 'devices', 'index.json'), 'utf8'));
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-function page({ path, title, desc, crumbs }) {
+function page({ path, title, desc, crumbs, image, imageAlt }) {
   const url = ORIGIN + path;
   const jsonld = JSON.stringify({
     '@context': 'https://schema.org', '@type': 'BreadcrumbList',
@@ -53,6 +53,14 @@ function page({ path, title, desc, crumbs }) {
   swap(/(<meta property="og:description" content=")[^"]*(")/, `$1${esc(desc)}$2`, 'og:description');
   swap(/(<meta name="twitter:title" content=")[^"]*(")/, `$1${esc(title)}$2`, 'twitter:title');
   swap(/(<meta name="twitter:description" content=")[^"]*(")/, `$1${esc(desc)}$2`, 'twitter:description');
+  if (image) { // per-device link-preview card (site/icons/og/<id>.png), so shared links show that printer
+    const img = ORIGIN + image;
+    swap(/(<meta property="og:image" content=")[^"]*(")/, `$1${img}$2`, 'og:image');
+    swap(/(<meta property="og:image:secure_url" content=")[^"]*(")/, `$1${img}$2`, 'og:image:secure_url');
+    swap(/(<meta name="twitter:image" content=")[^"]*(")/, `$1${img}$2`, 'twitter:image');
+    swap(/(<meta property="og:image:alt" content=")[^"]*(")/, `$1${esc(imageAlt)}$2`, 'og:image:alt');
+    swap(/(<meta name="twitter:image:alt" content=")[^"]*(")/, `$1${esc(imageAlt)}$2`, 'twitter:image:alt');
+  }
   swap(/<script type="application\/ld\+json"[^>]*>[\s\S]*?<\/script>/, `<script type="application/ld+json" id="jsonld">${jsonld}</script>`, 'JSON-LD');
   return `<!-- Pre-rendered by scripts/prerender.mjs for ${path}; the app takes over on load. -->\n` + html;
 }
@@ -62,6 +70,7 @@ for (const dev of devices) {
   if (!/^[a-z0-9-]+$/.test(dev.id)) throw new Error(`unsafe device id ${dev.id}`);
   const name = `${dev.brand} ${dev.model}`;
   const home = `/d/${dev.id}`;
+  const og = existsSync(join(SITE, 'icons', 'og', `${dev.id}.png`)) ? { image: `/icons/og/${dev.id}.png`, imageAlt: `${name} on Labelarium` } : {};
   let homeTitle = `${name} · Labelarium`;
   let homeDesc = `${name}${dev.tagline ? ` (${dev.tagline})` : ''}: every symbol, frame, template and shortcut, searchable with pictures, plus a label previewer that writes the key presses. Works offline.`;
   // Keep in sync with applyDeviceSeo in site/app.js.
@@ -69,7 +78,7 @@ for (const dev of devices) {
     homeTitle = 'Brady M210 unofficial manual · Labelarium';
     homeDesc = 'Unofficial searchable Brady M210 reference covering manual topics: symbols, how-to guides, and troubleshooting. Not affiliated with Brady.';
   }
-  routes.push({ path: home, title: homeTitle, crumbs: [['Labelarium', '/'], [name, home]], desc: homeDesc });
+  routes.push({ path: home, title: homeTitle, crumbs: [['Labelarium', '/'], [name, home]], desc: homeDesc, ...og });
   for (const [id, label, describe] of SECTIONS) {
     let title = `${label} · ${name} · Labelarium`;
     let desc = describe(name);
@@ -81,7 +90,7 @@ for (const dev of devices) {
       title = 'Brady M210 troubleshooting · Labelarium';
       desc = 'Unofficial Brady M210 troubleshooting: LCD error messages, causes, and fixes. Not affiliated with Brady.';
     }
-    routes.push({ path: `${home}/${id}`, title, desc, crumbs: [['Labelarium', '/'], [name, home], [label, `${home}/${id}`]] });
+    routes.push({ path: `${home}/${id}`, title, desc, crumbs: [['Labelarium', '/'], [name, home], [label, `${home}/${id}`]], ...og });
   }
 }
 
