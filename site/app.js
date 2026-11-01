@@ -13,7 +13,7 @@ const KEYCLASS = { OK: 'ok', Print: 'print' };
 const fmt = s => esc(s)
   .replace(/\[([^\]]+)\]/g, (_, k) => `<kbd class="key ${KEYCLASS[k] || ''}">${k}</kbd>`)
   .replace(/\{([^}]+)\}/g, '<span class="lcd">$1</span>')
-  .replace(/→/g, '<span class="arrow">→</span>')
+  .replace(/→ /g, '→\u00a0').replace(/→/g, '<span class="arrow">→</span>')
   .replace(/(<kbd [^>]*>[^<]*<\/kbd>|<span class="lcd">[^<]*<\/span>)([.,;:!?)]+)/g, '<span class="nowrap">$1$2</span>');
 const pad2 = n => String(n).padStart(2, '0');
 const TAP = matchMedia('(hover: hover) and (pointer: fine)').matches ? 'Click' : 'Tap';
@@ -25,7 +25,22 @@ const ICONS = {
   chev: '<path d="M9 5l7 7-7 7"/>',
   pin: '<path d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
   pinned: '<path fill="currentColor" d="M9 3.5h6l-1.2 5.5 3.7 3.3V14H6.5v-1.7L10.2 9z"/><path d="M12 14v6.5"/>',
+  keyboard: '<rect x="2.5" y="6" width="19" height="12" rx="2.5"/><path d="M6.5 10h.01M10 10h.01M13.5 10h.01M17 10h.01M8 14h8"/>',
+  symbols: '<path d="M12 3.2l2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.6l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/>',
+  frames: '<rect x="3" y="5.5" width="18" height="13" rx="2.2"/><rect x="7" y="9" width="10" height="6" rx="1"/>',
+  templates: '<rect x="3.5" y="4" width="17" height="16" rx="2.5"/><path d="M3.5 9.5h17M10 9.5V20"/>',
+  fonts: '<path d="M3.5 18.5 8.5 5l5 13.5M5.4 13.6h6.2"/><circle cx="17.6" cy="15.3" r="3.2"/><path d="M20.8 12v6.5"/>',
+  shortcuts: '<path d="M13.5 2.8 5 13.8h6.2L10.5 21.2l8.5-11h-6.2z"/>',
+  howto: '<path d="M12 6.6C10 5 7 4.4 3.5 4.8v13.6c3.5-.4 6.5.2 8.5 1.8 2-1.6 5-2.2 8.5-1.8V4.8C17 4.4 14 5 12 6.6z"/><path d="M12 6.6v13.6"/>',
+  trouble: '<path d="M10.3 4.3 2.6 17.6a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z"/><path d="M12 9.5v4M12 17h.01"/>',
+  preview: '<path d="M3 7.4A2 2 0 0 1 5 5.4h9.6l6.4 6.6-6.4 6.6H5a2 2 0 0 1-2-2z"/><circle cx="15" cy="12" r="1.3"/><path d="M6.5 12h4.5"/>',
+  specs: '<rect x="2.5" y="8" width="19" height="8" rx="1.6"/><path d="M6.5 8v3M10 8v4.5M13.5 8v3M17 8v4.5"/>',
+  ext: '<path d="M7 17 17 7M9 7h8v8"/>',
+  cup: '<path d="M4 8.5h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M12 3.5v2"/>',
+  more: '<circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
 };
+// iOS Settings-style tile: the section's glyph on its own colour.
+const appIcon = id => `<span class="app-ico ai-${id}" aria-hidden="true">${icon(id, 18)}</span>`;
 const icon = (name, size = 20) => `<svg class="ic ic-${name}" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
 const cssq = s => String(s).replace(/"/g, "'"); // font stacks go inside style="…"
 
@@ -479,9 +494,9 @@ async function render() {
     if (!seg.length) { adoptHomeBrandQuery(); applyHomeSeo(); renderHome(); ensureFooter(app); maybeShowInstallBar(); return; }
     if (seg[0] !== 'd' || !seg[1]) {
       applyNotFoundSeo(route().path);
-      setTop('Not found', { back: '/' });
+      setTop('Nothing here', { back: '/' });
       app.className = 'app';
-      app.innerHTML = `<div class="empty"><b>Page not found</b><br><span class="small">That link doesn’t go anywhere in Labelarium.</span><div class="empty-actions"><a class="btn" href="/">All label makers</a></div></div>`;
+      app.innerHTML = `<div class="empty"><b>Nothing here</b><br><span class="small">This screen isn’t available. It may have moved.</span><div class="empty-actions"><a class="btn" href="/">Back to label makers</a></div></div>`;
       maybeShowInstallBar();
       return;
     }
@@ -599,7 +614,7 @@ function siteFooter() {
     <div class="foot-mark">${TAPE_MARK}<span>Labelarium</span></div>
     <nav class="footer" aria-label="About Labelarium">
       <a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg><span>Open source</span></a>
-      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener"><span aria-hidden="true">☕</span><span>Buy me a coffee</span></a>
+      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">${icon('cup', 16)}<span>Buy me a coffee</span></a>
       <button type="button" onclick="shareApp()">${shareIcon()}<span>Share</span></button>
     </nav>
     <p class="foot-by"><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
@@ -707,6 +722,14 @@ const HAS = {
   trouble: d => d.errors.length + d.problems.length > 0,
 };
 const sectionsFor = d => SECTIONS.filter(([id]) => !HAS[id] || HAS[id](d));
+// Bottom tabs keep fixed slots across every pack: Search · Symbols · Frames · Preview (+ More).
+function tabSlots(d) {
+  const has = id => !HAS[id] || HAS[id](d);
+  const pick = (...ids) => ids.find(has);
+  const second = pick('symbols', 'keyboard', 'howto');
+  const third = ['frames', 'templates', 'keyboard', 'howto'].filter(id => id !== second).find(has);
+  return ['home', second, third, 'preview'].filter(Boolean);
+}
 const SECTIONS = [
   ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
   ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
@@ -732,10 +755,10 @@ function deviceTop(d, section, sub) {
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...sectionsFor(d).map(([id, ico, name]) => [id, ico, name])];
   const SHORT = { home: 'Search', keyboard: 'Keyboard', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts', shortcuts: 'Shortcuts', howto: 'How-to', trouble: 'Trouble', preview: 'Preview', specs: 'Specs' };
-  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><span class="nav-ico">${id === 'home' ? icon('search', 19) : `<i class="mark ${ico}" aria-hidden="true"></i>`}</span><span>${short ? SHORT[id] : name}</span></a>`;
+  const link = ([id, ico, name], short) => `<a href="/d/${d.id}${id === 'home' ? '#search' : '/' + id}" class="${cur === id ? 'on' : ''}"${cur === id ? ' aria-current="page"' : ''}${id === 'home' ? ' onclick="focusDeviceSearch(event)"' : ''}><span class="nav-ico">${id === 'home' ? icon('search', 21) : icon(id, 21)}</span><span>${short ? SHORT[id] : name}</span></a>`;
   const rail = `<nav class="rail" aria-label="Sections"><a class="brand" href="/" title="All label makers"><img class="dev-rail" src="/icons/devices/${esc(d.id)}.svg" alt=""><b>${esc(d.model)}</b></a>${all.map(x => link(x, true)).join('')}<div class="rail-foot"><button type="button" class="iconbtn" aria-label="Share" title="Share" onclick="sharePage()">${shareIcon()}</button>${installIconButton()}</div></nav>`;
-  const tabIds = ['home', ...['symbols', 'frames', 'templates', 'keyboard'].filter(id => all.some(x => x[0] === id)).slice(0, 2), 'preview'];
-  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><span class="nav-ico"><i class="mark dots" aria-hidden="true"></i></span><span>More</span></button></nav>`;
+  const tabIds = tabSlots(d);
+  const tabs = `<nav class="tabs" aria-label="Quick navigation">${all.filter(x => tabIds.includes(x[0])).map(x => link(x, true)).join('')}<button type="button" class="${tabIds.includes(cur) ? '' : 'on'}" aria-haspopup="dialog" onclick="openMore('${d.id}')"><span class="nav-ico">${icon('more', 21)}</span><span>More</span></button></nav>`;
   app.className = 'app device';
   app.innerHTML = `${rail}<section class="main" id="main"></section>${tabs}`;
   main = $('#main');
@@ -744,11 +767,11 @@ function deviceTop(d, section, sub) {
 }
 window.openMore = id => {
   const d = loaded[id], cur = route().seg[2] || 'home';
-  const inTabs = ['symbols', 'frames', 'templates', 'keyboard'].filter(x => sectionsFor(d).some(([s]) => s === x)).slice(0, 2).concat('preview');
+  const inTabs = tabSlots(d).slice(1);
   const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
   const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
-    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}</a></div>`;
-  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()"><i class="mark ${ico}"></i><span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
+    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
+  openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${install}`);
 };
 function searchBox(d, q) {
   return `<div class="search" id="search" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="q" type="search" aria-label="Search this label maker" placeholder="Search: warning, gift, margin…" value="${esc(q || '')}" autocomplete="off" autocapitalize="off" oninput="onSearch('${d.id}', this.value)">${q ? `<button type="button" class="clr" aria-label="Clear search" onclick="onSearch('${d.id}','');document.getElementById('q').focus()">${icon('close', 16)}</button>` : ''}</div>`;
@@ -797,7 +820,7 @@ function packIntro(d) {
   return `<p class="hint pack-intro">This pack includes ${joined}.</p>`;
 }
 function renderSections(d) {
-  const tiles = sectionsFor(d).map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico"><i class="mark ${ico}"></i></span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
+  const tiles = sectionsFor(d).map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico">${appIcon(id)}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
   const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';

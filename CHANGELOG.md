@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+- Dark mode that follows the system, like a native app: warm near-black paper, light ink, and every manual scan (symbols, frames, templates, fonts, keyboard) on its own light chip so nothing disappears. Theme colour per scheme for the status bar, and dark iOS launch screens (40 launch screens in all).
+- New section icons: a drawn 24px icon set (keyboard, star, frame, layout, Aa, bolt, book, warning, label tag, ruler) replaces the abstract shapes. Coloured rounded tiles in lists (like iOS Settings), monochrome line icons in the tab bar and rail. Phones stack the icon above the title; no more mid-word breaks.
+- Installed app: no website footer or "Start here" copy, no Install UI, short window titles; the keyboard zoom caption clears the home indicator.
+- Bottom tabs keep fixed positions across packs (Search · Symbols · Frames · Preview · More); "→" never starts a line; tile contents align; chip rows fade at the edge on phones; landscape home is compact; desktop gets wider content on big screens, paired accented letters, single-line shortcut keys and full-width notes; plain "Nothing here" wording; About links and the footer use SVG icons instead of glyphs and emoji.
 - One SVG icon set (back, close, search, pin, chevrons) replaces text glyphs (‹ × ⌕ ○ ● ›) that rendered in mixed weights; the pin is a real pin, filled red when pinned. Nav icons share one box so tab and rail labels line up.
 - System Back closes an open sheet instead of leaving the page (Android back gesture, browser Back); a link inside a sheet replaces its history entry. Opening a sheet from a sheet (Install from More) no longer throws.
 - Sections a pack doesn't have are no longer offered (no "0 text · 0 pattern" tiles, rail items or empty "Basic" headings), counts are pluralised, and the bottom tabs fill a missing section with the next one the pack has.
