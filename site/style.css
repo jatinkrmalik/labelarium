@@ -841,3 +841,25 @@ details .body > ol, details .body > p, .note { line-height: 1.6; }
   @media (prefers-reduced-motion: reduce) { :where(*) { transition: none; } }
 }
 .chips, .suggest { scrollbar-width: none; }
+
+/* ---------- Pre-rendered content (crawlers, AI search, no-JS readers) ---------- */
+/* The app replaces it on load; with JS on it is hidden from the first paint, so there is no flash. */
+.js .ssr { display: none; }
+.ssr { max-width: 760px; margin: 0 auto; padding: 28px 16px 40px; line-height: 1.6; }
+.ssr nav.crumbs { font-size: 13px; color: var(--ink-2); }
+.ssr nav.crumbs a { color: inherit; }
+.ssr h1 { margin: 10px 0 6px; font-size: 32px; }
+.ssr h2 { margin-top: 28px; }
+.ssr .lede { color: var(--ink-2); font-size: 17px; }
+.ssr ol, .ssr ul { padding-left: 22px; }
+.ssr li { margin: 4px 0; }
+.ssr kbd { font: 600 12px/1 var(--sans); border: 1.5px solid var(--ink); border-bottom-width: 3px; border-radius: 6px; padding: 3px 6px 2px; }
+.ssr .lcd { font-size: 13px; }
+.ssr dl { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 2fr); gap: 8px 16px; }
+.ssr dd { margin: 0; }
+.ssr .sections { columns: 2; }
+
+/* ---------- Detail pages (one guide, one error) ---------- */
+.lcd.lcd-big { display: block; font-size: 20px; padding: 14px 16px; border-radius: 8px; text-align: center; letter-spacing: .02em; }
+.trouble-detail h3 { margin-top: 18px; }
+.trouble-detail p { color: var(--ink-2); }

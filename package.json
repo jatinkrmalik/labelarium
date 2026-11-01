@@ -2,6 +2,7 @@
   "name": "labelarium",
   "version": "0.1.2",
   "private": true,
+  "type": "module",
   "license": "AGPL-3.0-or-later",
   "repository": {
     "type": "git",

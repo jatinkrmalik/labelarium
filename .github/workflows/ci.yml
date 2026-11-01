@@ -16,5 +16,5 @@ jobs:
       - name: Validate site/ files and device packs
         run: python3 scripts/ci-check-site.py
 
-      - name: Pre-render covers every sitemap URL
+      - name: Generated sitemap, llms.txt and home content are current
         run: node scripts/prerender.mjs --check
