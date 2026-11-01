@@ -3,6 +3,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://labelarium.com/</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220</loc></url>
+  <url><loc>https://labelarium.com/d/brother-pt-d220/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/frames</loc></url>
@@ -11,7 +12,6 @@
   <url><loc>https://labelarium.com/d/brother-pt-d220/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/howto</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brother-pt-d220/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/specs</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/symbols/punctuation</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/symbols/brackets</loc></url>
@@ -93,6 +93,7 @@
   <url><loc>https://labelarium.com/d/brother-pt-d220/trouble/cutter-does-not-cut-cleanly</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d220/trouble/want-to-start-a-fresh-label</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210</loc></url>
+  <url><loc>https://labelarium.com/d/brother-pt-d210/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/frames</loc></url>
@@ -101,7 +102,6 @@
   <url><loc>https://labelarium.com/d/brother-pt-d210/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/howto</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brother-pt-d210/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/specs</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/symbols/punctuation</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/symbols/mathematics</loc></url>
@@ -180,6 +180,7 @@
   <url><loc>https://labelarium.com/d/brother-pt-d210/trouble/cutter-does-not-cut-cleanly</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d210/trouble/want-to-start-a-fresh-label</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt</loc></url>
+  <url><loc>https://labelarium.com/d/brother-pt-d610bt/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/frames</loc></url>
@@ -188,7 +189,6 @@
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/howto</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brother-pt-d610bt/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/specs</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/symbols/punctuation</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/symbols/bracketarrow</loc></url>
@@ -265,13 +265,13 @@
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/trouble/last-chain-label-cut-wrong</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-d610bt/trouble/firmware-update-failed</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110</loc></url>
+  <url><loc>https://labelarium.com/d/niimbot-d110/preview</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/symbols</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/fonts</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/howto</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/niimbot-d110/preview</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/specs</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/symbols/package</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/symbols/install</loc></url>
@@ -304,12 +304,12 @@
   <url><loc>https://labelarium.com/d/niimbot-d110/trouble/smoke-or-a-smell-from-the-printer-or-adapter</loc></url>
   <url><loc>https://labelarium.com/d/niimbot-d110/trouble/considering-opening-the-case-or-replacing-the-battery</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110</loc></url>
+  <url><loc>https://labelarium.com/d/phomemo-m110/preview</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/fonts</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/howto</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/phomemo-m110/preview</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/specs</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/howto/unbox</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/howto/charge</loc></url>
@@ -330,13 +330,13 @@
   <url><loc>https://labelarium.com/d/phomemo-m110/trouble/want-a-pdf-manual</loc></url>
   <url><loc>https://labelarium.com/d/phomemo-m110/trouble/battery-questions</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt</loc></url>
+  <url><loc>https://labelarium.com/d/brother-pt-p710bt/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/fonts</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/howto</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brother-pt-p710bt/preview</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/specs</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/symbols/tape</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/symbols/printopts</loc></url>
@@ -387,6 +387,7 @@
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/trouble/white-or-gold-objects-print-poorly-small-text-is-fuzzy</loc></url>
   <url><loc>https://labelarium.com/d/brother-pt-p710bt/trouble/label-will-not-stick</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160</loc></url>
+  <url><loc>https://labelarium.com/d/dymo-lm160/preview</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/symbols</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/frames</loc></url>
@@ -394,7 +395,6 @@
   <url><loc>https://labelarium.com/d/dymo-lm160/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/howto</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/dymo-lm160/preview</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/specs</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/symbols/symbols</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/symbols/clipart</loc></url>
@@ -426,6 +426,7 @@
   <url><loc>https://labelarium.com/d/dymo-lm160/trouble/poor-cutter-performance</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm160/trouble/how-do-i-remove-the-backing-from-the-label</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280</loc></url>
+  <url><loc>https://labelarium.com/d/dymo-lm280/preview</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/symbols</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/frames</loc></url>
@@ -433,7 +434,6 @@
   <url><loc>https://labelarium.com/d/dymo-lm280/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/howto</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/dymo-lm280/preview</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/specs</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/symbols/symbols</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/symbols/clipart</loc></url>
@@ -479,6 +479,7 @@
   <url><loc>https://labelarium.com/d/dymo-lm280/trouble/want-a-fresh-label</loc></url>
   <url><loc>https://labelarium.com/d/dymo-lm280/trouble/how-do-i-peel-the-backing</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210</loc></url>
+  <url><loc>https://labelarium.com/d/brady-m210/preview</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/templates</loc></url>
@@ -486,7 +487,6 @@
   <url><loc>https://labelarium.com/d/brady-m210/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/howto</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brady-m210/preview</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/specs</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/symbols/warning</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/symbols/electrical</loc></url>
@@ -539,13 +539,13 @@
   <url><loc>https://labelarium.com/d/brady-m210/trouble/cannot-change-language</loc></url>
   <url><loc>https://labelarium.com/d/brady-m210/trouble/want-a-pc-connection</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211</loc></url>
+  <url><loc>https://labelarium.com/d/brady-m211/preview</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/keyboard</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/symbols</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/fonts</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/shortcuts</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/howto</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/trouble</loc></url>
-  <url><loc>https://labelarium.com/d/brady-m211/preview</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/specs</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/symbols/controls</loc></url>
   <url><loc>https://labelarium.com/d/brady-m211/symbols/accessories</loc></url>

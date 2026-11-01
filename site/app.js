@@ -507,6 +507,8 @@ function renderHome() {
       </a>
     </div>`;
   const continueCard = last ? `<a class="card link continue" href="/d/${last.id}"><img src="/icons/devices/${esc(last.id)}.svg" alt=""><span><span class="k">Continue where you left off</span><b>${esc(deviceTab(last))}</b></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>` : '';
+  const designDev = last || devices.find(x => favs.includes(x.id));
+  const designCard = `<a class="card link designer-cta home" href="${designDev ? `/d/${designDev.id}/preview` : '#design'}"${designDev ? '' : ' onclick="event.preventDefault();openDesignPicker()"'}>${designDev ? miniTape(loaded[designDev.id] || { ...designDev, fonts: [] }, store.get('preview:' + designDev.id, null)) : '<span class="mini-tape finish-gloss" aria-hidden="true" style="background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 38%), #f7c900;color:#141414"><span>Your label</span></span>'}<span class="cta-copy"><span class="k">Label preview</span><b>Design a label${designDev ? ` for the ${esc(deviceTab(designDev))}` : ''}</b><span class="muted">See it on real tape colours, then follow the key-by-key recipe.</span></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`;
   const requestTile = `<a class="card devtile link request-tile" href="https://github.com/jatinkrmalik/labelarium/issues/new?template=label_maker_request.yml" target="_blank" rel="noopener" aria-label="Request a label maker">
       <span class="devtile-hit">
       <span class="dev-icon" aria-hidden="true"><span class="request-q">?</span></span>
@@ -522,7 +524,7 @@ function renderHome() {
   // Phone-first order: find your maker in one glance. The hero is two lines, the finder and the grid follow straight away.
   app.innerHTML = `<div class="hero-home"><div class="kicker">The label maker companion</div><h1 class="big">Labelarium</h1><p>Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.</p>
     <div class="finder" role="search"><span class="mag" aria-hidden="true">${icon('search')}</span><input id="finder" type="search" aria-label="Find your label maker" placeholder="Find your label maker: D220, DYMO…" autocomplete="off" autocapitalize="off" value="${esc(homeQuery)}" oninput="filterDevices(this.value)"></div>
-    ${continueCard}</div>
+    ${continueCard}${designCard}</div>
     ${favDevs.length ? `<h2 id="favorites">Pinned</h2><div class="devgrid">${favDevs.map(card).join('')}</div>` : ''}
     <h2>Label makers <span class="muted" id="devcount">${list.length}</span></h2>
     <div class="home-toolbar">
@@ -538,6 +540,7 @@ function renderHome() {
     ${siteFooter()}`;
   if (homeQuery) filterDevices(homeQuery);
 }
+window.openDesignPicker = () => openSheet(`<h2 class="t">Design a label <span class="muted">Which label maker?</span></h2><div class="list plate">${devices.map(dev => `<a class="card link pick-dev" href="/d/${dev.id}/preview" onclick="document.getElementById('sheet').close()"><img src="/icons/devices/${esc(dev.id)}.svg" alt="" width="40" height="40"><span><b>${esc(deviceTab(dev))}</b><span class="muted small">${esc(dev.tagline)}</span></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('')}</div>`);
 window.filterDevices = v => {
   homeQuery = v;
   const terms = norm(v).split(/\s+/).filter(Boolean);
@@ -571,15 +574,16 @@ window.toggleFav = id => {
 // ---------- device home + search ----------
 // A pack only offers the sections it has content for (no empty "0 templates" tiles).
 const sectionsFor = d => SECTIONS.filter(([id]) => !HAS[id] || HAS[id](d));
-// Bottom tabs keep fixed slots across every pack: Search · Symbols · Frames · Preview (+ More).
+// Bottom tabs keep fixed slots across every pack: Search · Preview · Symbols · Frames (+ More).
 function tabSlots(d) {
   const has = id => !HAS[id] || HAS[id](d);
   const pick = (...ids) => ids.find(has);
   const second = pick('symbols', 'keyboard', 'howto');
   const third = ['frames', 'templates', 'keyboard', 'howto'].filter(id => id !== second).find(has);
-  return ['home', second, third, 'preview'].filter(Boolean);
+  return ['home', 'preview', second, third].filter(Boolean);
 }
 const SECTIONS = [
+  ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['keyboard', 'keys', 'Keyboard map', 'Where every key is and what it does'],
   ['symbols', 'ci-red', 'Symbols', d => `${d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : c.chars.split(' ').length)), 0)} in ${d.symbols.categories.length} categories`],
   ['frames', 'hollow', 'Frames', d => `${plural(d.frames.items.filter(f => f.n !== 'off').length, 'design')}, by number`],
@@ -588,7 +592,6 @@ const SECTIONS = [
   ['shortcuts', 'dia', 'Shortcuts', d => plural(d.shortcuts.length, 'key combo')],
   ['howto', 'lines', 'How-to guides', d => `${plural(d.howto.length, 'step-by-step guide')}`],
   ['trouble', 'cross', 'Troubleshooting', d => [d.errors.length && plural(d.errors.length, 'message'), d.problems.length && plural(d.problems.length, 'fix', 'fixes')].filter(Boolean).join(' · ')],
-  ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
 function deviceTop(d, section, sub, back) {
@@ -670,11 +673,12 @@ function packIntro(d) {
   return `<p class="hint pack-intro">This pack includes ${joined}.</p>`;
 }
 function renderSections(d) {
-  const tiles = sectionsFor(d).map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico">${appIcon(id)}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
+  const tiles = sectionsFor(d).filter(([id]) => id !== 'preview').map(([id, ico, name, sub]) => `<a class="tile" href="/d/${d.id}/${id}"><span class="ico">${appIcon(id)}</span><b>${name}</b><span class="n">${typeof sub === 'function' ? sub(d) : sub}</span></a>`).join('');
   const saved = store.get('offline:' + d.id);
   const tries = ['warning', 'no smoking', 'gift', 'serial number', 'save tape', 'reset'].filter(t => search(d, t).length);
   const suggest = tries.length ? `<div class="suggest" aria-label="Try a search"><span class="lbl">Try</span>${tries.map(t => `<button type="button" class="chip" onclick="onSearch('${d.id}','${t}')">${t}</button>`).join('')}</div>` : '';
-  $('#sections').innerHTML = `<div class="col">${suggest}<h2>Browse</h2><div class="grid">${tiles}</div>${packIntro(d)}</div>
+  const design = `<a class="card link designer-cta" href="/d/${d.id}/preview">${miniTape(d, store.get('preview:' + d.id, null))}<span class="cta-copy"><span class="k">Label preview</span><b>Design a label</b><span class="muted">See it on the tape, then follow the ${familyOf(d).app ? 'steps' : 'exact key presses'}.</span></span><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`;
+  $('#sections').innerHTML = `<div class="col">${design}${suggest}<h2>Browse</h2><div class="grid">${tiles}</div>${packIntro(d)}</div>
     <div class="col"><h2 id="tips">Quick tips</h2><div class="list plate">${d.tips.map((t, i) => `<div class="card" style="display:flex;gap:12px;font-size:15px"><span style="font:600 15px/1.5 var(--sans);color:var(--red);min-width:1.2em">${i + 1}</span><span>${fmt(t)}</span></div>`).join('')}</div>
     <div class="card" id="offline" style="margin-top:12px"><div class="row" style="flex-wrap:nowrap"><div style="min-width:0"><b>Offline copy</b><div class="muted small">${saved ? 'All images for this label maker are saved on this device.' : 'Save all pictures so everything works without a network.'}</div></div>
     ${saved ? `<button type="button" class="btn ghost" style="margin-left:auto;flex:0 0 auto" onclick="removeOffline('${d.id}')" aria-label="Remove the offline copy">Saved ✓ · Remove</button>` : `<button type="button" class="btn" style="margin-left:auto;flex:0 0 auto" onclick="saveOffline('${d.id}')">Save offline</button>`}</div></div>
@@ -1017,64 +1021,176 @@ function viewSpecs(d) {
 }
 
 // ---------- label preview / designer ----------
-const TAPES = [['White · black text', '#ffffff', '#111'], ['Yellow · black text', '#f5c400', '#111'], ['Clear · black text', 'rgba(255,255,255,.35)', '#111'], ['Red · black text', '#e53935', '#111'],
-  ['Blue · black text', '#3f7fd6', '#111'], ['Green · black text', '#3aa655', '#111'], ['Black · white text', '#151515', '#fff'], ['White · red text', '#ffffff', '#d32f2f'], ['White · blue text', '#ffffff', '#1e4fbf'], ['Fluorescent orange · black', '#ff7a1a', '#111'], ['Silver · black text', '#c9ccd1', '#111']];
-const MARGINS = { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 };
+// Each family of label maker takes its own media and is driven its own way (keys, menus or a phone app), so the
+// designer offers that family's tapes and controls and writes that family's steps.
+// Tape: [name, tape colour, ink colour, finish]. Finish: '' laminated gloss, 'clear', 'metal', 'fluoro', 'paper' (die-cut thermal).
+// The first TZe entries keep their original order: saved labels and shared links store the index.
+const MEDIA = {
+  tze: { item: w => `${w} TZe cassette`, verb: 'Insert a', tapes: [
+    ['Black on white', '#fbfbf7', '#141414', ''], ['Black on yellow', '#f7c900', '#141414', ''], ['Black on clear', 'clear', '#141414', 'clear'],
+    ['Black on red', '#d3302a', '#141414', ''], ['Black on blue', '#2f72c6', '#141414', ''], ['Black on green', '#2e9a4d', '#141414', ''],
+    ['White on black', '#171717', '#f7f7f2', ''], ['Red on white', '#fbfbf7', '#c8261f', ''], ['Blue on white', '#fbfbf7', '#1d4fb8', ''],
+    ['Black on fluorescent orange', '#ff6a14', '#141414', 'fluoro'], ['Black on matte silver', '#c3c6ca', '#141414', 'metal'],
+    ['Gold on black', '#171717', '#d4ac4a', ''], ['White on blue', '#2f72c6', '#ffffff', ''], ['White on red', '#d3302a', '#ffffff', ''],
+    ['White on clear', 'clear', '#ffffff', 'clear'], ['Black on gold', '#cda547', '#141414', 'metal']] },
+  d1: { item: w => `${w} D1 cassette`, verb: 'Insert a', tapes: [
+    ['Black on white', '#fbfbf7', '#141414', ''], ['Black on yellow', '#f7cf1d', '#141414', ''], ['Black on clear', 'clear', '#141414', 'clear'],
+    ['Blue on white', '#fbfbf7', '#1d4fb8', ''], ['Red on white', '#fbfbf7', '#c8261f', ''], ['White on black', '#171717', '#f7f7f2', ''],
+    ['Black on red', '#d3302a', '#141414', ''], ['Black on blue', '#3d7fd0', '#141414', ''], ['Black on green', '#34a352', '#141414', ''],
+    ['White on clear', 'clear', '#ffffff', 'clear']] },
+  m21: { item: w => `${w} M21 cartridge`, verb: 'Insert a', tapes: [
+    ['Black on white', '#fbfbf7', '#141414', ''], ['Black on yellow', '#f7cf1d', '#141414', ''], ['Black on clear', 'clear', '#141414', 'clear'],
+    ['Black on orange', '#f2782a', '#141414', '']] },
+  thermal: { item: w => `${w} label roll`, verb: 'Load a', tapes: [
+    ['Black on white', '#fdfdfb', '#1a1a1a', 'paper'], ['Black on clear', 'clear', '#1a1a1a', 'clear'], ['Black on yellow', '#fde58a', '#1a1a1a', 'paper'],
+    ['Black on pink', '#f9c6d3', '#1a1a1a', 'paper'], ['Black on blue', '#bcd9f2', '#1a1a1a', 'paper'], ['Black on green', '#cdeac0', '#1a1a1a', 'paper']] },
+};
+const ALL_TYPE = ['font', 'size', 'width', 'style', 'align', 'frame', 'margin', 'length', 'mirror'];
+const FAMILIES = {
+  brother: { media: 'tze', controls: ALL_TYPE, margins: { Full: 25, Half: 12, Narrow: 4, 'Chain Print': 4 }, lengthMax: 300 },
+  brotherFn: { media: 'tze', controls: ALL_TYPE, margins: { 'Large margin': 25, 'Small margin': 2, Chain: 2 }, lengthMax: 300 },
+  dymo160: { media: 'd1', controls: ['size', 'style', 'frame'], margins: { Auto: 8 }, frameLabel: 'Box' },
+  dymo280: { media: 'd1', controls: ['font', 'size', 'style', 'frame', 'length', 'align', 'mirror'], margins: { Auto: 8 }, lengthMax: 400, frameLabel: 'Border' },
+  brady: { media: 'm21', controls: ['size', 'style'], margins: { Auto: 5 } },
+  app: { controls: ['align', 'length'], margins: { Auto: 4 }, lengthMax: 300 },
+};
+const DEVICE_FAMILY = { 'brother-pt-d210': 'brother', 'brother-pt-d220': 'brother', 'brother-pt-d610bt': 'brotherFn', 'dymo-lm160': 'dymo160', 'dymo-lm280': 'dymo280', 'brady-m210': 'brady' };
+const DEVICE_APP = { 'brother-pt-p710bt': ['Brother iPrint&Label or P-touch Design&Print 2', 'tze'], 'niimbot-d110': ['the NIIMBOT or NIIM app', 'thermal'], 'phomemo-m110': ['Print Master', 'thermal'], 'brady-m211': ['Brady Express Labels', 'm21'] };
+function familyOf(d) {
+  const app = DEVICE_APP[d.id];
+  if (app) return { ...FAMILIES.app, key: 'app', app: app[0], media: app[1] };
+  const key = DEVICE_FAMILY[d.id] || (/brady/i.test(d.brand) ? 'brady' : /dymo/i.test(d.brand) ? 'dymo280' : 'brother');
+  return { ...FAMILIES[key], key };
+}
+// What the tape looks like: laminate gloss, frosted clear, brushed metal or matte die-cut paper.
+function tapeFill([, bg, ink, finish]) {
+  if (finish === 'clear') return luminanceOf(ink) > 0.5
+    ? 'linear-gradient(180deg, rgba(40,40,40,.62), rgba(20,20,20,.48) 45%, rgba(40,40,40,.58))'
+    : 'linear-gradient(180deg, rgba(255,255,255,.72), rgba(255,255,255,.5) 45%, rgba(255,255,255,.64))';
+  if (finish === 'metal') return `linear-gradient(180deg, color-mix(in srgb, ${bg} 50%, #fff) 0%, ${bg} 42%, color-mix(in srgb, ${bg} 80%, #000) 100%)`;
+  if (finish === 'paper') return bg;
+  return `linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 38%, rgba(0,0,0,.05)), ${bg}`;
+}
+const hexRgb = h => { const m = String(h).replace('#', ''); const f = m.length === 3 ? m.split('').map(c => c + c).join('') : m; return [0, 2, 4].map(i => parseInt(f.slice(i, i + 2), 16) || 0); };
+const luminanceOf = h => { const [r, g, b] = hexRgb(h).map(c => { c /= 255; return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4; }); return 0.2126 * r + 0.7152 * g + 0.0722 * b; };
+// Frame art in the manuals is black lines on white paper. A printer prints the frame in the ink colour onto the tape,
+// so turn each scan into ink-coloured lines on transparency (cached per image and ink), then redraw.
+const inkArtCache = new Map();
+function inkArt(url, ink) {
+  const key = url + '|' + ink, hit = inkArtCache.get(key);
+  if (hit) return hit === 'pending' ? null : hit;
+  inkArtCache.set(key, 'pending');
+  const img = new Image();
+  img.onload = () => {
+    try {
+      const c = document.createElement('canvas');
+      c.width = img.naturalWidth; c.height = img.naturalHeight;
+      const x = c.getContext('2d', { willReadFrequently: true });
+      x.drawImage(img, 0, 0);
+      const px = x.getImageData(0, 0, c.width, c.height), a = px.data, [r, g, b] = hexRgb(ink);
+      for (let i = 0; i < a.length; i += 4) {
+        const lum = 0.299 * a[i] + 0.587 * a[i + 1] + 0.114 * a[i + 2];
+        a[i + 3] = Math.max(0, Math.min(255, (232 - lum) * 1.3)) * (a[i + 3] / 255);
+        a[i] = r; a[i + 1] = g; a[i + 2] = b;
+      }
+      x.putImageData(px, 0, 0);
+      c.toBlob(bl => { inkArtCache.set(key, bl ? URL.createObjectURL(bl) : url); redrawPreview?.(); });
+    } catch { inkArtCache.set(key, url); }
+  };
+  img.onerror = () => inkArtCache.set(key, url);
+  img.src = url;
+  return null;
+}
+const maxLines = (d, mm) => d.tapes.find(t => t.mm === +mm)?.lines ?? (+mm >= 9 ? 2 : 1);
+const biggestSize = d => d.sizes.reduce((best, x, i, a) => (x.factor ?? 0) > (a[best].factor ?? 0) ? i : best, 0);
+// A small strip of tape with the label on it, for the "Design a label" cards.
+function miniTape(d, s) {
+  const fam = familyOf(d), tapes = MEDIA[fam.media].tapes, t = tapes[Math.min(tapes.length - 1, Math.max(0, +s?.color || 0))];
+  const font = d.fonts[+s?.font || 0] || d.fonts[0];
+  const text = String(s?.text1 || '').trim() || 'Your label';
+  return `<span class="mini-tape finish-${t[3] || 'gloss'}" aria-hidden="true" style="background:${tapeFill(t)};color:${t[2]};font-family:${cssq(font?.css || 'inherit')}"><span>${esc(text.slice(0, 18))}</span></span>`;
+}
 function viewPreview(d, _, q) {
   deviceTop(d, 'Label preview');
-  const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: 0, width: 0, style: 0, align: 1, frame: 'off', margin: 'Full', length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {}, q.label ? decodeLabel(q.label) : {});
+  const fam = familyOf(d), media = MEDIA[fam.media], tapes = media.tapes, marginKeys = Object.keys(fam.margins);
+  const s = Object.assign({ text1: 'HELLO', text2: '', tape: 12, color: 0, font: 0, size: biggestSize(d), width: 0, style: 0, align: 1, frame: 'off', margin: marginKeys[0], length: 0, mirror: false }, store.get('preview:' + d.id, {}), q.frame ? { frame: q.frame } : {}, q.label ? decodeLabel(q.label) : {});
   // Clamp everything that came from storage or a shared link into what this device actually has.
   const clampI = (v, arr) => Math.min(Math.max(0, Math.round(+v) || 0), Math.max(0, arr.length - 1));
-  for (const [k, arr] of [['font', d.fonts], ['size', d.sizes], ['width', d.widths], ['style', d.styles], ['align', d.alignments], ['color', TAPES]]) s[k] = clampI(s[k], arr);
-  if (!Object.hasOwn(MARGINS, s.margin)) s.margin = 'Full';
+  for (const [k, arr] of [['font', d.fonts], ['size', d.sizes], ['width', d.widths], ['style', d.styles], ['align', d.alignments], ['color', tapes]]) s[k] = clampI(s[k], arr);
+  if (!Object.hasOwn(fam.margins, s.margin)) s.margin = marginKeys[0];
   if (!d.frames.items.some(f => String(f.n) === String(s.frame))) s.frame = 'off';
-  s.length = Math.min(300, Math.max(0, +s.length || 0)); s.mirror = !!s.mirror;
+  s.length = Math.min(fam.lengthMax || 300, Math.max(0, +s.length || 0)); s.mirror = !!s.mirror;
   s.text1 = String(s.text1 ?? ''); s.text2 = String(s.text2 ?? '');
+  // Settings this family has no control for go back to the device default, so the recipe never asks for them.
+  const has = k => fam.controls.includes(k) && ({ font: d.fonts, size: d.sizes, width: d.widths, style: d.styles, align: d.alignments, frame: d.frames.items }[k]?.length ?? 2) > 1;
+  if (!has('font')) s.font = 0; if (!has('width')) s.width = 0; if (!has('style')) s.style = 0; if (!has('frame')) s.frame = 'off';
+  if (!has('align')) s.align = Math.min(1, d.alignments.length - 1); if (!has('length')) s.length = 0; if (!has('mirror')) s.mirror = false;
+  if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = (d.tapes.find(t => t.mm === 12) || d.tapes[0] || { mm: 12 }).mm;
+  if (maxLines(d, s.tape) < 2) s.text2 = '';
   if (q.label) {
     store.set('preview:' + d.id, s);
     history.replaceState(null, '', `/d/${d.id}/preview`);
     setTimeout(() => toast('Shared label loaded', { action: 'Save', onAction: () => saveLabel(d.id), ms: 7000 }), 300);
   }
-  if (!d.tapes.some(t => t.mm === +s.tape)) s.tape = d.tapes[0] ? d.tapes[0].mm : 12;
   const opt = (arr, sel, label = x => x.name) => arr.map((x, i) => `<option value="${i}" ${i === +sel ? 'selected' : ''}>${esc(label(x))}</option>`).join('');
-  // Phones: the tape sticks under the app bar so you see the label change while you edit below it.
+  const sel = (k, label, options, cls = '') => has(k) ? `<label${cls ? ` class="${cls}"` : ''}>${label}<select data-k="${k}">${options}</select></label>` : '';
+  const twoLineTapes = d.tapes.filter(t => (t.lines ?? (t.mm >= 9 ? 2 : 1)) >= 2).map(t => t.mm);
+  const line2Hint = twoLineTapes.length && twoLineTapes.length < d.tapes.length ? ` <span class="muted">· ${twoLineTapes.join(' / ')} mm tape only</span>` : '';
+  const swatches = tapes.map(([name, bg, ink, fin], i) => `<button type="button" class="sw finish-${fin || 'gloss'}${i === s.color ? ' on' : ''}" data-k="color" data-v="${i}" aria-pressed="${i === s.color}" aria-label="${esc(name)}" title="${esc(name)}" style="background:${tapeFill([name, bg, ink, fin])}${fin === 'clear' ? ', repeating-conic-gradient(#cfc9bc 0 25%, #fff 0 50%) 0 0 / 10px 10px' : ''};color:${ink}"><span aria-hidden="true">Aa</span></button>`).join('');
+  const typeCtl = [sel('font', 'Font', opt(d.fonts, s.font), 'full'), sel('size', 'Size', opt(d.sizes, s.size)), sel('width', 'Width', opt(d.widths, s.width)), sel('style', 'Style', opt(d.styles, s.style)), sel('align', 'Alignment', opt(d.alignments, s.align))].join('');
+  const layoutCtl = [
+    has('frame') ? `<label class="full">${fam.frameLabel || 'Frame'}<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : (fam.frameLabel ? f.name : f.n + ' · ' + f.name)}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>` : '',
+    has('margin') && marginKeys.length > 1 ? `<label>Margin<select data-k="margin">${marginKeys.map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>` : '',
+    has('length') ? `<label><span>Length <span class="muted">mm · 0 = auto</span></span><input type="number" inputmode="numeric" min="0" max="${fam.lengthMax || 300}" step="1" data-k="length" value="${s.length}"></label>` : '',
+    has('mirror') ? `<div class="full ctl-lbl" role="group" aria-labelledby="mirror-l"><span id="mirror-l">Mirror</span><div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}" aria-pressed="${!s.mirror}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}" aria-pressed="${s.mirror}">On (clear tape)</button></div></div>` : ''].join('');
+  const doneHow = fam.app ? `Follow it in ${esc(fam.app)}` : `${TAP} a step to tick it off`;
+  // Phones and tablets: the tape stays pinned on top and Design / Recipe switch underneath it.
   // Desktop: controls on the left, the recipe stays in view on the right.
-  main.innerHTML = `<div class="designer"><div class="d-left">
-  <div class="card tapecard"><div class="tapewrap" tabindex="0" role="region" aria-label="Label preview"><div id="tape"></div></div><p id="len" class="muted"></p></div>
+  main.innerHTML = `<div class="designer${q.label ? ' show-recipe' : ''}"><div class="d-left">
+  <div class="card tapecard"><div class="tapewrap" tabindex="0" role="region" aria-label="Label preview"><div id="tape"></div></div><p id="len" class="muted"></p>
+    <div class="seg d-switch" role="group" aria-label="Show"><button type="button" data-view="design" class="${q.label ? '' : 'on'}" aria-pressed="${!q.label}">Design</button><button type="button" data-view="recipe" class="${q.label ? 'on' : ''}" aria-pressed="${!!q.label}">Recipe <span id="recipe-n" class="muted"></span></button></div></div>
   <div class="ctl" id="ctl">
     <fieldset class="grp"><legend>Text</legend>
       <label class="full">Line 1<input type="text" maxlength="80" data-k="text1" value="${esc(s.text1)}" enterkeyhint="next"></label>
-      <label class="full"><span>Line 2 <span class="muted">· 9 / 12 mm tape only</span></span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${s.tape < 9 ? 'disabled' : ''} enterkeyhint="done"></label>
+      <label class="full"><span>Line 2${line2Hint}</span><input type="text" maxlength="80" data-k="text2" value="${esc(s.text2)}" ${maxLines(d, s.tape) < 2 ? 'disabled' : ''} enterkeyhint="done"></label>
     </fieldset>
     <fieldset class="grp"><legend>Tape</legend>
-      <label>Width<select data-k="tape">${d.tapes.map(t => `<option value="${t.mm}" ${t.mm === +s.tape ? 'selected' : ''}>${t.mm} mm (${t.in})</option>`).join('')}</select></label>
-      <label>Colour<select data-k="color">${TAPES.map((t, i) => `<option value="${i}" ${i === +s.color ? 'selected' : ''}>${t[0]}</option>`).join('')}</select></label>
+      <label class="full">Width<select data-k="tape">${d.tapes.map(t => `<option value="${t.mm}" ${t.mm === +s.tape ? 'selected' : ''}>${t.mm} mm (${t.in})</option>`).join('')}</select></label>
+      <div class="full ctl-lbl" role="group" aria-labelledby="color-l"><span id="color-l">Colour <span class="muted" id="color-name">· ${esc(tapes[s.color][0])}</span></span><div class="swatches">${swatches}</div></div>
     </fieldset>
-    <fieldset class="grp wide"><legend>Type</legend>
-      <label class="full">Font<select data-k="font">${opt(d.fonts, s.font)}</select></label>
-      <label>Size<select data-k="size">${opt(d.sizes, s.size)}</select></label>
-      <label>Width<select data-k="width">${opt(d.widths, s.width)}</select></label>
-      <label>Style<select data-k="style">${opt(d.styles, s.style)}</select></label>
-      <label>Alignment<select data-k="align">${opt(d.alignments, s.align)}</select></label>
-    </fieldset>
-    <fieldset class="grp"><legend>Layout</legend>
-      <label class="full">Frame<select data-k="frame">${d.frames.items.map(f => `<option value="${f.n}" ${String(f.n) === String(s.frame) ? 'selected' : ''}>${f.n === 'off' ? 'Off' : f.n + ' · ' + f.name}${f.wide ? ' (12 mm)' : ''}</option>`).join('')}</select></label>
-      <label>Margin<select data-k="margin">${Object.keys(MARGINS).map(m => `<option ${m === s.margin ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
-      <label><span>Length <span class="muted">mm · 0 = auto</span></span><input type="number" inputmode="numeric" min="0" max="300" step="1" data-k="length" value="${s.length}"></label>
-      <div class="full ctl-lbl" role="group" aria-labelledby="mirror-l"><span id="mirror-l">Mirror</span><div class="seg"><button type="button" data-k="mirror" data-v="false" class="${!s.mirror ? 'on' : ''}" aria-pressed="${!s.mirror}">Off</button><button type="button" data-k="mirror" data-v="true" class="${s.mirror ? 'on' : ''}" aria-pressed="${!!s.mirror}">On</button></div></div>
-    </fieldset>
+    ${typeCtl ? `<fieldset class="grp wide"><legend>Type</legend>${typeCtl}</fieldset>` : ''}
+    ${layoutCtl ? `<fieldset class="grp"><legend>Layout</legend>${layoutCtl}</fieldset>` : ''}
   </div></div>
-  <div class="d-right"><div class="card"><div class="recipe-h"><h2 class="h3">Recipe for the ${esc(d.model)}</h2><span class="muted">${TAP} a step to tick it off</span></div><ol class="steps recipe" id="recipe"></ol>
+  <div class="d-right"><div class="card" id="recipe-card"><div class="recipe-h"><h2 class="h3">Recipe for the ${esc(d.model)}</h2><span class="muted">${doneHow}</span></div><ol class="steps recipe" id="recipe"></ol>
     <div class="btn-row"><button type="button" class="btn" onclick="saveLabel('${d.id}')">Save this label</button><button type="button" class="btn ghost" onclick="shareLabel('${d.id}')">${shareIcon()} Share recipe</button><button type="button" class="btn ghost" onclick="resetPreview('${d.id}')">Start over</button></div>
     <div class="note">Preview is an approximation: fonts are on-screen look-alikes, and real print length varies slightly.</div></div>
   <h2>Saved labels</h2><div id="saved"></div></div></div>`;
   const tick = li => { const on = li.classList.toggle('done'); li.querySelector('[role=checkbox]')?.setAttribute('aria-checked', on); haptic(); };
   $('#recipe').addEventListener('click', e => { const li = e.target.closest('li'); if (li) tick(li); });
   $('#recipe').addEventListener('keydown', e => { const li = e.target.closest('li'); if (li && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); tick(li); } });
+  main.querySelector('.d-switch').addEventListener('click', e => {
+    const b = e.target.closest('button[data-view]'); if (!b) return;
+    const recipe = b.dataset.view === 'recipe';
+    main.querySelector('.designer').classList.toggle('show-recipe', recipe);
+    b.parentElement.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+    haptic();
+  });
   renderSaved(d);
   const ctl = $('#ctl');
-  ctl.addEventListener('input', e => { const k = e.target.dataset.k; if (!k) return; s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value; if (k === 'tape') { ctl.querySelector('[data-k=text2]').disabled = s.tape < 9; if (s.tape < 9) s.text2 = ''; } draw(); });
-  ctl.addEventListener('click', e => { const b = e.target.closest('button[data-k]'); if (!b) return; s[b.dataset.k] = b.dataset.v === 'true'; b.parentElement.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); draw(); });
+  ctl.addEventListener('input', e => {
+    const k = e.target.dataset.k; if (!k) return;
+    s[k] = e.target.type === 'number' || e.target.tagName === 'SELECT' && k !== 'margin' && k !== 'frame' ? +e.target.value : e.target.value;
+    if (k === 'tape') { const one = maxLines(d, s.tape) < 2; ctl.querySelector('[data-k=text2]').disabled = one; if (one) s.text2 = ''; }
+    draw();
+  });
+  ctl.addEventListener('click', e => {
+    const b = e.target.closest('button[data-k]'); if (!b) return;
+    const k = b.dataset.k;
+    s[k] = k === 'color' ? +b.dataset.v : b.dataset.v === 'true';
+    b.parentElement.querySelectorAll('button').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+    if (k === 'color') $('#color-name').textContent = '· ' + tapes[s.color][0];
+    draw();
+  });
   const draw = () => { store.set('preview:' + d.id, s); drawTape(d, s); };
   redrawPreview = draw;
   draw();
@@ -1116,23 +1232,34 @@ window.deleteLabel = (id, i) => {
 window.resetPreview = id => { localStorage.removeItem('lab:preview:' + id); render(); };
 let redrawPreview = null;
 function drawTape(d, s) {
+  const el = $('#tape');
+  if (!el) return; // left the designer while frame art was still being prepared
   const PX = 9; // px per mm
-  const tape = TAPES[s.color], font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor;
+  const fam = familyOf(d), media = MEDIA[fam.media], tape = media.tapes[s.color] || media.tapes[0];
+  const [tapeName, tapeBg, ink, finish] = tape;
+  const font = d.fonts[s.font], style = d.styles[s.style].name, width = d.widths[s.width].factor, size = d.sizes[s.size].factor ?? 1;
   const frame = d.frames.items.find(f => String(f.n) === String(s.frame));
-  const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && s.tape >= 9));
+  const lines = [s.text1, s.text2].filter((t, i) => i === 0 || (t && maxLines(d, s.tape) >= 2));
   const imgFrame = frame && frame.n !== 'off' && frame.n !== 0;
   const printH = Math.max(8, (s.tape - (s.tape >= 9 ? 2.5 : 1.5)) * PX);
   const fontPx = Math.max(8, printH * size / (lines.length === 2 ? 2.05 : 1.15) / (imgFrame ? 1.45 : 1));
   const italic = /Italic|I\+/.test(style), bold = /Bold|Solid/.test(style) || font.weight >= 800;
-  const ink = tape[2];
+  const solidBg = finish === 'clear' ? 'transparent' : tapeBg;
   let fx = '';
   if (/Outline/.test(style)) fx = `color:transparent;-webkit-text-stroke:1.5px ${ink};`;
   else if (/Shadow/.test(style)) fx = `color:transparent;-webkit-text-stroke:1.5px ${ink};text-shadow:3px 3px 0 ${ink};`;
-  else if (/Solid/.test(style)) fx = `text-shadow:2px 2px 0 ${tape[1]},4px 4px 0 ${ink};`;
-  const alignCss = ['flex-start', 'center', 'flex-end', 'stretch'][s.align];
-  const vertical = style === 'Vertical';
+  else if (/Solid/.test(style)) fx = `text-shadow:2px 2px 0 ${solidBg},4px 4px 0 ${ink};`;
+  if (/Underline/.test(style)) fx += 'text-decoration:underline;';
+  if (/Strikeout/.test(style)) fx += 'text-decoration:line-through;';
+  const alignCss = ['flex-start', 'center', 'flex-end', 'stretch'][s.align] || 'center';
+  const vertical = /Vertical/.test(style);
   const renderLine = t => vertical ? [...t].map(ch => `<span style="display:inline-block;transform:rotate(-90deg);width:1em;text-align:center">${esc(ch)}</span>`).join('') : esc(t) || '&nbsp;';
-  const marginMm = MARGINS[s.margin];
+  const marginKeys = Object.keys(fam.margins);
+  const marginMm = fam.margins[s.margin] ?? fam.margins[marginKeys[0]];
+  // Frames print in the ink colour on the tape. Until the ink version of a scan is ready, multiply the scan over the tape.
+  const art = imgFrame ? inkArt(frame.img, ink) : null;
+  const artUrl = art || (imgFrame ? frame.img : '');
+  const artBlend = imgFrame && !art ? 'mix-blend-mode:multiply;' : '';
   let frameCss = 'padding:0 4px;';
   let frameBoxOpen = '';
   const sampleArt = /dymo/i.test(String(d.brand || '')) || /dymo/i.test(String(d.id || ''));
@@ -1144,11 +1271,11 @@ function drawTape(d, s) {
       const bwY = Math.max(4, Math.round(tapeH * 0.1));
       const bwX = Math.max(12, Math.round(tapeH * 0.22));
       frameCss = 'padding:2px 8px;';
-      frameBoxOpen = `<div class="framebox${s.mirror ? ' mirror' : ''}" style="border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(frame.img)}');border-image-slice:8% 5%;border-image-repeat:stretch;min-width:${2 * bwX + 40}px">`;
+      frameBoxOpen = `<div class="framebox${s.mirror ? ' mirror' : ''}" style="${artBlend}border-style:solid;border-color:transparent;border-width:${bwY}px ${bwX}px;border-image-source:url('${cssq(artUrl)}');border-image-slice:8% 5%;border-image-repeat:stretch;min-width:${2 * bwX + 40}px">`;
     } else {
       // Left/right caps at native aspect (house, flourishes, icons). Middle is a 1-column slice stretched, not the whole PNG.
       const capW = Math.max(36, Math.round(s.tape * PX * 1.45));
-      const bg = `background-image:url('${cssq(frame.img)}')`;
+      const bg = `background-image:url('${cssq(artUrl)}');${artBlend}`;
       frameCss = `padding:6px ${capW}px;`;
       frameBoxOpen = `<div class="framebox caps${s.mirror ? ' mirror' : ''}" style="--cap:${capW}px"><span class="frame-cap l" style="${bg};width:${capW}px"></span><span class="frame-mid"><span class="frame-mid-slice" style="${bg}"></span></span><span class="frame-cap r" style="${bg};width:${capW}px"></span>`;
     }
@@ -1158,8 +1285,8 @@ function drawTape(d, s) {
   const textSx = (s.mirror && !frameBoxOpen ? -1 : 1) * width;
   const txt = `<div class="txt" style="align-items:${alignCss};font-family:${cssq(font.css)};font-weight:${bold ? 900 : font.weight};font-style:${italic || font.style === 'italic' ? 'italic' : 'normal'};font-size:${fontPx}px;color:${ink};${fx}${frameCss}transform:scaleX(${textSx});transform-origin:center">${lines.map(t => `<div class="line">${renderLine(t)}</div>`).join('')}</div>`;
   const body = frameBoxOpen ? `${frameBoxOpen}${txt}</div>` : txt;
-  const el = $('#tape');
-  el.innerHTML = `<div class="tape ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tape[1]};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px;${tape[1].startsWith('rgba') ? 'border:1px dashed #888;' : ''}">${body}${s.margin !== 'Full' ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
+  const cutDots = marginKeys.length > 1 && s.margin !== marginKeys[0];
+  el.innerHTML = `<div class="tape finish-${finish || 'gloss'} ${s.mirror ? 'mirror' : ''}" style="height:${s.tape * PX}px;background:${tapeFill(tape)};padding:0 ${marginMm * PX}px;display:inline-flex;min-width:${Math.max(0, s.length) * PX}px">${body}${cutDots ? `<span class="dots" style="left:${marginMm * PX - 1}px"></span><span class="dots" style="right:${marginMm * PX - 1}px"></span>` : ''}</div>`;
   const t = el.firstElementChild;
   const inner = t.querySelector('.txt');
   const applyWidthPad = () => {
@@ -1186,13 +1313,12 @@ function drawTape(d, s) {
   }
   const tapeW = t.getBoundingClientRect().width, tapeH = s.tape * PX;
   const totalMm = Math.round(tapeW / PX);
-  // Keep letter height. A real printer prints a longer strip; it does not squash 12 mm tape to a sliver.
+  // Show the whole label when it fits at a readable size; only very long strips scroll (centred on the text).
   const wrap = el.parentElement;
   const padX = wrap ? (parseFloat(getComputedStyle(wrap).paddingLeft) || 0) + (parseFloat(getComputedStyle(wrap).paddingRight) || 0) : 28;
   const avail = Math.max(80, (wrap ? wrap.clientWidth : tapeW) - padX);
   let k = Math.min(1, avail / Math.max(1, tapeW));
-  // Framed labels keep full tape height so flourishes are not clipped by the scale-down.
-  const floorH = Math.min(imgFrame ? tapeH : Math.min(tapeH, Math.max(56, tapeH * 0.75)), Math.max(48, innerHeight * 0.2));
+  const floorH = Math.min(tapeH, 36);
   k = Math.max(k, floorH / Math.max(1, tapeH));
   const shownW = tapeW * k, shownH = tapeH * k;
   const scrolls = shownW > avail + 1;
@@ -1207,22 +1333,94 @@ function drawTape(d, s) {
     if (scrolls) wrap.scrollLeft = Math.max(0, (wrap.scrollWidth - wrap.clientWidth) / 2);
   }
   const over = s.length && totalMm > s.length;
-  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm tape${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${s.margin === 'Chain Print' ? ' · chain: 25 mm lead-in only on the first label' : ''}`;
-  // recipe
-  const r = [];
-  if (s.tape < 12 && ((frame && frame.wide))) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`); else r.push(`Insert ${s.tape} mm TZe tape (${TAPES[s.color][0].toLowerCase()}).`);
-  r.push(`Type “${s.text1}”${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
-  if (s.font) r.push(`[Font] → {Font} → [OK] → [◀] / [▶] to {${font.name}} → [OK].`);
-  if (s.size) r.push(`[Font] → {Size} → [OK] → {${d.sizes[s.size].name}} → [OK].`);
-  if (s.width) r.push(`[Font] → {Width} → [OK] → {${d.widths[s.width].name}} → [OK].`);
-  if (s.style) r.push(`[Font] → {Style} → [OK] → {${style}} → [OK].`);
-  if (s.align !== 1) r.push(`[Font] → {Alignment} → [OK] → {${d.alignments[s.align].name}} → [OK].`);
-  if (frame && frame.n !== 'off') r.push(`[Frame] → type ${String(frame.n).split('').map(x => `[${x}]`).join(' ')} → [OK].`);
-  if (s.margin !== 'Full') r.push(`[Label] → {Margin} → [OK] → {${s.margin}} → [OK].`);
-  if (s.length) r.push(`[Label] → {Label Length} → [OK] → [◀] / [▶] to ${s.length} mm → [OK].`);
-  if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK] → {Mirror Print?} → [OK]. Use clear tape.`);
-  else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
+  $('#len').innerHTML = `≈ ${totalMm} mm (${(totalMm / 25.4).toFixed(1)}") long · ${s.tape} mm ${esc(tapeName.toLowerCase())}${over ? ' · <b style="color:var(--red)">Change Length! text exceeds fixed length</b>' : s.length ? ' · 🔒 fixed length' : ''}${scrolls ? ' · scroll to see the rest' : ''}${/chain/i.test(s.margin) ? ' · chain: full lead-in only on the first label' : ''}`;
+  const r = recipeSteps(d, s, { fam, media, tapeName, font, style, frame, lines });
   $('#recipe').innerHTML = r.map(x => `<li><span class="tick-t" role="checkbox" aria-checked="false" tabindex="0">${fmt(x)}</span></li>`).join('');
+  const n = $('#recipe-n'); if (n) n.textContent = `· ${r.length} steps`;
+}
+// The steps for this design on this family of label maker: its keys, its menus, or its phone app.
+function recipeSteps(d, s, { fam, media, tapeName, font, style, frame, lines }) {
+  const tapeInfo = d.tapes.find(t => t.mm === +s.tape);
+  const mm = /brady/i.test(d.brand) && tapeInfo ? `${s.tape} mm (${tapeInfo.in})` : `${s.tape} mm`;
+  const colour = tapeName.toLowerCase();
+  const typed = `Type “${s.text1}”`;
+  const nm = (arr, i) => arr[i]?.name;
+  const r = [];
+  const sizeName = nm(d.sizes, s.size), widthName = nm(d.widths, s.width), alignName = nm(d.alignments, s.align);
+  const framed = frame && frame.n !== 'off';
+  switch (fam.key) {
+    case 'brother':
+      if (s.tape < 12 && frame && frame.wide) r.push(`Insert 12 mm tape. Frame ${frame.n} needs it (you have ${s.tape} mm).`);
+      else r.push(`${media.verb} ${media.item(mm)} (${colour}).`);
+      r.push(`${typed}${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
+      if (s.font) r.push(`[Font] → {Font} → [OK] → [◀] / [▶] to {${font.name}} → [OK].`);
+      if (s.size) r.push(`[Font] → {Size} → [OK] → {${sizeName}} → [OK].`);
+      if (s.width) r.push(`[Font] → {Width} → [OK] → {${widthName}} → [OK].`);
+      if (s.style) r.push(`[Font] → {Style} → [OK] → {${style}} → [OK].`);
+      if (s.align !== 1) r.push(`[Font] → {Alignment} → [OK] → {${alignName}} → [OK].`);
+      if (framed) r.push(`[Frame] → type ${String(frame.n).split('').map(x => `[${x}]`).join(' ')} → [OK].`);
+      if (s.margin !== 'Full') r.push(`[Label] → {Margin} → [OK] → {${s.margin}} → [OK].`);
+      if (s.length) r.push(`[Label] → {Label Length} → [OK] → [◀] / [▶] to ${s.length} mm → [OK].`);
+      if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK] → {Mirror Print?} → [OK]. Use clear tape.`);
+      else r.push(`[Preview] to check, then [Print] → [OK]. Push the cutter after “Please Cut”.`);
+      break;
+    case 'brotherFn': {
+      r.push(`${media.verb} ${media.item(mm)} (${colour}).`);
+      r.push(`${typed}${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
+      const attr = (what, val) => r.push(`With the cursor in the text: [Shift] + [Fn] → {${what}} → {${val}} → [OK].`);
+      if (s.font) attr('Font', font.name);
+      if (s.size) attr('Size', sizeName);
+      if (s.width) attr('Width', widthName);
+      if (s.style) attr('Style', style);
+      if (s.align !== 1) attr('Alignment', alignName);
+      if (framed) r.push(`[Fn] → [▲] / [▼] to {Frame} → [OK] → frame ${frame.n} (type ${String(frame.n).split('').map(x => `[${x}]`).join(' ')}) → [OK].`);
+      if (s.margin !== 'Large margin') r.push(`[Fn] → {Cut Option} → [OK] → {${s.margin === 'Chain' ? 'Chain' : 'Small Margin'}} → [OK].`);
+      if (s.length) r.push(`[Fn] → {Length} → [OK] → ${s.length} mm → [OK].`);
+      if (s.mirror) r.push(`[Shift] + [Print] → {Mirror} → [OK]. Use clear tape.`);
+      r.push(`[Preview] to check, then [Print] → [OK] for one copy.`);
+      break;
+    }
+    case 'dymo160':
+      r.push(`${media.verb} ${media.item(mm)} (${colour}) until it clicks, and close the cover.`);
+      r.push(`${typed}${lines.length === 2 ? ` → [Return] → type “${s.text2}”` : ''}.`);
+      r.push(`Press [Size] until {${sizeName}} shows.`);
+      if (/Bold/.test(style)) r.push('Press [B] for bold.');
+      if (/Italic/.test(style)) r.push('Press [I] for italic.');
+      if (/Vertical/.test(style)) r.push('Press [Vertical] for vertical text.');
+      if (framed) r.push(`Press [Box] until {${frame.name}} shows.`);
+      r.push('Press [Print], then press the cutter button.');
+      break;
+    case 'dymo280': {
+      const fmtMenu = (item, val) => `[Menu] → {Format} → [OK] → {${item}} → [OK] → {${val}} → [OK].`;
+      r.push(`${media.verb} ${media.item(mm)} (${colour}) until it clicks, and close the cover.`);
+      r.push(`${typed}${lines.length === 2 ? ` → [Return] → type “${s.text2}”` : ''}.`);
+      if (s.font) r.push(fmtMenu('Font', font.name));
+      r.push(`Press [AAA] until {${sizeName}} shows.`);
+      if (s.style) r.push(fmtMenu('Style', style));
+      if (framed) r.push(fmtMenu('Borders', frame.name));
+      if (s.length) {
+        r.push(`[Menu] → {Format} → [OK] → {Label length} → [OK] → {Fixed} → ${s.length} mm → [OK].`);
+        if (s.align !== 1) r.push(fmtMenu('Alignment', alignName));
+      }
+      if (s.mirror) r.push(fmtMenu('Mirror', 'On'));
+      r.push('Press [Print], then press the cutter button.');
+      break;
+    }
+    case 'brady':
+      r.push(`${media.verb} ${media.item(mm)} (${colour}) and turn the lock to vertical.`);
+      r.push(`${typed}${lines.length === 2 ? ` → [Enter] → type “${s.text2}”` : ''}.`);
+      r.push(`[Font Size] → {${sizeName}${/Bold/.test(style) ? ' Bold' : ''}} → [Enter].`);
+      r.push('Press [Print], then squeeze the cutter levers.');
+      break;
+    default: // phone app
+      r.push(`${media.verb} ${media.item(mm)} (${colour}).`);
+      r.push(`Open ${fam.app} and connect to the ${d.model} over Bluetooth.`);
+      r.push(`Start a new ${s.tape} mm label and type “${s.text1}”${lines.length === 2 ? `, then “${s.text2}” on a second line` : ''}.`);
+      if (s.align !== 1 && alignName && d.alignments.length > 1) r.push(`Set the text alignment to ${alignName}.`);
+      if (s.length) r.push(`Set the label length to ${s.length} mm.`);
+      r.push('Check the preview in the app, then tap Print.');
+  }
+  return r;
 }
 
 // ---------- install (PWA) ----------
@@ -1472,7 +1670,7 @@ async function syncSavedFlags() {
     catch { store.set('offline:' + x.id, false); }
   }
 }
-const BUILD = 'v43'; // must equal sw.js VERSION suffix
+const BUILD = 'v44'; // must equal sw.js VERSION suffix
 window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
 
 window.addEventListener('resize', () => {

@@ -113,7 +113,7 @@ export const HAS = {
   howto: d => d.howto.length > 0,
   trouble: d => d.errors.length + d.problems.length > 0,
 };
-export const SECTION_NAMES = { keyboard: 'Keyboard map', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts & styles', shortcuts: 'Shortcuts', howto: 'How-to guides', trouble: 'Troubleshooting', preview: 'Label preview', specs: 'Specs & tapes' };
+export const SECTION_NAMES = { preview: 'Label preview', keyboard: 'Keyboard map', symbols: 'Symbols', frames: 'Frames', templates: 'Templates', fonts: 'Fonts & styles', shortcuts: 'Shortcuts', howto: 'How-to guides', trouble: 'Troubleshooting', specs: 'Specs & tapes' };
 export const hasSection = (d, id) => !HAS[id] || HAS[id](d);
 
 const BRAND = ' · Labelarium';
