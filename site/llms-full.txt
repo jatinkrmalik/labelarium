@@ -1,0 +1,2979 @@
+# Labelarium: full reference
+
+Unofficial reference for label makers. Key names are in `backticks`; text shown on the device's screen is in “quotes”. Source: https://labelarium.com
+
+## Brother P-touch PT-D220
+Home & Office Everyday Label Maker. 649 symbols in 30 categories, 100 frames, 25 templates, 14 fonts, 11 styles, 22 shortcuts, 25 how-to guides. Page: https://labelarium.com/d/brother-pt-d220
+
+### How-to guides
+
+#### Save tape: margins (Full / Half / Narrow / Chain) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/margins
+
+1. Press `Label`.
+2. Use `◀` / `▶` until “Margin” shows, then `OK`.
+3. Pick “Full” (25 mm each side), “Half” (12 mm), “Narrow” (4 mm) or “Chain Print”, then `OK`.
+
+Note: The ~25 mm lead-in before the first label cannot be eliminated (it is the distance from print head to cutter). With Half / Narrow the device prints two dots (:). Cut there with scissors so the margins are even.
+Note: For several labels in a row use Chain Print (below). Later labels lose the lead-in entirely.
+Note: Fix for "too much blank tape on both sides of the text".
+
+#### Chain Print: many labels, minimal waste (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/chain
+
+1. `Label` → “Margin” → `OK` → “Chain Print” → `OK`.
+2. Type the first label and press `Print`. When “Copies:” shows, set the number and press `OK`.
+3. When "Feed OK?" appears press `Esc` to keep going.
+4. Clear the text (keep the format), type the next label, press `Print`.
+5. After the last label press `OK` at "Feed OK?" so the tape feeds, then push the cutter lever.
+
+Note: Feed before cutting, otherwise the last label may be cut through.
+Note: When a specific label is done printing you can also cut manually with the lever. Only after "Please Cut".
+
+#### Two-line labels (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/two-lines
+
+1. Type line 1.
+2. Press `Enter` where the second line should start (a ↵ appears on the LCD).
+3. Type line 2. Print.
+
+Note: Needs 9 mm or 12 mm tape. On 3.5 / 6 mm you get "2 Line Limit!". The same message appears if you press Enter a third time.
+
+#### Fixed label length (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/length
+
+1. Press `Label`.
+2. “Label Length” → `OK`.
+3. Use `◀` / `▶` to pick “Auto” or 30–300 mm (1.2"–12"), then `OK`.
+
+Note: A 🔒 appears on the LCD when a length is fixed. Press `Space` in the setting to return to Auto.
+Note: "Change Length!" means the text no longer fits: shorten it or return to Auto.
+Note: After printing, cut along the printed dots (:) so the length matches.
+
+#### Tabs and tab length (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/tabs
+
+1. Insert a tab with `Tab` (or `Menu` → “Tab” → `OK`). A ▯ shows in the text.
+2. Tab length: `Label` → “Tab Length” → `OK` → “Auto” or 0–100 mm → `OK`.
+
+Note: Up to 80 tabs in a label with no text (79 with one letter). `Space` resets tab length to Auto.
+
+#### Upper and lower case (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/caps
+
+1. Press `Caps` to toggle upper case for everything you type (Caps indicator on the LCD).
+2. Hold `Shift` while typing one letter for a single capital.
+
+#### Accented characters (é ñ ü …) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/accents
+
+1. Type the letter.
+2. Press `Accent`. Press `Accent` again (or `◀` / `▶`) to cycle the variants.
+3. Press `OK`.
+
+Note: See the Accent table under Symbols for every variant. Order depends on the LCD language.
+
+#### Clear text and/or formatting (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/clear
+
+1. `BS` deletes one character (Backspace).
+2. `Shift` + `BS` → choose “Text&Format” (everything) or “Text Only” (keep font, frame, margins) → `OK`.
+3. Alternative: `Menu` → “Clear” → `OK` → “Text&Format” / “Text Only” → `OK`.
+
+#### Preview a label (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/preview
+
+1. Press `Preview` (the magnifier key).
+2. Scroll a long label with `◀` / `▶`.
+3. Leave with `Esc`, `OK` or `Enter`.
+
+Note: The preview is generated and may differ slightly from the print. Not available for pattern templates.
+
+#### Feed blank tape (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/feed
+
+1. Press `Shift` + `Preview`. About 25 mm (1") of tape feeds.
+
+#### Print and print copies (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/print-copies
+
+1. Press `Print`. “Copies:” appears.
+2. Use `◀` / `▶` or type a digit for 1–9 copies (or just press `OK` for one).
+3. Press `OK`.
+4. When "Please Cut" appears push the cutter lever at the top right.
+
+Note: Never press the lever while "Please Wait" is displayed. It jams the tape.
+Note: To peel: fold the label lengthwise with text inside so the backing splits, then peel each half.
+
+#### Numbering (auto-increment serial labels) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/numbering
+
+1. Type the text including the number, e.g. “0123”.
+2. Move the cursor onto the number to increment with `◀` / `▶`.
+3. Press `Shift` + `Print`.
+4. “Numbering” → `OK`.
+5. Use `◀` / `▶` to set the highest number to print (e.g. 0125 prints 0123, 0124, 0125), then `OK`.
+
+Note: Up to 9 labels per run. "Invalid!" means the cursor is not on a number.
+
+#### Mirror print (for glass and windows) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/mirror
+
+1. Type the text.
+2. Press `Shift` + `Print`.
+3. `◀` / `▶` to “Mirror” → `OK`.
+4. “Mirror Print?” → `OK`.
+
+Note: Use clear tape so the label reads correctly from the other side of the glass.
+
+#### Save, open and print stored labels (30 slots) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/files
+
+1. Save: type the label → `File` → `◀` / `▶` to “Save” → `OK` → `◀` / `▶` to a slot number (1–30) → `OK`. Choosing an occupied slot asks "Overwrite OK?".
+2. Print a stored label: `File` → “Print” → `OK` → pick the slot → `OK` → “Copies:” → `OK`.
+3. Open for editing: `File` → “Open” → `OK` → pick the slot → `OK`.
+4. Shortcut into the File menu: `Menu` → `1`.
+
+Note: 80 characters per file, 2400 in total. Files are lost after a reset, a repair, or if power is cut for a long time. Keep good batteries in as memory backup even when using the adapter.
+Note: Labels made with templates cannot be saved.
+
+#### Font, size, width, style and alignment (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/font
+
+1. Press `Font`.
+2. Use `◀` / `▶` to pick “Font”, “Size”, “Width”, “Style” or “Alignment”, then `OK`.
+3. Use `◀` / `▶` to pick the setting, then `OK`.
+
+Note: See the Fonts & styles section for samples of all 14 fonts and 11 styles.
+Note: Vertical style prints each character rotated so the label reads top-to-bottom when hung vertically.
+
+#### Add a frame (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/frame
+
+1. Press `Frame`.
+2. Type the frame number (0–99) or browse with `◀` / `▶`.
+3. Press `OK`.
+
+Note: Frames 84–99 need 12 mm tape. See the Frames section to browse all designs with their numbers.
+
+#### Insert a symbol or pictogram (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/symbol
+
+1. Press `Symbol`.
+2. Choose “History”, “Basic” or “Pictograph” with `◀` / `▶`, then `OK`.
+3. Choose the category (or press its shortcut letter), then `OK`.
+4. Move to the symbol with `◀` / `▶`, then `OK`.
+
+Note: History holds your 7 most recent symbols. Every category page in this app shows the shortcut key and each symbol's position.
+
+#### Use the template library (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/templates
+
+1. Press `Template Library`.
+2. “Select Category”: “Text” or “Patterns” → `OK`.
+3. Pick a design → `OK`, then follow the prompts (“Input Text 1”, “Input Text 2” or “Set Label Length”).
+4. “Print” → `OK`.
+
+Note: 12 mm tape only. See the Templates section for pictures of all 25 designs.
+
+#### Language and units (inch / mm) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/language-unit
+
+1. Language: `Menu` → `◀` / `▶` to “Language” → `OK` → pick → `OK`. Shortcut: `Menu` → `Space`.
+2. Unit: `Menu` → “Unit” → `OK` → “inch” / “mm” → `OK`. Shortcut: `Menu` → `3`.
+
+Note: 22 languages: English, Español, Français, Hrvatski, Italiano, Magyar, Nederlands, Norsk, Polski, Português, Portug. (BR), Română, Slovenski, Slovenský, Suomi, Svenska, Türkçe, Čeština, Dansk, Deutsch.
+
+#### LCD contrast (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/contrast
+
+1. `Menu` → “LCD Contrast” → `OK` → `◀` / `▶` for −2 … +2 → `OK`. Shortcut: `Menu` → `4`.
+
+Note: `Space` returns to the default (0).
+
+#### Factory reset (also fixes a locked-up device) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/reset
+
+1. Turn the device off.
+2. Hold `Shift` and `R`, then press `Power` to turn it on.
+3. Release `Power` first, then release `Shift` and `R`.
+
+Note: Everything is erased: text, settings, all 30 stored files, language and unit.
+
+#### Move around long text (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/cursor
+
+1. `◀` / `▶` move one character.
+2. `Shift` + `▶` jumps to the end, `Shift` + `◀` to the start.
+3. The LCD shows 15 characters at a time; the label can hold 80.
+
+#### Batteries, adapter and auto power off (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/power
+
+1. Use 6 × AAA alkaline (LR03) or fully charged Ni-MH (HR03). Replace all six together, never mix types.
+2. Optional adapter AD-24ES / AD-24ESA plugs into the jack at the top. Keep batteries in as memory backup.
+3. The device switches off after 5 idle minutes. Text and settings survive 3 minutes without any power; longer and they are lost.
+
+Note: The device cannot charge Ni-MH cells.
+
+#### Change the tape cassette (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/tape
+
+1. Switch off. Press the marked area at the top end to open the cassette cover.
+2. Pull the old cassette straight up.
+3. Insert the new TZe cassette until it clicks, making sure the tape end runs under the tape guides.
+4. Close the cover.
+
+Note: Only Brother TZe tapes with the TZe mark work. Never print with an empty cassette. It damages the print head.
+Note: Blank line through the print? Wipe the print head with a dry cotton swab.
+
+#### Replace a blunt cutter (TC-4) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/howto/cutter
+
+1. Open the cassette cover and remove the tape.
+2. Pull the two green sections of the cutter unit out in the direction of the arrows.
+3. Push the new TC-4 unit in until it locks.
+
+Note: Never touch the blade with your fingers.
+
+### Error messages
+
+#### “Battery Low! / Battery Empty!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/battery-low-battery-empty
+
+Meaning: Batteries are weak or nearly flat.
+Fix: Replace all six alkaline cells, or fully charge the Ni-MH cells.
+
+#### “Invalid!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/invalid
+
+Meaning: Numbering with no number under the cursor, an invalid character selected for Numbering, or an invalid Tab / Label Length value (also inside templates).
+Fix: Move the cursor onto a digit, or enter a value within range.
+
+#### “No Text!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/no-text
+
+Meaning: Print, Preview, Feed, Numbering or a template step was requested with no text entered, or you tried to print an empty file slot.
+Fix: Type some text first.
+
+#### “2 Line Limit! / 1 Line Limit!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/2-line-limit-1-line-limit
+
+Meaning: You pressed Enter for a third line, or tried two lines on 3.5 / 6 mm tape.
+Fix: Use 9 or 12 mm tape for two lines; keep to two lines max.
+
+#### “No Cassette!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/no-cassette
+
+Meaning: Print, feed or preview with no tape installed.
+Fix: Insert a TZe cassette.
+
+#### “Cutter Pressed” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/cutter-pressed
+
+Meaning: The cutter lever was pushed while printing.
+Fix: Wait for "Please Cut" before cutting.
+
+#### “Text Full!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/text-full
+
+Meaning: 80 characters (50 in templates) already entered.
+Fix: Shorten the text.
+
+#### “Change Length” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/change-length
+
+Meaning: The text is longer than the fixed label length.
+Fix: Reduce the text or set Label Length back to Auto (`Space` in the setting).
+
+#### “No Frame OK?” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/no-frame-ok
+
+Meaning: Frame set on 3.5 mm tape, or a 12 mm-only frame (84–99) on narrower tape.
+Fix: `OK` prints without the frame, `Esc` cancels. Or switch to 12 mm tape.
+
+#### “Feed OK?” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/feed-ok
+
+Meaning: Shown after each label when Chain Print is on.
+Fix: `OK` feeds the tape (do this before cutting the last label); `Esc` continues with the next label.
+
+#### “Insert 0.47"” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/insert-0-47
+
+Meaning: Templates need 12 mm tape.
+Fix: Install a 12 mm (0.47") cassette.
+
+#### “Use TZe Tape!” (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/use-tze-tape
+
+Meaning: The cassette is not a TZe tape.
+Fix: Use a cassette with the TZe mark.
+
+### Problems and fixes
+
+#### Display stays blank after power on (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/display-stays-blank-after-power-on
+
+Check battery orientation, replace weak batteries, or check the adapter is plugged in properly.
+
+#### Too much blank tape on both sides of the text (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/too-much-blank-tape-on-both-sides-of-the-text
+
+Label → Margin → Half or Narrow. Use Chain Print for batches. The first 25 mm lead-in cannot be removed.
+
+#### Nothing prints, or characters are malformed (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/nothing-prints-or-characters-are-malformed
+
+Check the cassette is inserted correctly and not empty, and that the cover is closed. Weak batteries also cause faint or broken print.
+
+#### Settings cleared on their own (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/settings-cleared-on-their-own
+
+Weak batteries, or power was disconnected for more than 3 minutes.
+
+#### Blank horizontal line through the label (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/blank-horizontal-line-through-the-label
+
+Dust on the print head: remove the cassette and gently wipe the head up and down with a dry cotton swab.
+
+#### Device locked up (keys do nothing) (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/device-locked-up-keys-do-nothing
+
+Do the factory reset: off → hold Shift + R → Power → release Power, then Shift and R.
+
+#### Power turns off when printing (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/power-turns-off-when-printing
+
+Weak batteries, wrong adapter, or batteries inserted incorrectly. Use AD-24ES / AD-24ESA.
+
+#### Tape does not feed or gets stuck (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/tape-does-not-feed-or-gets-stuck
+
+Make sure the tape end runs under the guides. Do not touch the cutter lever while printing.
+
+#### Tape jammed inside (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/tape-jammed-inside
+
+Open the cover, remove the cassette, gently pull out the jammed tape and rewind slack into the cassette with a fingertip before re-inserting.
+
+#### Cutter does not cut cleanly (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/cutter-does-not-cut-cleanly
+
+Replace the cutter unit (TC-4).
+
+#### Want to start a fresh label (Brother PT-D220)
+https://labelarium.com/d/brother-pt-d220/trouble/want-to-start-a-fresh-label
+
+Shift + BS → Text&Format → OK.
+
+### Shortcuts
+
+- `Menu` → `1`: File menu
+- `Menu` → `2`: Insert a Tab
+- `Menu` → `3`: Unit (inch / mm)
+- `Menu` → `4`: LCD Contrast (−2 … +2)
+- `Menu` → `BS`: Clear (Text & Format, or Text Only)
+- `Menu` → `Space`: Language
+- `Shift` + `BS`: Clear text and/or format
+- `Shift` + `Preview`: Feed about 25 mm (1") of blank tape
+- `Shift` + `Print`: Print Options: Numbering or Mirror
+- `Shift` + `▶`: Jump cursor to the end of the text
+- `Shift` + `◀`: Jump cursor to the start of the text
+- `Frame` → number keys → `OK`: Pick a frame directly by its number (0–99)
+- `Symbol` → “Basic” or “Pictograph” → `OK` → letter key: Jump straight to a symbol category (see each category for its key)
+- `Print` → digit key: Set number of copies (1–9) by typing it
+- `Space` (inside any setting): Return that setting to its default (e.g. Label Length → Auto)
+- `Esc`: Cancel anything, exit preview or templates
+- `Shift` + digit: Type the symbol printed above the digit: ! @ # $ % ' & * ( ) and " on the − key
+- `Shift` + `,` / `.` / `;`: Type ? / and :
+- letter → `Accent` → `Accent`…: Cycle accented letters (é è ê ë …), `OK` to insert
+- `Enter`: New line (2-line label on 9 / 12 mm tape)
+- `Esc` / `OK` / `Enter` in preview: Leave the preview
+- `Power` off → hold `Shift` + `R` → press `Power`: Factory reset (clears everything; release Power first, then Shift and R)
+
+### Specs
+
+- Tape: Brother TZe laminated tape, 3.5 / 6 / 9 / 12 mm (0.13" / 0.23" / 0.35" / 0.47")
+- Print: 180 dpi thermal transfer, up to 20 mm/s, 2 lines max (9 & 12 mm tape)
+- Text: Up to 80 characters per label (50 in templates), 15-character one-row LCD
+- Fonts: 14 fonts · 3 sizes · 3 widths · 11 styles · 4 alignments
+- Decorations: 99 frames (+ underline) · 25 templates · 600+ symbols in 30 categories
+- Memory: 30 saved labels (80 chars each, 2400 total). History keeps the last 7 symbols
+- Power: 6 × AAA alkaline (LR03) or Ni-MH (HR03), or AC adapter AD-24ES / AD-24ESA (optional)
+- Auto power off: After 5 minutes idle. Text & settings survive 3 minutes without power
+- Size / weight: 157 × 150 × 68 mm, 490 g without batteries
+- Cutter: Manual lever; replacement cutter unit TC-4
+
+## Brother P-touch PT-D210
+Easy-to-Use Label Maker. 621 symbols in 27 categories, 99 frames, 27 templates, 14 fonts, 10 styles, 22 shortcuts, 25 how-to guides. Page: https://labelarium.com/d/brother-pt-d210
+
+### How-to guides
+
+#### Save tape: margins (Full / Half / Narrow / Chain) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/margins
+
+1. Press `Label`.
+2. Use `◀` / `▶` until “Margin” shows, then `OK`.
+3. Pick “Full” (25 mm each side), “Half” (12 mm), “Narrow” (4 mm) or “Chain Print”, then `OK`.
+
+Note: The ~25 mm lead-in before the first label cannot be eliminated (it is the distance from print head to cutter). With Half / Narrow the device prints two dots (:). Cut there with scissors so the margins are even.
+Note: For several labels in a row use Chain Print (below). Later labels lose the lead-in entirely.
+Note: Fix for "too much blank tape on both sides of the text".
+
+#### Chain Print: many labels, minimal waste (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/chain
+
+1. `Label` → “Margin” → `OK` → “Chain Print” → `OK`.
+2. Type the first label and press `Print`. When “Copies:” shows, set the number and press `OK`.
+3. When "Feed OK?" appears press `Esc` to keep going.
+4. Clear the text (keep the format), type the next label, press `Print`.
+5. After the last label press `OK` at "Feed OK?" so the tape feeds, then push the cutter lever.
+
+Note: Feed before cutting, otherwise the last label may be cut through.
+Note: When a specific label is done printing you can also cut manually with the lever. Only after "Please Cut".
+
+#### Two-line labels (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/two-lines
+
+1. Type line 1.
+2. Press `Enter` where the second line should start (a ↵ appears on the LCD).
+3. Type line 2. Print.
+
+Note: Needs 9 mm or 12 mm tape. On 3.5 / 6 mm you get "2 Line Limit!". The same message appears if you press Enter a third time.
+
+#### Fixed label length (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/length
+
+1. Press `Label`.
+2. “Label Length” → `OK`.
+3. Use `◀` / `▶` to pick “Auto” or 30–300 mm (1.2"–12"), then `OK`.
+
+Note: A 🔒 appears on the LCD when a length is fixed. Press `Space` in the setting to return to Auto.
+Note: "Change Length" means the text no longer fits: shorten it or return to Auto.
+Note: After printing, cut along the printed dots (:) so the length matches.
+
+#### Tabs and tab length (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/tabs
+
+1. Insert a tab with `Tab` (or `Menu` → “Tab” → `OK`). A ▯ shows in the text.
+2. Tab length: `Label` → “Tab Length” → `OK` → “Auto” or 0–100 mm → `OK`.
+
+Note: Up to 80 tabs in a label with no text (79 with one letter). `Space` resets tab length to Auto.
+
+#### Upper and lower case (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/caps
+
+1. Press `Caps` to toggle upper case for everything you type (Caps indicator on the LCD).
+2. Hold `Shift` while typing one letter for a single capital.
+
+#### Accented characters (é ñ ü …) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/accents
+
+1. Type the letter.
+2. Press `Accent`. Press `Accent` again (or `◀` / `▶`) to cycle the variants.
+3. Press `OK`.
+
+Note: See the Accent table under Symbols for every variant. Order depends on the LCD language.
+
+#### Clear text and/or formatting (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/clear
+
+1. `BS` deletes one character (Backspace).
+2. `Shift` + `BS` → choose “Text&Format” (everything) or “Text Only” (keep font, frame, margins) → `OK`.
+3. Alternative: `Menu` → “Clear” → `OK` → “Text&Format” / “Text Only” → `OK`.
+
+#### Preview a label (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/preview
+
+1. Press `Preview` (the magnifier key).
+2. Scroll a long label with `◀` / `▶`.
+3. Leave with `Esc`, `OK` or `Enter`.
+
+Note: The preview is generated and may differ slightly from the print. Not available for pattern templates.
+
+#### Feed blank tape (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/feed
+
+1. Press `Shift` + `Preview`. About 25 mm (1") of tape feeds.
+
+#### Print and print copies (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/print-copies
+
+1. Press `Print`. “Copies:” appears.
+2. Use `◀` / `▶` or type a digit for 1–9 copies (or just press `OK` for one).
+3. Press `OK`.
+4. When "Please Cut" appears push the cutter lever at the top right.
+
+Note: Never press the lever while "Please Wait" is displayed. It jams the tape.
+Note: To peel: fold the label lengthwise with text inside so the backing splits, then peel each half.
+
+#### Numbering (auto-increment serial labels) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/numbering
+
+1. Type the text including the number, e.g. “0123”.
+2. Move the cursor onto the number to increment with `◀` / `▶`.
+3. Press `Shift` + `Print`.
+4. “Numbering” → `OK`.
+5. Use `◀` / `▶` to set the highest number to print (e.g. 0125 prints 0123, 0124, 0125), then `OK`.
+
+Note: Up to 9 labels per run. "Invalid!" means the cursor is not on a number.
+
+#### Mirror print (for glass and windows) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/mirror
+
+1. Type the text.
+2. Press `Shift` + `Print`.
+3. `◀` / `▶` to “Mirror” → `OK`.
+4. “Mirror Print?” → `OK`.
+
+Note: Use clear tape so the label reads correctly from the other side of the glass.
+
+#### Save, open and print stored labels (30 slots) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/files
+
+1. Save: type the label → `File` → `◀` / `▶` to “Save” → `OK` → `◀` / `▶` to a slot number (1–30) → `OK`. Choosing an occupied slot asks "Overwrite OK?".
+2. Print a stored label: `File` → “Print” → `OK` → pick the slot → `OK` → “Copies:” → `OK`.
+3. Open for editing: `File` → “Open” → `OK` → pick the slot → `OK`.
+4. Shortcut into the File menu: `Menu` → `1`.
+
+Note: 80 characters per file, 2400 in total. Files are lost after a reset, a repair, or if power is cut for a long time. Keep good batteries in as memory backup even when using the adapter.
+Note: Labels made with templates cannot be saved.
+
+#### Font, size, width, style and alignment (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/font
+
+1. Press `Font`.
+2. Use `◀` / `▶` to pick “Font”, “Size”, “Width”, “Style” or “Alignment”, then `OK`.
+3. Use `◀` / `▶` to pick the setting, then `OK`.
+
+Note: See the Fonts & styles section for samples of all 14 fonts and 10 styles (there is no I+Solid on the D210).
+Note: Vertical style prints each character rotated so the label reads top-to-bottom when hung vertically.
+
+#### Add a frame (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/frame
+
+1. Press `Frame`.
+2. Type the frame number (01–99) or browse with `◀` / `▶`.
+3. Press `OK`.
+
+Note: Sheet 01 is Off; 02 is underline. Highlighted numbers (27, 28, 53, 77, 84, 86, 87, 90, 92–99) need 12 mm tape. See the Frames section to browse all designs with their numbers.
+
+#### Insert a symbol or pictogram (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/symbol
+
+1. Press `Symbol`.
+2. Choose “History”, “Basic” or “Pictograph” with `◀` / `▶`, then `OK`.
+3. Choose the category (or press its shortcut letter), then `OK`.
+4. Move to the symbol with `◀` / `▶`, then `OK`.
+
+Note: History holds your 7 most recent symbols. Every category page in this app shows the shortcut key and each symbol's position.
+
+#### Use the template library (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/templates
+
+1. Press `Template Library`.
+2. “Select Category”: “Text” or “Patterns” → `OK`.
+3. Pick a design → `OK`, then follow the prompts (“Input Text 1”, “Input Text 2” or “Set Label Length”).
+4. “Print” → `OK`.
+
+Note: 12 mm tape only. See the Templates section for pictures of all 27 designs (17 text + 10 pattern).
+
+#### Language and units (inch / mm) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/language-unit
+
+1. Language: `Menu` → `◀` / `▶` to “Language” → `OK` → pick → `OK`. Shortcut: `Menu` → `Space`.
+2. Unit: `Menu` → “Unit” → `OK` → “inch” / “mm” → `OK`. Shortcut: `Menu` → `3`.
+
+Note: 22 languages: English, Español, Français, Hrvatski, Italiano, Magyar, Nederlands, Norsk, Polski, Português, Portug. (BR), Română, Slovenski, Slovenský, Suomi, Svenska, Türkçe, Čeština, Dansk, Deutsch.
+
+#### LCD contrast (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/contrast
+
+1. `Menu` → “LCD Contrast” → `OK` → `◀` / `▶` for −2 … +2 → `OK`. Shortcut: `Menu` → `4`.
+
+Note: `Space` returns to the default (0).
+
+#### Factory reset (also fixes a locked-up device) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/reset
+
+1. Turn the device off.
+2. Hold `Shift` and `R`, then press `Power` to turn it on.
+3. Release `Power` first, then release `Shift` and `R`.
+
+Note: Everything is erased: text, settings, all 30 stored files, language and unit.
+
+#### Move around long text (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/cursor
+
+1. `◀` / `▶` move one character.
+2. `Shift` + `▶` jumps to the end, `Shift` + `◀` to the start.
+3. The LCD shows 15 characters at a time; the label can hold 80.
+
+#### Batteries, adapter and auto power off (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/power
+
+1. Use 6 × AAA alkaline (LR03) or fully charged Ni-MH (HR03). Replace all six together, never mix types.
+2. Optional adapter AD-24ES / AD-24ESA (and listed variants) plugs into the jack at the top. Keep batteries in as memory backup.
+3. The device switches off after 5 idle minutes. Text and settings survive 3 minutes without any power; longer and they are lost.
+
+Note: The device cannot charge Ni-MH cells.
+
+#### Change the tape cassette (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/tape
+
+1. Switch off. Press the marked area at the top end to open the cassette cover.
+2. Pull the old cassette straight up.
+3. Insert the new TZe cassette until it clicks, making sure the tape end runs under the tape guides.
+4. Close the cover.
+
+Note: Only Brother TZe tapes with the TZe mark work. Never print with an empty cassette. It damages the print head.
+Note: Blank line through the print? Wipe the print head with a dry cotton swab.
+
+#### Replace a blunt cutter (TC-4) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/howto/cutter
+
+1. Open the cassette cover and remove the tape.
+2. Pull the two green sections of the cutter unit out in the direction of the arrows.
+3. Push the new TC-4 unit in until it locks.
+
+Note: Never touch the blade with your fingers.
+
+### Error messages
+
+#### “Battery Low! / Battery Empty!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/battery-low-battery-empty
+
+Meaning: Batteries are weak or nearly flat.
+Fix: Replace all six alkaline cells, or fully charge the Ni-MH cells.
+
+#### “Invalid!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/invalid
+
+Meaning: Numbering with no number under the cursor, an invalid character selected for Numbering, or an invalid Tab / Label Length value (also inside templates).
+Fix: Move the cursor onto a digit, or enter a value within range.
+
+#### “No Text!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/no-text
+
+Meaning: Print, Preview, Feed, Numbering or a template step was requested with no text entered, or you tried to print an empty file slot.
+Fix: Type some text first.
+
+#### “2 Line Limit! / 1 Line Limit!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/2-line-limit-1-line-limit
+
+Meaning: You pressed Enter for a third line, or tried two lines on 3.5 / 6 mm tape.
+Fix: Use 9 or 12 mm tape for two lines; keep to two lines max.
+
+#### “No Cassette!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/no-cassette
+
+Meaning: Print, feed or preview with no tape installed.
+Fix: Insert a TZe cassette.
+
+#### “Cutter Pressed” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/cutter-pressed
+
+Meaning: The cutter lever was pushed while printing.
+Fix: Wait for "Please Cut" before cutting.
+
+#### “Text Full!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/text-full
+
+Meaning: 80 characters (50 in templates) already entered.
+Fix: Shorten the text.
+
+#### “Change Length” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/change-length
+
+Meaning: The text is longer than the fixed label length.
+Fix: Reduce the text or set Label Length back to Auto (`Space` in the setting).
+
+#### “No Frame OK?” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/no-frame-ok
+
+Meaning: Frame set on 3.5 mm tape, or a 12 mm-only (highlighted) frame on narrower tape.
+Fix: `OK` prints without the frame, `Esc` cancels. Or switch to 12 mm tape.
+
+#### “Feed OK?” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/feed-ok
+
+Meaning: Shown after each label when Chain Print is on.
+Fix: `OK` feeds the tape (do this before cutting the last label); `Esc` continues with the next label.
+
+#### “Insert 0.47"” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/insert-0-47
+
+Meaning: Templates need 12 mm tape.
+Fix: Install a 12 mm (0.47") cassette.
+
+#### “Use TZe Tape!” (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/use-tze-tape
+
+Meaning: The cassette is not a TZe tape.
+Fix: Use a cassette with the TZe mark.
+
+### Problems and fixes
+
+#### Display stays blank after power on (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/display-stays-blank-after-power-on
+
+Check battery orientation, replace weak batteries, or check the adapter is plugged in properly.
+
+#### Too much blank tape on both sides of the text (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/too-much-blank-tape-on-both-sides-of-the-text
+
+Label → Margin → Half or Narrow. Use Chain Print for batches. The first 25 mm lead-in cannot be removed.
+
+#### Nothing prints, or characters are malformed (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/nothing-prints-or-characters-are-malformed
+
+Check the cassette is inserted correctly and not empty, and that the cover is closed. Weak batteries also cause faint or broken print.
+
+#### Settings cleared on their own (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/settings-cleared-on-their-own
+
+Weak batteries, or power was disconnected for more than 3 minutes.
+
+#### Blank horizontal line through the label (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/blank-horizontal-line-through-the-label
+
+Dust on the print head: remove the cassette and gently wipe the head up and down with a dry cotton swab.
+
+#### Device locked up (keys do nothing) (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/device-locked-up-keys-do-nothing
+
+Do the factory reset: off → hold Shift + R → Power → release Power, then Shift and R.
+
+#### Power turns off when printing (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/power-turns-off-when-printing
+
+Weak batteries, wrong adapter, or batteries inserted incorrectly. Use AD-24ES / AD-24ESA (or a listed variant).
+
+#### Tape does not feed or gets stuck (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/tape-does-not-feed-or-gets-stuck
+
+Make sure the tape end runs under the guides. Do not touch the cutter lever while printing.
+
+#### Tape jammed inside (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/tape-jammed-inside
+
+Open the cover, remove the cassette, gently pull out the jammed tape and rewind slack into the cassette with a fingertip before re-inserting.
+
+#### Cutter does not cut cleanly (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/cutter-does-not-cut-cleanly
+
+Replace the cutter unit (TC-4).
+
+#### Want to start a fresh label (Brother PT-D210)
+https://labelarium.com/d/brother-pt-d210/trouble/want-to-start-a-fresh-label
+
+Shift + BS → Text&Format → OK.
+
+### Shortcuts
+
+- `Menu` → `1`: File menu
+- `Menu` → `2`: Insert a Tab
+- `Menu` → `3`: Unit (inch / mm)
+- `Menu` → `4`: LCD Contrast (−2 … +2)
+- `Menu` → `BS`: Clear (Text & Format, or Text Only)
+- `Menu` → `Space`: Language
+- `Shift` + `BS`: Clear text and/or format
+- `Shift` + `Preview`: Feed about 25 mm (1") of blank tape
+- `Shift` + `Print`: Print Options: Numbering or Mirror
+- `Shift` + `▶`: Jump cursor to the end of the text
+- `Shift` + `◀`: Jump cursor to the start of the text
+- `Frame` → number keys → `OK`: Pick a frame directly by its sheet number (01–99)
+- `Symbol` → “Basic” or “Pictograph” → `OK` → letter key: Jump straight to a symbol category (see each category for its key)
+- `Print` → digit key: Set number of copies (1–9) by typing it
+- `Space` (inside any setting): Return that setting to its default (e.g. Label Length → Auto)
+- `Esc`: Cancel anything, exit preview or templates
+- `Shift` + digit: Type the symbol printed above the digit: ! @ # $ % ' & * ( ) and " on the − key
+- `Shift` + `,` / `.` / `;`: Type ? / and :
+- letter → `Accent` → `Accent`…: Cycle accented letters (é è ê ë …), `OK` to insert
+- `Enter`: New line (2-line label on 9 / 12 mm tape)
+- `Esc` / `OK` / `Enter` in preview: Leave the preview
+- `Power` off → hold `Shift` + `R` → press `Power`: Factory reset (clears everything; release Power first, then Shift and R)
+
+### Specs
+
+- Tape: Brother TZe laminated tape, 3.5 / 6 / 9 / 12 mm (0.13" / 0.23" / 0.35" / 0.47")
+- Print: 180 dpi thermal transfer, 2 lines max (9 & 12 mm tape)
+- Text: Up to 80 characters per label (50 in templates), 15-character one-row LCD
+- Fonts: 14 fonts · 3 sizes · 3 widths · 10 styles · 4 alignments
+- Decorations: 99 frame slots on the sheet (01 is Off, 02 is underline) · 27 templates · 621 symbols in 27 categories
+- Memory: 30 saved labels (80 chars each, 2400 total). History keeps the last 7 symbols
+- Power: 6 × AAA alkaline (LR03) or Ni-MH (HR03), or AC adapter AD-24ES / AD-24ESA / AD-24ESAW / AD-24ESA-01 / AD-24ESAW-01 (optional)
+- Auto power off: After 5 minutes idle. Text & settings survive 3 minutes without power
+- Size / weight: 157 × 150 × 68 mm, 490 g without batteries
+- Cutter: Manual lever; replacement cutter unit TC-4
+
+## Brother P-touch PT-D610BT
+Professional Label Maker with Bluetooth. 900 symbols in 26 categories, 167 frames, 80 templates, 17 fonts, 17 styles, 22 shortcuts, 29 how-to guides. Page: https://labelarium.com/d/brother-pt-d610bt
+
+### How-to guides
+
+#### Home Screen: Create Label, Auto Format, File, Settings (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/home
+
+1. Press `Home` (house / Bluetooth key).
+2. Use `◀` / `▶` to pick “Create Label”, “Auto Format”, “File” or “Settings”, then `OK`.
+
+Note: Create Label starts a 280-character label. Auto Format holds Templates, Block Layouts and Table Format.
+
+#### Font, size, width, style and alignment (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/attributes
+
+1. For one character: `Shift` + `Fn`, pick the attribute, pick the value, `OK`.
+2. For a whole line: put the cursor on that line, then `Shift` + `Fn`. Three bars on the left mean the change applies to that line only.
+3. Press `Esc` to return to the text.
+
+Note: 17 fonts, 9 sizes (Auto + 6–48 pt), 5 widths, 17 styles including Vertical / Vertical Bold, 4 alignments. Some fonts are region-locked.
+
+#### Multiple lines (up to 7) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/two-lines
+
+1. Type line 1.
+2. Press `Enter` at the end of the line (a return mark appears).
+3. Type the next line. Repeat up to the tape width limit.
+
+Note: 24 mm: 7 lines. 18 mm: 5. 12 mm: 3. 9 mm and 6 mm: 2. 3.5 mm: 1.
+
+#### Text blocks (up to 5) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/blocks
+
+1. Hold `Shift` and press `Enter` to start a new block to the right of the cursor.
+2. Format a block the same way as a line (cursor in the block, then Shift + Fn).
+
+Note: Maximum five blocks per label.
+
+#### Fixed label length (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/length
+
+1. `Fn` → “Length” → `OK`.
+2. Pick “Auto” or 30–300 mm (1.2"–12") with `▲` / `▼` or the number keys, then `OK`.
+
+Note: “Text too long” means the text no longer fits. Shorten it or return to Auto (`Space` in the setting).
+
+#### Cut options (Small / Large / Chain / No Cut / Special Tape) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/cut
+
+1. `Fn` → “Cut Option” → `OK`.
+2. Pick “Small Margin” (2 mm), “Large Margin” (25 mm), “Chain”, “No Cut” or “Special Tape”, then `OK`.
+
+Note: The first label still has about 23 mm of lead-in (print head to cutter). After Chain or No Cut, press Shift + Preview to feed and cut the last label.
+Note: Use No Cut / Special Tape for fabric iron-on, then cut with scissors.
+
+#### Chain print: many labels, less waste (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/chain
+
+1. `Fn` → “Cut Option” → “Chain” → `OK`.
+2. Print each label. After the last one, press `Shift` + `Preview` and choose Feed & Cut.
+
+Note: If you skip the final feed, the last label can be cut short.
+
+#### Print and copies (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/print
+
+1. Press `Print`.
+2. Set copies with `▲` / `▼` or the number keys (or `OK` for one).
+3. Press `Print` or `OK`.
+
+Note: Do not pull the tape while it is ejecting, and do not block the exit slot.
+
+#### Sequential numbering (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/numbering
+
+1. Type the text including the number.
+2. `Shift` + `Print` → “Number” → `OK`.
+3. Set the start and end with `◀` / `▶`, then `OK`.
+4. Set copies and print.
+
+Note: Up to 99 labels per run.
+
+#### Mirror print (glass and windows) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/mirror
+
+1. Type the text.
+2. `Shift` + `Print` → “Mirror” → `OK`.
+3. Press `Print` or `OK`.
+
+Note: Use clear tape so the label reads correctly from the other side of the glass.
+
+#### Preview a label (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/preview
+
+1. Press `Preview`.
+2. Scroll with the cursor keys. Shift + a cursor key jumps to that edge.
+3. Press `Scale/Zoom` to change magnification.
+4. Leave with `Esc`.
+
+#### Feed tape (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/feed
+
+1. `Shift` + `Preview`.
+2. Pick “Feed & Cut” or “Feed Only”, then `OK`.
+
+Note: Feed Only is recommended for fabric iron-on tape, which you then cut with scissors.
+
+#### Barcodes (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/barcode
+
+1. `Fn` → “Barcode” → `OK`.
+2. Set Protocol, Width (use Large when you can), Under# and C.Digit, then enter the data.
+3. Up to five barcodes per label.
+
+Note: Print black on white. “Check no. of digits entered” means the data length does not match the protocol.
+
+#### Table format (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/table
+
+1. `Home` → “Auto Format” → “Table Format” → `OK`.
+2. Pick the tape width, then set Rows and Columns.
+3. Type each cell, then print or save.
+
+Note: Row limit follows the tape: 7 / 5 / 3 / 2 lines.
+
+#### Save, open, print and mark files (99 slots) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/files
+
+1. Save: `Fn` → “Save” → pick a slot → `OK`.
+2. Open / print / delete / mark: `Home` → “File” → pick a slot → pick the action.
+3. Marking stores the file in one of eight colour categories.
+
+Note: 280 characters per file. Files are lost if power is gone for more than two minutes without batteries.
+
+#### Symbol History (last 30) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/history
+
+1. `Home` → “Settings” → “Symbol History” → “On” or “Off”.
+2. With History on, `Symbol` lists the last 30 symbols first.
+
+#### Accented characters (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/accents
+
+1. Type the letter.
+2. Press `Accent` and cycle with `Accent` or `▲` / `▼`.
+3. Press `OK`.
+
+Note: The set depends on the LCD language. See the Accent table under Symbols.
+
+#### Clear text and/or formatting (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/clear
+
+1. `BS` deletes one character.
+2. `Clear` → “Text Only” or “Text & Format” → `OK`.
+3. Shift + BS deletes the current line.
+
+#### Tabs (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/tabs
+
+1. Press `Tab` to insert a tab.
+2. `Fn` → “Tab Length” → 0–100 mm (0–4.0") → `OK`.
+
+#### Text Reminder (autocomplete) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/reminder
+
+1. Type a letter and press `OK` to see stored words starting with that letter.
+2. `Home` → “Settings” to turn Text Reminder on or off, or to clear its memory.
+
+#### Time stamp and clock (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/clock
+
+1. Set the clock: `Home` → “Settings” → “Set Clock”.
+2. Format: “Time & Date Format”.
+3. Stamp: “Time Stamp Setting” for Auto/Fixed, Date / D&T / Time / T&D, and optional Forward date.
+
+Note: Keep AA cells in so the clock survives unplugging.
+
+#### Bluetooth (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/bluetooth
+
+1. `Shift` + `Home`, or `Home` → “Settings” → “Bluetooth” → “Bluetooth (On/Off)”.
+2. Pair from Brother iPrint&Label or P-touch Editor.
+
+Note: Bluetooth 5.0, SPP / iAP2. The device cannot pair with two hosts at once.
+
+#### Language and units (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/language-unit
+
+1. Language: `Home` → “Settings” → “Language”.
+2. Unit: “Settings” → “Unit” → “inch” or “mm”.
+
+#### Display brightness and label-length trim (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/contrast
+
+1. `Home` → “Settings” → “Adjustment” → “Display Brightness” (−2 … +2).
+2. “Label Length” trim is −3 … +3 (about 1% of length per step) when a nearly-empty cassette prints short.
+
+#### Label View vs Print Preview (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/input-mode
+
+1. `Home` → “Settings” → “Input Mode” → “Label View” or “Print Preview”.
+2. Tape Colour detection (default On) tints Label View to match the cassette.
+
+#### Batteries, adapter and auto power-off (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/power
+
+1. Use 6 × AA alkaline (LR6), all new, same type.
+2. Adapter AD-E001A only. Keep batteries in as memory/clock backup.
+3. Auto power-off: Settings → Auto Power Off. Battery 5/10/30 min; AC 1/2/4/8 hr.
+
+Note: Power gone for more than two minutes without batteries clears the current text, format and saved files.
+
+#### Change the tape cassette (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/tape
+
+1. Open the cassette cover.
+2. Drop the TZe cassette in so the tape runs under the guides and does not catch the print head.
+3. Close the cover. If it will not close, lift the release lever first.
+
+Note: Only Brother TZe tapes with the TZe mark. An empty cassette damages the head.
+
+#### Clean the print head and cutter (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/clean
+
+1. Unplug and remove the batteries.
+2. Wipe the print head with a dry cotton swab or use cassette TZe-CL4.
+3. About once a year, wipe the cutter blade with a cotton swab and isopropyl alcohol. Do not touch the blade.
+
+#### Reset (LCD) (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/howto/reset
+
+1. `Home` → “Settings” → “Reset” → pick a method → `OK` twice.
+2. “Reset All Settings” keeps files. “Erase All Content” clears files and keeps settings. “Factory Settings” clears both.
+
+Note: After Reset All Settings or Factory Settings you must set the language again.
+
+### Error messages
+
+#### “Barcode error / Record: / Field:” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/barcode-error-record-field
+
+Meaning: A transferred database barcode used characters the protocol cannot encode.
+Fix: Fix the database field or pick another protocol.
+
+#### “Check no. of digits entered” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/check-no-of-digits-entered
+
+Meaning: Barcode data length does not match the protocol.
+Fix: Enter the required number of digits.
+
+#### “Cutter malfunction” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/cutter-malfunction
+
+Meaning: Tape is jammed in the cutter.
+Fix: Remove the jam. Turn the device off and on before continuing.
+
+#### “Label too long” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/label-too-long
+
+Meaning: Printed length would exceed 999 mm (39.37").
+Fix: Shorten the text.
+
+#### “System error XX” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/system-error-xx
+
+Meaning: Internal fault.
+Fix: Contact Brother Customer Service and quote the number.
+
+#### “Text too long” (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/text-too-long
+
+Meaning: Text is longer than the fixed label length.
+Fix: Shorten the text or set Length back to Auto.
+
+### Problems and fixes
+
+#### Nothing prints (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/nothing-prints
+
+Cassette missing, empty or not clicked in; cover open; device off; Bluetooth paired to another host; dirty print head (clean with a swab or TZe-CL4).
+
+#### Tape does not feed / jammed (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/tape-does-not-feed-jammed
+
+Cut off a bent leader. Remove the cassette, clear the jam, feed the tape under the guides, re-insert.
+
+#### Too much blank tape on both sides (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/too-much-blank-tape-on-both-sides
+
+Cut Option → Small Margin or Chain. The first ~23 mm lead-in cannot be removed. After a Chain batch, Shift + Preview → Feed & Cut.
+
+#### LCD blank after power on (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/lcd-blank-after-power-on
+
+Check battery direction, replace all six AA cells, or seat the AD-E001A adapter.
+
+#### LCD in a foreign language (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/lcd-in-a-foreign-language
+
+Settings → Language.
+
+#### Stops while printing (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/stops-while-printing
+
+Striped leader means the cassette is empty. Weak batteries: replace all six or use the adapter.
+
+#### Saved files gone (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/saved-files-gone
+
+Power was off more than two minutes without batteries. Keep AA cells in as backup.
+
+#### Screen locked / keys do nothing (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/screen-locked-keys-do-nothing
+
+Settings → Reset, or unplug and remove batteries for 10 minutes.
+
+#### Barcodes will not scan (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/barcodes-will-not-scan
+
+Use black on white tape and Width = Large.
+
+#### Font will not go larger (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/font-will-not-go-larger
+
+Already at the maximum for this tape, or Length is fixed.
+
+#### Last Chain label cut wrong (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/last-chain-label-cut-wrong
+
+Feed & Cut after the last copy.
+
+#### Firmware update failed (Brother PT-D610BT)
+https://labelarium.com/d/brother-pt-d610bt/trouble/firmware-update-failed
+
+Restart and retry. Do not press keys until the Home Screen returns.
+
+### Shortcuts
+
+- `Home` → “Create Label”: Start a new label (up to 280 characters)
+- `Home` → “Auto Format”: Templates, Block Layouts and Table Format
+- `Home` → “File”: Print, Open, Delete or Mark a saved label (99 slots)
+- `Home` → “Settings”: Language, Unit, Auto Power Off, Bluetooth, Tape Colour, Input Mode, Adjustment, Clock, Reset
+- `Shift` + `Home`: Toggle Bluetooth on or off from the Home Screen
+- `Shift` + `Fn`: Character attributes (Font, Size, Width, Style, Alignment)
+- `Fn` → “Frame”: Pick a frame by category or by typing its number
+- `Fn` → “Barcode”: Insert a barcode (CODE39, CODE128, EAN, UPC, ITF, CODABAR, GS1-128)
+- `Fn` → “Length”: Label length Auto or 30–300 mm (1.2"–12")
+- `Fn` → “Cut Option”: Small Margin / Large Margin / Chain / No Cut / Special Tape
+- `Fn` → “Tab Length”: Tab length 0–100 mm (0–4.0")
+- `Fn` → “Save”: Save the current label to one of 99 file slots
+- `Shift` + `Preview`: Feed & Cut or Feed Only
+- `Shift` + `Print`: Print Options: Numbering or Mirror
+- `Shift` + `◀` / `▶`: Jump to the start / end of the current line
+- `Shift` + `▲` / `▼`: Jump to the previous / next block
+- `Space` (inside any setting): Return that setting to its default
+- `Esc`: Cancel, leave preview, back out of menus
+- `Shift` + digit: Type the symbol printed above the digit
+- letter → `Accent`: Cycle accented letters, `OK` to insert
+- `Enter`: New line (up to 7 lines on 24 mm tape)
+- `Print` → digit: Set number of copies (up to 99)
+
+### Specs
+
+- Tape: Brother TZe laminated tape, 3.5 / 6 / 9 / 12 / 18 / 24 mm (0.13" / 0.23" / 0.35" / 0.47" / 0.70" / 0.94")
+- Print: Thermal transfer, about 30 mm/s (1.18"/s). Max print height 18.0 mm (0.71") on 24 mm tape
+- Text: Up to 280 characters per label, 99 file slots. Colour LCD (320 × 120 dpi)
+- Fonts: 17 fonts · 9 sizes (Auto + 6–48 pt) · 5 widths · 17 styles · 4 alignments
+- Decorations: 167 printed frames in 5 categories (Brother lists 160) · 37 Auto Format templates · 43 block layouts
+- Symbols: 26 categories. 702 individually cropped glyphs + circled 1–99 + boxed 1–99 (Brother lists 900)
+- Memory: 99 saved labels, 280 characters each. Symbol History stores the last 30 symbols
+- Power: 6 × AA alkaline (LR6). AC adapter AD-E001A. Batteries back up memory
+- Auto power off: Battery: 5 / 10 / 30 min. AC adapter: 1 / 2 / 4 / 8 hr
+- Size / weight: 202 × 87 × 199 mm (7.95" × 3.42" × 7.83"), about 990 g without batteries and cassette
+- Cutter: Automatic full cutter. Clean the blade about once a year with isopropyl alcohol
+- Wireless: Bluetooth 5.0 (SPP / iAP2). USB 2.0 Full Speed, Micro-B
+
+## NIIMBOT D110
+Smart Label Printer (US SKU D110_M). 17 symbols in 6 categories, 5 shortcuts, 8 how-to guides. Page: https://labelarium.com/d/niimbot-d110
+
+### How-to guides
+
+#### Power on and off (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/power
+
+1. Press and hold the `Power` button for three seconds to power on (the button-functions table also lists hold 2–3 seconds for on or off).
+2. Hold `Power` 2–3 seconds again to power off.
+
+Note: If the device cannot be turned on, charge for one hour.
+
+#### Load the label paper (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/load-paper
+
+1. Slide the door-open button (OPEN) to the left to open the paper compartment.
+2. Place the label roll in the compartment with the printing surface face down and the first label protruding from the paper outlet.
+3. Close the paper compartment.
+
+Note: The cutting blade is on the lid. Tear against it after printing.
+Note: ※ The label paper should be inserted with the printing side face down in the paper compartment.
+
+#### Download NIIMBOT or NIIM (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/apps
+
+1. For commercial or industrial work, download the NIIMBOT app (industry templates, data import, batch printing).
+2. For home storage or personal projects, download the NIIM app (creative icons and household templates).
+3. Get either app from the Apple App Store or Google Play.
+
+Note: The guide calls both “Design & Print APP, easy to download and use”.
+
+#### Connect over Bluetooth and print (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/connect
+
+1. Once the app is downloaded, turn on the phone's Bluetooth.
+2. Open the app and search for Bluetooth devices to connect to.
+3. If it asks for a PIN, enter “0000” or “1234”, then press OK.
+4. Once connected, go to the Drawing Board.
+
+Note: Location permissions may need to be enabled on Android phones.
+Note: Illustrations of software interfaces in this guide are for reference only.
+
+#### Power-button actions (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/button
+
+1. Hold 2–3 seconds: on or off.
+2. Quick press: set in the app to “Don't feed paper”, “Print current time” or “Print history”.
+3. Press twice: print a testing page.
+
+#### Charge the printer (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/charge
+
+1. Plug the USB Type-C cable into the port on the top (next to the Power Indicator light).
+2. Input is 5 V DC, 1 A. Charging time is 3–4 hours.
+3. Watch the Power Indicator light: white blinking slowly = charging; white solid = fully charged and connected to power; white flashing quickly = low battery.
+
+Note: If you use a power adapter, it must be safe, compliant, and meet the standards.
+Note: If the device cannot be turned on, charge for one hour.
+
+#### Read the indicator lights (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/indicators
+
+1. Front Indicator light (around the power button): blue solid = powered on but not connected; blue flashing quickly = upgrading firmware; green solid = Bluetooth connected; green flashing quickly = printing; red solid = device fault.
+2. Top Power Indicator light: white blinking slowly = charging; white solid = fully charged and connected to power; white flashing quickly = low battery.
+
+#### Safety precautions (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/howto/safety
+
+1. Do not disassemble the product yourself (no returns or exchanges for disassembled products).
+2. Do not use corrosive chemical products or cleaners to wipe the product.
+3. Do not use the product near flammable substances (gas stations, fuel depots, etc.).
+4. Keep the product and accessories away from children, or use only under a guardian.
+5. If the product enters water, or malfunctions, disconnect it from power immediately.
+6. Do not replace the battery yourself. Incorrect replacement can explode.
+7. If you notice smoke or a smell from the product or adapter, disconnect immediately and avoid burns.
+
+Note: Buy the version that matches your region from the NIIMBOT official store or an authorized sales agent.
+
+### Error messages
+
+#### “Blue · solid” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/blue-solid
+
+Meaning: Powered on but not connected.
+Fix: Open the NIIM or NIIMBOT app and connect over Bluetooth.
+
+#### “Blue · flashing quickly” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/blue-flashing-quickly
+
+Meaning: Upgrading firmware.
+Fix: Wait until the light stops flashing quickly.
+
+#### “Green · solid” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/green-solid
+
+Meaning: Bluetooth connected.
+Fix: Go to the Drawing Board and print.
+
+#### “Green · flashing quickly” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/green-flashing-quickly
+
+Meaning: Printing.
+Fix: Wait for the job to finish, then tear against the cutting blade.
+
+#### “Red · solid” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/red-solid
+
+Meaning: Device fault.
+Fix: Disconnect power. Do not keep using a malfunctioning device. Contact NIIMBOT support if it persists.
+
+#### “White · blinking slowly” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/white-blinking-slowly
+
+Meaning: Charging.
+Fix: Leave it plugged in (3–4 hours from empty).
+
+#### “White · solid” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/white-solid
+
+Meaning: Fully charged and connected to power.
+Fix: You can unplug or keep it on the adapter.
+
+#### “White · flashing quickly” (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/white-flashing-quickly
+
+Meaning: Low battery.
+Fix: Charge via USB Type-C (5 V DC, 1 A).
+
+### Problems and fixes
+
+#### Device cannot be turned on (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/device-cannot-be-turned-on
+
+Charge for one hour, then hold `Power` for three seconds.
+
+#### Phone cannot find the printer (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/phone-cannot-find-the-printer
+
+Turn the printer on, enable Bluetooth, and on Android enable location permission. If a PIN is requested, try 0000 or 1234.
+
+#### Labels print blank or very faint (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/labels-print-blank-or-very-faint
+
+Reload the roll with the printing surface face down and the first label in the outlet. Direct thermal paper only.
+
+#### Red indicator stays on (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/red-indicator-stays-on
+
+Device fault. Disconnect from power. Do not disassemble. Contact service@niimbot.com.
+
+#### White light flashes quickly (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/white-light-flashes-quickly
+
+Low battery. Charge with the USB Type-C cable.
+
+#### Product entered water (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/product-entered-water
+
+Immediately disconnect from the power source.
+
+#### Smoke or a smell from the printer or adapter (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/smoke-or-a-smell-from-the-printer-or-adapter
+
+Disconnect the power adapter immediately, taking care to avoid burns.
+
+#### Considering opening the case or replacing the battery (NIIMBOT D110)
+https://labelarium.com/d/niimbot-d110/trouble/considering-opening-the-case-or-replacing-the-battery
+
+Do not. Disassembled units are not accepted for return or exchange; incorrect battery replacement can explode.
+
+### Shortcuts
+
+- hold `Power` 2–3 seconds: Power on or off
+- quick press `Power`: Don't feed paper, print current time, or print history (set in the app)
+- press `Power` twice: Print testing page
+- Bluetooth PIN “0000” or “1234”: If the phone asks for a PIN while pairing
+- Android location permission: Turn on location so the app can search for Bluetooth devices
+
+### Specs
+
+- Tape: Thermal label paper. Printing width 12 mm. This guide does not list other widths or TZe tape.
+- Print: 203 dpi thermal printing
+- Text: Designed in the NIIM or NIIMBOT app Drawing Board. This guide does not list a character limit.
+- Fonts: Chosen in the app. This getting-started guide does not print a font catalog.
+- Decorations: Icons and templates live in the NIIM / NIIMBOT apps. This guide does not print those catalogs.
+- Memory: Not specified. Quick press can be set in the app to “Print history”.
+- Power: 1500 mAh battery; USB Type-C charge, 5 V DC 1 A; 3–4 hours to charge
+- Auto power off: Not specified in this guide
+- Size / weight: 98 × 76 × 30 mm, 149 g
+- Cutter: Manual cutting blade on the paper compartment lid
+- Model: NIIMBOT D110_M (cover title: NIIMBOT D110)
+- Connectivity: Bluetooth 2402–2480 MHz, BLE 2402–2480 MHz, transmit power 4 dBm maximum
+- NFC: 13.56 MHz
+- Operating temperature: 5°C – 40°C
+
+## Phomemo M110
+Bluetooth Portable Thermal Business Label Maker. 8 shortcuts, 9 how-to guides. Page: https://labelarium.com/d/phomemo-m110
+
+### How-to guides
+
+#### What is in the box (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/unbox
+
+1. Support Center: Phomemo M110 printer × 1; 1½" × 1⅛" (40 × 30 mm) 100-label roll × 1 (already inside. Open the cover and pull it out a little so the printer senses it); USB cable × 1; user manual × 1.
+2. Setup guide also lists a warranty card and calls the roll a sample of 40 mm × 30 mm labels.
+
+Note: Product registration is no longer necessary. Keep proof of purchase for warranty.
+
+#### Charge the printer (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/charge
+
+1. Before first use, connect the included USB cable to a power source.
+2. Wait until the indicator is green. Red = charging; green = charged.
+
+Note: Setup guide: about 2–3 hours to charge; 1200 mAh battery, up to 4–5 hours of continuous printing.
+Note: Support Center: about 1.5 hours to refill; about 4 hours continuous. The battery is built-in and not user-replaceable.
+
+#### Load thermal labels (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/load
+
+1. Press the side button to open the top cover.
+2. Insert the label roll with the adhesive side facing out.
+3. Feed the label through the paper guide.
+4. Close the lid securely.
+5. Keep the paper aligned with the sensor. If the roll was pre-loaded, pull the end out a little so the printer senses it.
+
+Note: Width support listed by Phomemo: 20–50 mm. In-box sample is 40 × 30 mm.
+
+#### Install Print Master and connect (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/app
+
+1. Install Print Master: iOS App Store or Android Google Play, or the Support Center / drivers hub.
+2. Turn on Bluetooth on the phone.
+3. Open Print Master and allow permissions.
+4. Tap `Connect Device` → select “M110”.
+
+Note: MUST connect from Print Master, NOT from the phone’s Bluetooth settings. Otherwise pairing fails.
+Note: The app remembers the device for later sessions.
+
+#### Print the first label (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/print
+
+1. Open Print Master (printer already connected).
+2. Choose or create a template (setup guide examples: price tag, barcode, name label).
+3. Customise text, icons and layout. Tools on the official screenshot include `Text`, `Code`, `Icon`, `Frames`, `Form`, `Picture`, `Copy`, `Scan`, `Time`.
+4. Tap `Print`. The label prints in seconds.
+
+Note: 203 dpi. Good for retail, logistics, food packaging and similar uses, per the setup guide.
+
+#### Barcodes and QR codes (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/barcode
+
+1. In Print Master, use `Code` (and related barcode/QR tools in the app).
+2. Support Center: the software can create Code128, Code39, Codabar, EAN-8, EAN-13 and similar codes, plus QR codes.
+
+Note: Setup guide FAQ: generate and print barcodes and QR codes directly from the app.
+
+#### Windows, Mac and Chrome OS (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/computer
+
+1. Support Center: download Phomemo Setup Utilities for Windows or Mac from the drivers hub. Chrome OS is listed on the same page.
+2. Watch the official videos on that page: Print Master on phones; Labelife driver on Windows 10; Labelife on Mac; Labelife Chrome extension.
+3. Setup guide FAQ: the M110 is primarily mobile-focused; you can connect via USB for Windows with driver support.
+
+Note: Listed OS: Windows 7 / 8 / 10 (32- and 64-bit), Windows 11 (64-bit); macOS 10.14, 10.15, 10.11, 12; Chrome OS.
+Note: This pack does not document Labelife menus. Phomemo has not published that catalog on these two pages.
+
+#### How long thermal labels last (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/paper
+
+1. Support Center: store paper up to 10 years away from light, in the dark, at normal temperature. In use, avoid high temperature and sun.
+2. Setup guide FAQ: with proper storage, printed thermal labels last 1–2 years depending on the environment.
+
+Note: The two official pages give different figures (storage vs printed life). This pack keeps both.
+
+#### Contact Phomemo (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/howto/support
+
+1. E-mail: vip@phomemo.com
+2. Web: phomemo.com/support
+3. Phone: +1 855 957 5321, Mon–Fri 9:00–5:00 EDT (US).
+
+Note: Support Center: they will help, or repair or replace. Keep proof of purchase.
+
+
+### Problems and fixes
+
+#### Bluetooth connection fails / cannot pair (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/bluetooth-connection-fails-cannot-pair
+
+Turn Bluetooth on, open Print Master, tap Connect Device, select M110. Do not pair from the phone’s Bluetooth settings. The Support Center says that fails.
+
+#### App won’t connect (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/app-wont-connect
+
+Setup guide: restart Bluetooth or re-pair in app settings.
+
+#### Paper jam (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/paper-jam
+
+Setup guide: check alignment and make sure the sensor reads the label. Reload with the adhesive side out, paper in the guide, lid closed.
+
+#### Faded print (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/faded-print
+
+Setup guide: replace the roll; expired thermal paper can affect quality. Keep paper away from heat and sun.
+
+#### Printer does not sense the in-box roll (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/printer-does-not-sense-the-in-box-roll
+
+Support Center: the 40 × 30 mm roll is already inside. Open the cover and pull it out a little so the M110 can sense it.
+
+#### Misaligned print (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/misaligned-print
+
+Setup guide: keep the paper aligned with the sensor when loading.
+
+#### Need Windows or Mac (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/need-windows-or-mac
+
+Use the Support Center Setup Utilities and the Labelife videos on that page. Setup guide: USB + driver for Windows; the product is primarily mobile.
+
+#### Want a PDF manual (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/want-a-pdf-manual
+
+Phomemo has not published an M110 PDF. Support Center “M110 Manual” and “Quick Start Guide” both go to the drivers page. Use that page plus the setup guide.
+
+#### Battery questions (Phomemo M110)
+https://labelarium.com/d/phomemo-m110/trouble/battery-questions
+
+The 1200 mAh pack is built-in and not user-replaceable. Charge with the included USB cable (red → green).
+
+### Shortcuts
+
+- Phone `Bluetooth` on → open Print Master → `Connect Device` → “M110”: Pair the printer. Do not pair from the phone’s Bluetooth settings. That fails.
+- Print Master → template → `Print`: Print a label from the app
+- `Text` / `Code` / `Icon` / `Frames` / `Picture`: Tools shown on Phomemo’s Support Center screenshot of Print Master
+- `Side button` → open cover: Open the top cover to load labels
+- USB cable → charge until green: Charge. Red = charging, green = charged.
+- Pull label end out a little: Let the pre-loaded roll reach the sensor
+- Support Center → Print Master for iOS / Android: Download the app from the official drivers hub
+- Support Center → Setup Utilities for Windows / Mac: Computer drivers (also Chrome OS on that page)
+
+### Specs
+
+- Kind: Portable inkless direct-thermal label printer. Design and print from a phone; no ink cartridges.
+- Print: 203 dpi. Setup guide: barcodes, logos, QR codes and text from a mobile device.
+- Labels: Width 20–50 mm. In-box sample: 40 × 30 mm (1½" × 1⅛"), 100 labels. Support-page app screenshot shows 25 × 75 mm. Phomemo has not published a full size catalog here.
+- App: Print Master for iOS and Android. Pair inside the app (Connect Device → M110), not in the phone’s Bluetooth settings.
+- Computer: Support Center lists Windows 7 / 8 / 10 (32- and 64-bit), Windows 11 (64-bit), macOS 10.14 / 10.15 / 10.11 / 12, and Chrome OS, with Setup Utilities and video tutorials. Setup guide FAQ: primarily mobile-focused; USB + driver for Windows.
+- Battery: Built-in rechargeable 1200 mAh lithium; not user-replaceable. Support Center: about 4 hours continuous printing, about 1.5 hours to recharge. Setup guide: up to 4–5 hours; charge about 2–3 hours. Charge LED: red = charging, green = charged.
+- In the box: Support Center: printer, 40 × 30 mm 100-label roll (pre-loaded), USB cable, user manual. Setup guide also lists a warranty card and calls the roll a sample. Product registration is no longer necessary; keep proof of purchase for warranty.
+- Barcode: Print Master can create barcodes and QR codes, including Code128, Code39, Codabar, EAN-8 and EAN-13.
+- Thermal life: Support Center: paper stores up to 10 years if kept from light, dark and at normal temperature; avoid high heat and sun in use. Setup guide FAQ: printed labels last 1–2 years depending on the environment.
+- Manual: No official PDF. Support Center “M110 Manual” and “Quick Start Guide” both link to the drivers page.
+- Support: vip@phomemo.com · phomemo.com/support · +1 855 957 5321, Mon–Fri 9:00–5:00 EDT (US).
+
+## Brother P-touch CUBE Plus PT-P710BT
+Bluetooth cube printer for phones and P-touch Editor. 36 symbols in 6 categories, 3 styles, 17 shortcuts, 15 how-to guides. Page: https://labelarium.com/d/brother-pt-p710bt
+
+### How-to guides
+
+#### Insert a TZe tape cassette (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/tape
+
+1. Place your fingers on the Tape Exit Slot.
+2. Open the Cassette Cover by pulling the Tape Exit Slot to the left.
+3. Confirm the tape points at the Tape Exit Slot and press the cassette in until it locks. The end of the tape must run under the Tape Guide. Pull slack out if needed.
+4. Close the Cassette Cover.
+
+Note: When inserting or removing a cassette, keep the tape from catching on the printer.
+Note: Never print with an empty cassette. It damages the Print Head.
+Note: Only Brother TZe cassettes.
+
+#### Charge the Li-ion battery (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/charge
+
+1. First time only: pull out the protective sheet inside the cassette bay.
+2. Connect the included USB cable to the printer and to a computer USB port (5 V DC, 0.5–2 A) or to a USB AC adapter (not included) of the same rating.
+3. Charge until the Battery LED turns off.
+
+Note: Charge at 10–35 °C (50–95 °F) or the Battery LED stays lit and the cell will not charge.
+Note: Printing or feeding while charging can pause the charge; it resumes when the job ends.
+Note: Use the included USB cable.
+Note: If charging from a computer, leave the computer on.
+Note: Store long-term at 10–35 °C and charge once every six months.
+
+#### Remove the battery for replacement or disposal (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/battery
+
+1. Turn the printer off.
+2. Open the Cassette Cover.
+3. Remove the two screws from the Battery Cover with a flat-bladed screwdriver.
+4. Lift out the battery.
+5. To refit: contacts against the contacts in the compartment, replace the cover, tighten the screws, close the Cassette Cover.
+
+Note: DANGER: do not dispose of the battery with household waste.
+Note: Cover the contacts with cellophane tape before storing or discarding.
+Note: Observe local collection rules.
+
+#### Turn power on or off (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/power
+
+1. On: press `Power`.
+2. Off: press and hold `Power` until the Power LED turns off.
+
+#### Pair with a phone or tablet (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/pair
+
+1. Turn the printer on.
+2. On the phone: Settings → turn Bluetooth on.
+3. Select PT-P710BT**** (**** = last four digits of the serial number inside the Cassette Cover, under the cassette).
+4. If asked for a PIN, enter “0000”.
+5. Open iPrint&Label or P-touch Design&Print 2 and select this printer.
+
+Note: The cube does not support Wi-Fi.
+Note: If it is not found, it may already be paired with another device. Turn that device's Bluetooth off, or power-cycle the printer.
+Note: If it is not found, make sure it is not in sleep mode.
+Note: Keep the phone close; microwaves and other radio sources can block the link.
+
+#### Print from a mobile device (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/print-mobile
+
+1. Download iPrint&Label (business: barcodes, equipment, folder tabs) or P-touch Design&Print 2 (home and work styles) from the App Store or Google Play.
+2. Pair as above.
+3. Design the label in the app and print.
+4. The first label of a session feeds about 25 mm (1") of blank tape. Press `Power` twice quickly to feed and cut if you need to.
+
+Note: iPrint&Label and Design&Print 2 QR codes from the guide are in Symbols → Mobile apps.
+
+#### Print from a Windows or Mac computer (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/print-computer
+
+1. Visit install.brother and install the printer driver and P-touch Editor.
+2. Connect the included USB cable. Computers cannot print over Bluetooth on this model, and there is no Wi-Fi.
+3. Windows: double-click the P-touch Editor icon, pick Express, Professional or Snap, then print.
+4. Mac: Applications → P-touch Editor, pick a new template or a template category, then print.
+
+Note: Express: quick text and images. Professional: advanced tools. Snap: a palette that stays on screen (capture, drag-and-drop, print text).
+Note: Cable Labeling Wizard is available for electrical equipment labels.
+
+#### Auto Cut, Chain Printing, Special tape, Mirror (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/autocut-chain
+
+1. In P-touch Editor print settings, tick the options you need (several can be on at once).
+2. “Auto Cut”: cuts each label.
+3. “Chain Printing”: does not cut the last label, to save tape.
+4. “Special tape”: feeds for a manual cut. Use with fabric and extra-strength tapes.
+5. “Mirror Printing”: prints reversed. Use clear tape on glass so it reads from the other side.
+
+Note: Press `Power` twice quickly to feed and cut if Auto Cut is off.
+
+#### The 25 mm blank lead-in (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/lead-in
+
+1. The first label of a session always feeds about 25 mm (1") of blank tape. That is the laminate layer, not a setting you can zero out.
+2. Chain Printing (do not cut the last label) and the app's margin controls reduce wasted tape on later labels.
+
+Note: Most TZe labels have a clear laminate top layer. Adding that layer is why the lead-in exists.
+
+#### Peel the backing (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/peel
+
+1. Some tapes have a pre-cut backing.
+2. Fold the label lengthwise with the text facing in so the backing splits.
+3. Peel each half.
+
+#### Printer Setting Tool (Windows / Mac) (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/settings-tool
+
+1. Connect USB. Start Printer Setting Tool (Windows: Start → Brother → Printer Setting Tool; Mac: Applications → Brother → Printer Setting Tool).
+2. Confirm the printer name next to Printer.
+3. Windows: Device Settings. Mac: a Settings tab.
+4. Set Auto Power On, Auto Power Off, Auto Power Off (Li-ion), Contents, Length Adjustment.
+5. Apply, then Exit. Do not start another job while settings are changing.
+
+Note: File → Export / Import copies the same settings onto more PT-P710BT units.
+
+#### Update software and firmware (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/update
+
+1. Close other Brother applications.
+2. Software (Windows): double-click P-touch Update Software → Computer software update → pick printer and language → Install.
+3. Firmware: power on, USB connected → P-touch Update Software → Machine update → confirm the machine is connected → Transfer → Start.
+4. Mac software: see support.brother.com. Firmware path: Applications → P-touch Update Software → Machine update.
+
+Note: Do not power off or unplug USB during a firmware transfer.
+
+#### Clean the Print Head (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/clean-head
+
+1. Streaks or poor characters usually mean a dirty head.
+2. Option A: insert TZe-CL4 Head Cleaning Tape and press `Power` twice quickly. About 25 mm feeds per cycle. Repeat up to three times.
+3. Option B: power off, unplug USB, and wipe the head with a dry cotton swab.
+
+Note: CAUTION: do not touch the Print Head. It can burn.
+Note: If three cleaning-tape cycles do not help, contact Brother.
+
+#### Clean the tape cutter (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/clean-cutter
+
+1. Tape adhesive dulls the blade and can jam the cutter.
+2. Wipe the blades with a cotton swab moistened with ethanol or isopropyl alcohol.
+
+Note: CAUTION: do not touch or put fingers into the cutter blade.
+Note: Disconnect USB and power off before any maintenance. Wipe the exterior with a soft dry cloth (or slightly damp). No benzene, thinner or alcohol on the case.
+
+#### Cancel a print job (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/howto/cancel
+
+1. Make sure the printer is on.
+2. Lightly press `Power`.
+
+### Error messages
+
+#### “Power LED red, flashing twice per second then off 1 s” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-twice-per-second-then-off-1-s
+
+Meaning: Battery failure.
+Fix: Lightly press `Power`. If it continues, replace the battery.
+
+#### “Power LED red, flashing 1 s: no / wrong / incompatible cassette” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-1-s-no-wrong-incompatible-cassette
+
+Meaning: No cassette, incorrect cassette, or incompatible cassette.
+Fix: Lightly press `Power`. Insert a correct TZe cassette.
+
+#### “Power LED red, flashing 1 s: insufficient charge” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-1-s-insufficient-charge
+
+Meaning: Battery too low, or the protective sheet is still in place.
+Fix: Lightly press `Power`. Remove the protective sheet. Charge the battery.
+
+#### “Power LED red, flashing 1 s: high temperature” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-1-s-high-temperature
+
+Meaning: Printer too hot.
+Fix: Lightly press `Power`. Wait until the Power LED is green, then retry.
+
+#### “Power LED red, flashing 1 s: transmission error” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-1-s-transmission-error
+
+Meaning: Bluetooth or USB link dropped.
+Fix: Restart the printer. Phone: pair again. Computer: reseat the USB cable or try another USB port.
+
+#### “Power LED red, flashing 1 s: cutter error” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-1-s-cutter-error
+
+Meaning: Cutter jammed or failed.
+Fix: Restart the printer. Clean the cutter if adhesive has built up.
+
+#### “Power LED red, lit: program transfer failure” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-lit-program-transfer-failure
+
+Meaning: Firmware / program transfer failed.
+Fix: Transfer the program again. If it continues, contact Brother.
+
+#### “Power LED red, flashing 0.3 s: system error” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/power-led-red-flashing-0-3-s-system-error
+
+Meaning: Internal fault.
+Fix: Contact Brother. The flash pattern may change if you touch `Power`.
+
+#### “Battery LED flashing 0.5 s” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/battery-led-flashing-0-5-s
+
+Meaning: Insufficient charge or battery failure.
+Fix: See the Power LED table above.
+
+#### “Battery LED stays lit while charging” (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/battery-led-stays-lit-while-charging
+
+Meaning: Too cold or too hot to charge (outside 10–35 °C).
+Fix: Move to 10–35 °C (50–95 °F).
+
+### Problems and fixes
+
+#### The printer does not print (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/the-printer-does-not-print
+
+Cassette seated and not empty; cover closed; charge not low; printer on; phone not asleep; Bluetooth on; this printer selected in the P-touch app; not paired to another device; phone close by; no microwave nearby. From a computer: official driver, included USB cable, label not blank.
+
+#### Tape does not feed, or gets stuck inside (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/tape-does-not-feed-or-gets-stuck-inside
+
+If the tape is bent, cut off the bent part. If jammed, remove the cassette, pull the jam out and cut it. End of tape must sit in the Tape Guide and point at the Tape Exit Slot. Reseat the cassette.
+
+#### A tape-jam error will not clear (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/a-tape-jam-error-will-not-clear
+
+Contact Brother customer service.
+
+#### A horizontal gap runs through the printed label (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/a-horizontal-gap-runs-through-the-printed-label
+
+Dirty Print Head. See How-to: Clean the Print Head.
+
+#### An error in a mobile app (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/an-error-in-a-mobile-app
+
+App settings → Support page → FAQs & Troubleshooting.
+
+#### I want to cancel printing (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/i-want-to-cancel-printing
+
+Printer on, then lightly press `Power`.
+
+#### Ink ribbon is separated from the ink roller (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/ink-ribbon-is-separated-from-the-ink-roller
+
+If the ribbon is broken, replace the cassette. If not, leave the tape uncut, remove the cassette, and wind the loose ribbon back onto the spool.
+
+#### Printer stops while printing / striped tape appears (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/printer-stops-while-printing-striped-tape-appears
+
+You have reached the end of the tape. Insert a new cassette. Striped tape means empty.
+
+#### Tape is not cut automatically (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/tape-is-not-cut-automatically
+
+Select Auto Cut. Special tapes: cut by hand.
+
+#### Printed barcodes or QR codes cannot be read (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/printed-barcodes-or-qr-codes-cannot-be-read
+
+Try another scanner or QR app. Use black-on-white tape. Enlarge the code in the app if you can.
+
+#### About 25 mm (1") of blank tape before each label (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/about-25-mm-1-of-blank-tape-before-each-label
+
+Laminate lead-in. Reduce it with the app margin setting or by not cutting the last label (Chain Printing). The first lead-in cannot be removed.
+
+#### Cannot turn on, or it powers off when I print (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/cannot-turn-on-or-it-powers-off-when-i-print
+
+Charge the battery. Remove the protective sheet (see Insert a TZe tape cassette).
+
+#### Battery will not charge (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/battery-will-not-charge
+
+Unplug and reconnect USB. Remove the protective sheet. Charge only at 10–35 °C.
+
+#### Battery life is short even when fully charged (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/battery-life-is-short-even-when-fully-charged
+
+The cell may be worn out. Fit a new PA-BT-005.
+
+#### Check I have the latest software (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/check-i-have-the-latest-software
+
+Windows: P-touch Update Software. Mac: support.brother.com.
+
+#### White or gold objects print poorly / small text is fuzzy (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/white-or-gold-objects-print-poorly-small-text-is-fuzzy
+
+The UG warns that white and gold objects may not print clearly, small text is less sharp than on screen, and print can differ from the preview (the screen is higher resolution than 180 dpi).
+
+#### Label will not stick (Brother PT-P710BT)
+https://labelarium.com/d/brother-pt-p710bt/trouble/label-will-not-stick
+
+Surface wet, dirty or uneven. For rough/textured surfaces use Extra Strength Adhesive Tape. Read the instructions that come with fabric and other special tapes.
+
+### Shortcuts
+
+- `Power`: Power on
+- hold `Power` until Power LED off: Power off
+- `Power` `Power` (twice quickly): Feed about 25 mm (1") and cut
+- light `Power`: Cancel the current print, or clear some LED errors
+- Bluetooth PIN “0000”: Enter 0000 if the phone asks for a PIN while pairing
+- phone Settings → Bluetooth → “PT-P710BT****”: Pair. **** is the last four digits of the serial number inside the Cassette Cover
+- P-touch Editor → Auto Cut: Cut each label automatically
+- P-touch Editor → Chain Printing: Save tape by not cutting the last label
+- P-touch Editor → Special tape: Feed for a manual cut (fabric / extra-strength tapes)
+- P-touch Editor → Mirror Printing: Print reversed, for the inside of glass
+- Printer Setting Tool → Auto Power On: Turn on automatically when USB power is connected
+- Printer Setting Tool → Auto Power Off / Auto Power Off (Li-ion): Idle timeout on adapter power / on battery
+- Printer Setting Tool → Length Adjustment: Match printed length to the length shown on the computer
+- Printer Setting Tool → File → Export / Import: Copy the same settings onto more PT-P710BT units
+- P-touch Update Software → Computer software update: Update P-touch Editor and related PC software
+- P-touch Update Software → Machine update: Update printer firmware over USB
+- install.brother: Install the printer driver and P-touch Editor
+
+### Specs
+
+- Tape: Brother TZe laminated tape, 3.5 / 6 / 9 / 12 / 18 / 24 mm (0.13" / 0.23" / 0.35" / 0.47" / 0.70" / 0.94"). Head cleaning cassette TZe-CL4
+- Print: Thermal transfer. Brother lists 180 dpi standard / 180 × 360 dpi high-resolution (from a computer), up to 20 mm/s, max print width 18 mm on 24 mm tape. Auto cutter
+- Text: No on-device keyboard or LCD. Compose in iPrint&Label, P-touch Design&Print 2, or P-touch Editor. Printed length can differ from the on-screen preview
+- Fonts: Chosen in the app / P-touch Editor (not stored on the printer). This guide does not print a typeface catalog
+- Decorations: No on-device frames, templates or symbol sheet. Frames, barcodes and layouts live in the apps. This pack catalogs 36 cells cropped from the UG
+- Memory: No D210-style file slots on the printer. Save layouts in the app or P-touch Editor
+- Power: Rechargeable Li-ion PA-BT-005. Charge over the included USB cable from a computer USB port or a USB AC adapter (not included), 5 V DC, 0.5–2 A. Charge 10–35 °C (50–95 °F)
+- Auto power: Auto Power On / Auto Power Off / Auto Power Off (Li-ion) are set in the Printer Setting Tool, not with a fixed idle timer on the cube
+- Size / weight: 128 × 67 × 128 mm (5" × 2.6" × 5"), about 640 g with battery
+- Cutter: Automatic full cut. `Power` twice quickly feeds about 25 mm (1") and cuts. Special tapes: use Special tape (manual cut)
+
+## DYMO LabelManager 160
+Portable Label Maker. 228 symbols in 2 categories, 5 frames, Default typeface, 4 styles, 15 shortcuts, 16 how-to guides. Page: https://labelarium.com/d/dymo-lm160
+
+### How-to guides
+
+#### Print your first label (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/first-label
+
+1. Press `Power` to turn on the label maker.
+2. The first time, select the language and press `OK`, then select the cassette width and press `OK`.
+3. Type the text.
+4. Press `Print`.
+5. Press the cutter button.
+6. Peel the split backing: pinch the label lengthwise toward the printed side so the backing separates, then peel.
+
+Note: Visit www.dymo.com/register to register the serial number (inside the back cover).
+
+#### Two-line labels (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/two-lines
+
+1. Type line 1.
+2. Press `Return`. A return mark appears on the LCD (it is not printed).
+3. Type line 2. Press `Print`.
+
+Note: Maximum two lines. Only one line will print on 6 mm (1/4") tape. “Too many lines!” if you try more.
+
+#### Vertical labels (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/vertical
+
+1. Press `Vertical`.
+2. Type the text.
+3. Press `Print`.
+
+Note: On two-line vertical labels, line 2 prints after line 1. Underline does not print on a vertical label.
+
+#### Change the font size (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/size
+
+1. Press `Size` (the AA key) until the size you want is shown.
+
+Note: 6 mm tape: 8, 10, 12 pt. 9 mm: 8, 10, 12, 16, 20 pt. 12 mm: 8, 10, 12, 16, 20, 24 pt. Size applies to the whole label.
+
+#### Bold and italic (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/style
+
+1. Press `B` to add or remove bold.
+2. Press `I` to add or remove italic.
+
+Note: The two can be combined. They apply to letters and symbols, not to clip art. The LCD B / I indicators light when a style is on.
+
+#### Box and underline styles (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/box
+
+1. Press `Box` until the style is shown on the LCD.
+
+Note: Five styles (see Frames). Underline or box, not both.
+
+#### Insert clip art (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/clipart
+
+1. Press `Menu`.
+2. `▲` / `▼` to “Clip Art” → `OK`.
+3. Navigate to the image → `OK`.
+
+Note: 105 images, printed on page 9. Positions in this app match that table, left to right, top to bottom.
+
+#### Insert a symbol (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/symbol
+
+1. Press `Menu`.
+2. `▲` / `▼` to “Symbols” → `OK`.
+3. Navigate to the symbol → `OK`.
+4. Punctuation only: press `.,#` instead of `Menu`.
+
+Note: 123 symbols on page 9 (two grey cells on the sheet are empty and are not in the set).
+
+#### Accented characters (à á â ã ä …) (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/accents
+
+1. Press `Accent` then the letter, or press and hold the letter.
+2. Navigate to the variant → `OK`.
+
+Note: The guide only prints the a-series example (à á â ã ä and so on). Other letters have their own variants on the device.
+
+#### Upper and lower case (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/caps
+
+1. Press `Caps` to toggle. Default is Caps on.
+2. The LCD uppercase or lowercase indicator shows the current mode.
+
+#### Language and label width (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/menu-settings
+
+1. Press `Menu` until the Settings tab is selected.
+2. Choose language or label width, then `OK`.
+
+Note: You are asked for language and width the first time you power on, and again whenever you change the cassette.
+
+#### Insert or change the D1 cassette (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/cassette
+
+1. Lift the label cassette cover.
+2. Make sure the label and ribbon are taut across the mouth of the cassette and the label passes between the label guides. Turn the ribbon rewind spool clockwise if needed.
+3. Insert the cassette until it clicks. Close the cover.
+4. Select the new label width when prompted.
+
+Note: The cutter blade is extremely sharp. Do not press the cutter button while changing cassettes. Use DYMO D1 cassettes only.
+
+#### Batteries and optional adapter (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/batteries
+
+1. Press the thumb latch on the back to open the battery cover.
+2. Insert six AAA alkaline cells following the + / − markings. Replace the cover.
+3. Optional adapter: plug DSA-18PFM-09 Fc 090200 into the connector on the top, then into a wall outlet. The adapter disconnects the batteries as a power source.
+
+Note: Do not mix old and new cells, or alkaline with rechargeable. Remove the batteries if the maker will sit unused for a long time. Text is lost if batteries come out and the adapter is unplugged.
+
+#### Clean the cutter and print head (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/clean
+
+1. Remove the cassette.
+2. Cutter: press and hold the cutter button to expose the blade. Wipe both sides with a cotton ball and alcohol.
+3. Print head: take the cleaning tool from inside the cassette cover (or contact DYMO if it is missing) and wipe the padded side gently across the head.
+
+Note: Clean the cutter each time you replace the cassette. The blade is extremely sharp.
+
+#### Peel the split backing (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/peel
+
+1. Find the split on the backing.
+2. Pinch the label lengthwise, folding toward the printed side, so the backing separates.
+3. Peel the backing away.
+
+#### Auto power-off and memory (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/howto/power
+
+1. The maker turns off after two idle minutes.
+2. Text and formatting come back when you turn it on, as long as batteries or the adapter still supply power.
+
+Note: If batteries are removed and the adapter is disconnected, the current label is lost.
+
+### Error messages
+
+#### “Printing...” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/printing
+
+Meaning: The label is printing.
+Fix: No action. The message disappears when printing finishes.
+
+#### “Too many characters!” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/too-many-characters
+
+Meaning: The text buffer is full (the guide does not state a character count).
+Fix: Delete some characters. Additional characters cannot be added.
+
+#### “Too many lines!” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/too-many-lines
+
+Meaning: More lines than this tape width allows.
+Fix: Delete a line, or insert a wider cassette. 6 mm (1/4") = one line; 9 mm and 12 mm = two lines max.
+
+#### “Battery low” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/battery-low
+
+Meaning: Batteries are weak. The LCD may also show a battery icon.
+Fix: Replace all six AAA cells, or connect the optional 9 V adapter.
+
+#### “Insert cassette!” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/insert-cassette
+
+Meaning: No label cassette is inserted.
+Fix: Insert a DYMO D1 cassette and select its width when prompted.
+
+#### “Label jam!” (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/label-jam
+
+Meaning: The motor stalled because of a jammed label.
+Fix: Remove the jam and replace the cassette. Clean the cutter blade.
+
+### Problems and fixes
+
+#### No display (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/no-display
+
+Make sure the label maker is on. Replace the batteries or connect the optional adapter.
+
+#### Poor print quality (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/poor-print-quality
+
+Replace batteries or use the adapter. Check the cassette is seated. Clean the print head. Try a new cassette.
+
+#### Poor cutter performance (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/poor-cutter-performance
+
+Clean the cutter blade with alcohol. See Caring for Your Label Maker in the user guide.
+
+#### How do I remove the backing from the label? (DYMO LM160)
+https://labelarium.com/d/dymo-lm160/trouble/how-do-i-remove-the-backing-from-the-label
+
+DYMO labels have a split back. Pinch lengthwise toward the printed side so the backing separates, then peel.
+
+### Shortcuts
+
+- `.,#`: Jump to punctuation symbols
+- `Menu`: Open Symbols/Clip Art, or toggle to Settings (language and label width)
+- `Menu` → “Clip Art” → `OK`: Browse the 105 clip-art images
+- `Menu` → “Symbols” → `OK`: Browse the 123 symbols
+- `Accent` then a letter: Show accent variants of that letter; `OK` inserts
+- Hold a letter key: Same accent variants as `Accent`
+- `Size` (AA): Cycle font size
+- `B`: Toggle bold
+- `I`: Toggle italic
+- `Box`: Cycle underline and box styles
+- `Vertical`: Toggle vertical text
+- Hold `Backspace`: Delete quickly to the left of the cursor
+- `Cancel`: Leave a menu or cancel printing
+- `Return`: Second line (9 mm / 12 mm tape)
+- `Caps`: Toggle upper / lower case (default Caps on)
+
+### Specs
+
+- Tape: DYMO D1 label cassettes, 6 / 9 / 12 mm (1/4" / 3/8" / 1/2")
+- Print: Thermal transfer, 180 dpi, 12 mm/s. Manual cutter button
+- Text: Graphical LCD. Buffer limit shown as “Too many characters!”. Last label is remembered while power remains
+- Fonts: 1 typeface · 6 sizes (8–24 pt, depends on tape width) · bold and italic (combinable) · vertical
+- Decorations: 5 box/underline styles · 105 clip-art images · 123 symbols (228 together, as printed on page 9)
+- Memory: Current label text and formatting survive power-off. Lost if batteries are removed and the adapter is unplugged
+- Power: 6 × AAA alkaline, or optional adapter DSA-18PFM-09 Fc 090200 (9 V, 2 A) from Dee Van Enterprise Co., Ltd.
+- Auto power off: After 2 minutes idle
+- Size / weight: 203 × 118 × 49 mm, 350 g without batteries (manufacturer datasheet)
+- Cutter: Manual cutter button. Clean the blade with alcohol when you change the cassette
+
+## DYMO LabelManager 280
+Rechargeable Portable Label Maker. 221 symbols in 2 categories, 8 frames, 3 fonts, 7 styles, 17 shortcuts, 20 how-to guides. Page: https://labelarium.com/d/dymo-lm280
+
+### How-to guides
+
+#### First-time setup (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/first
+
+1. Press `On/Off`.
+2. Select the language → `OK`.
+3. Select inches or mm → `OK`.
+4. Select the width of the cassette that is in the maker → `OK`.
+
+Note: You are asked for the cassette width every time you insert tape, because some features depend on it. You can change language, units and width later under `Menu` → Settings.
+
+#### Insert a D1 tape cassette (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/tape
+
+1. Lift the cassette cover.
+2. Make sure the tape and ribbon are taut across the mouth of the cassette and the tape runs between the label guides. Turn the ribbon rewind spool clockwise if needed.
+3. Insert the cassette until it clicks.
+4. Close the cover.
+5. When prompted, set the label width to match the cassette.
+
+Note: Cutter blade is extremely sharp. Keep fingers away and do not press the cutter while changing tape.
+Note: 6 / 9 / 12 mm (1/4" / 3/8" / 1/2") DYMO D1 cassettes.
+
+#### Battery pack and charging (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/battery
+
+1. Slide the battery-compartment cover off (adapter unplugged).
+2. Insert the Li-ion pack and replace the cover.
+3. Plug the charging adapter into the top jack, then into the wall.
+4. Charge about 3 hours for a full charge. After about 10 minutes of charging you can print.
+
+Note: Use only adapter DSA-6PFG-12 Fc 120050 (12 V / 0.5 A). The adapter cannot power the maker; it only charges the pack.
+Note: Remove the pack if the maker will sit unused for a long time.
+Note: Stop charging if it is not finished within three hours. Charge only at +10 °C to 35 °C.
+
+#### Font type, size and style (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/font
+
+1. Font type: `Menu` → Format → `OK` → Font → `OK` → `▲` / `▼` to Basic, Serif or Fun → `OK`.
+2. Size: press `AAA`, or `Menu` → Format → the current size → `OK` → `◀` / `▶` to 8 / 10 / 12 / 16 / 20 / 24 pt → `OK`.
+3. Style: `Menu` → Format → Style → `OK` → `▲` / `▼` to the style → `OK`. Or toggle `B`, `I`, `U` and `Vertical` directly.
+
+Note: The guide prints seven styles (Normal, Bold, Italic, Underline, Vertical, Outline, Shadow) even though the sentence says “six”.
+Note: Point size applies to the whole label. Available sizes depend on tape width and line count.
+Note: Underline does not print on a vertical label. On multi-line labels each line is underlined.
+
+#### Add a border (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/border
+
+1. `Menu` → Format → `OK` → Borders → `OK`.
+2. `▲` / `▼` to one of the eight styles → `OK`.
+
+Note: Both lines of a two-line label sit inside one border.
+
+#### Mirror text (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/mirror
+
+1. `Menu` → Format → `OK` → Mirror → `OK`.
+2. `◀` / `▶` to On → `OK`.
+
+#### Vertical labels (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/vertical
+
+1. Press `Vertical`.
+2. Type the text.
+3. Press `Print`.
+
+Note: On a two-line vertical label, line 2 prints to the right of line 1. Underline will not print.
+
+#### Fixed-length labels (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/length
+
+1. `Menu` → Format → `OK` → Label length → `OK`.
+2. `◀` / `▶` to Fixed.
+3. `▲` / `▼` or the number keys for 40–400 mm (1.5"–15") → `OK`.
+
+Note: Text is scaled to fit. If it cannot fit, you are asked to print a variable-length label instead. Fixed length stays on until you switch back to variable.
+
+#### Align text (fixed-length only) (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/align
+
+1. `Menu` → Format → `OK` → Alignment → `OK`.
+2. `◀` / `▶` to Left, Centre or Right → `OK`.
+
+Note: Default is centred. Alignment is ignored on variable-length labels. Those always print centred. This guide has no justify setting.
+
+#### Two-line labels (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/two-lines
+
+1. Type line 1.
+2. Press `Return`.
+3. Type line 2.
+4. Press `Print`.
+
+Note: Maximum two lines. 6 mm (1/4") tape is one line only.
+
+#### Insert a symbol (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/symbol
+
+1. Press `Symbols`, or `Menu` → Insert → “Symbols” → `OK`.
+2. Move with the navigation keys to the cell.
+3. Press `OK`.
+
+#### Insert clip art (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/clipart
+
+1. `Menu` → Insert → “Clip Art” → `OK`.
+2. Move with the navigation keys to the image.
+3. Press `OK`.
+
+#### Accented characters (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/accents
+
+1. Press `Accent` then the letter, or press and hold the letter.
+2. When the variants appear, `◀` / `▶` to the one you want → `OK`.
+
+Note: Worked example in this guide: hold `a` and you see a à â æ and the rest of that letter’s set.
+
+#### Date and time (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/datetime
+
+1. Format: `Menu` → Settings → Date/Time → Notation → pick a date or date-and-time format → `OK`.
+2. Set date: `Menu` → Settings → Date/Time → Set date → day, month, year → `OK`, then `Back` twice.
+3. Set time: `Menu` → Settings → Date/Time → Set time → hour and minutes → `OK`, then `Back` twice.
+4. Insert: `Menu` → Insert → “Date and Time” → `OK`.
+
+#### Auto-numbering (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/numbering
+
+1. `Menu` → Insert → “Auto-numbering” → `OK`.
+2. Pick numeric (0–9), uppercase (A–Z) or lowercase (a–z) → `OK`.
+3. Set start and end values → `OK`.
+
+Note: Up to 10 labels in the series. You can put text before and after the number. Only one auto-number per label. Delete it as one character with `Backspace` at the end of the number.
+
+#### Print, preview and copies (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/print
+
+1. Type the label.
+2. Preview / copies: hold `Print` a few seconds. The LCD shows length, width and layout; `▲` / `▼` sets 1–10 copies, then `OK`.
+3. A short press of `Print` prints. Press the cutter button to cut.
+4. Peel: find the split in the backing, pinch the label lengthwise toward the printed side so the backing separates, then peel.
+
+Note: After a copies run the copy count returns to 1.
+
+#### Save, open and insert saved text (9 slots) (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/files
+
+1. Save: press `Save/Open`. The first free slot is shown. Move to a slot (you may overwrite) → `OK`. Text and formatting are stored.
+2. Open: hold `Save/Open`, or `Menu` → Open, then pick a slot → `OK`.
+3. Insert saved text only: put the cursor where you want it → `Menu` → Insert → “Saved text” → pick a slot → `OK`. Formatting is not inserted.
+
+#### Language, label width and units (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/settings
+
+1. Language: `Menu` → Settings → current language → `OK` → `▲` / `▼` → `OK`.
+2. Label width: `Menu` → Settings → current width → `OK` → `◀` / `▶` → `OK`. You can set this even if a different cassette is inserted.
+3. Units: `Menu` → Settings → units → English (inches) or Metric (default).
+
+#### Clean the cutter and print head (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/clean
+
+1. Cutter: remove the cassette. Press and hold the cutter button to expose the blade. Wipe both sides with a cotton swab and alcohol.
+2. Print head: remove the cassette. Take the cleaning tool from inside the cover (or contact DYMO if it is missing). Wipe the padded side of the tool across the print head.
+
+Note: The cutter blade is extremely sharp. Clean it each time you change tape.
+
+#### Use with a computer (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/howto/usb
+
+1. Install DYMO desktop software from support.dymo.com before plugging in USB (close Office apps on Windows first).
+2. Then plug USB into the top of the maker and into the computer.
+3. Turn the maker on. If several DYMO printers are installed, pick LabelManager 280 in the software Print area.
+
+### Error messages
+
+#### “No display” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/no-display
+
+Meaning: Maker is off, or the pack is flat.
+Fix: Turn it on. Attach the charging adapter and recharge the pack.
+
+#### “Poor print quality” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/poor-print-quality
+
+Meaning: Weak pack, dirty head, or a bad cassette.
+Fix: Recharge. Clean the print head. Reseat or replace the D1 cassette.
+
+#### “Auto-numbering already inserted” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/auto-numbering-already-inserted
+
+Meaning: The label already has an auto-number. Only one is allowed.
+Fix: Delete the existing auto-number with `Backspace` at the end of it, then insert again if needed.
+
+#### “Battery Failure!” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/battery-failure
+
+Meaning: Pack not seated, or damaged.
+Fix: Reseat the pack. Replace it if it still fails.
+
+#### “Wait n minutes / Battery Charging” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/wait-n-minutes-battery-charging
+
+Meaning: Pack is charging and is not ready to unplug.
+Fix: Leave the adapter connected until charging finishes.
+
+#### “Too Many Characters!” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/too-many-characters
+
+Meaning: The edit buffer is full.
+Fix: Delete text, use a smaller point size, drop a line, or insert a wider cassette.
+
+#### “No label found. / Insert label cartridge.” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/no-label-found-insert-label-cartridge
+
+Meaning: No cassette in the compartment.
+Fix: Insert a D1 cassette and set the label width.
+
+#### “Label jam!” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/label-jam
+
+Meaning: Motor stalled on jammed tape.
+Fix: Open the cover, remove the cassette, clear the jam, clean the cutter, make sure tape and ribbon are taut across the mouth and through the guides.
+
+#### “Printing...” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/printing
+
+Meaning: Print in progress.
+Fix: Wait. The message clears when printing finishes.
+
+#### “Print label with variable length? / Label length exceeds fixed length.” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/print-label-with-variable-length-label-length-exceeds-fixed
+
+Meaning: Text does not fit the fixed length.
+Fix: `OK` prints variable length, or shorten the text / reduce size / drop a line / use wider tape.
+
+#### “Too many lines for selected label width” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/too-many-lines-for-selected-label-width
+
+Meaning: Two lines on 6 mm tape, or more lines than the width allows.
+Fix: Delete a line, reduce size, use 9 or 12 mm tape, or switch to variable length.
+
+#### “Label Length Exceeds Fixed Length!” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/label-length-exceeds-fixed-length
+
+Meaning: Same fit problem, shown as an error.
+Fix: Delete text, or print with variable length.
+
+#### “Charge Battery!” (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/charge-battery
+
+Meaning: Pack is too low to print.
+Fix: Attach the adapter, check the pack is seated, or replace the pack.
+
+### Problems and fixes
+
+#### Display stays blank (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/display-stays-blank
+
+Confirm power is on and the pack is charging / charged. The adapter does not run the maker without a pack.
+
+#### Too much blank tape on the label (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/too-much-blank-tape-on-the-label
+
+Use a fixed length (40–400 mm) if you need a specific size. Variable-length labels are sized to the text and are always centred.
+
+#### Nothing prints, or print is faint / broken (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/nothing-prints-or-print-is-faint-broken
+
+Recharge, clean the print head, reseat the cassette with tape under the guides, replace a worn cassette.
+
+#### Tape jammed (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/tape-jammed
+
+Open the cover, pull the cassette, clear jammed tape, rewind slack on the ribbon spool, clean the cutter, reinsert.
+
+#### Cutter does not cut cleanly (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/cutter-does-not-cut-cleanly
+
+Clean both sides of the blade with alcohol (hold the cutter button to expose it).
+
+#### Want a fresh label (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/want-a-fresh-label
+
+Press `New label/Clear` and pick text-only or text-and-format.
+
+#### How do I peel the backing? (DYMO LabelManager 280)
+https://labelarium.com/d/dymo-lm280/trouble/how-do-i-peel-the-backing
+
+DYMO labels have a split back. Pinch lengthwise toward the printed side so the split opens, then peel.
+
+### Shortcuts
+
+- `Symbols` (the ,# key): Open the symbol picker without going through Menu
+- `Menu` → Insert → “Symbols” → `OK`: Insert a symbol from the 132-cell set
+- `Menu` → Insert → “Clip Art” → `OK`: Insert clip art from the 89-cell set
+- hold a letter, or `Accent` then a letter: Accented characters (example on a: a à â æ …)
+- `B` / `I` / `U`: Toggle bold, italic, underline
+- `Vertical`: Toggle vertical text
+- `AAA` (text size): Step the point size
+- `Caps`: Toggle capitals (default on)
+- `Print` hold: Preview layout, or set 1–10 copies
+- `Save/Open`: Save to one of 9 memory slots
+- hold `Save/Open`: Open a saved label
+- `New label/Clear`: Clear text, or text and formatting
+- `Back`: Leave a menu without changing anything
+- `Return`: Second line on 9 / 12 mm tape
+- `Menu` → Format: Font, size, style, borders, length, alignment, mirror
+- `Menu` → Insert: Symbols, clip art, date and time, auto-numbering, saved text
+- `Menu` → Settings: Language, label width, units (inches / mm)
+
+### Specs
+
+- Tape: DYMO D1 tape cassettes, 6 / 9 / 12 mm (1/4" / 3/8" / 1/2")
+- Print: Thermal transfer. Product page lists 15 mm/s. Two lines max (9 & 12 mm tape)
+- Text: Graphical LCD. Buffer limit is the “Too Many Characters!” message. The guide does not state a character cap
+- Fonts: 3 font types (Basic, Serif, Fun) · 6 point sizes (8–24 pt, tape-width limited) · 7 printed text styles
+- Decorations: 8 borders · 132 symbols · 89 clip-art cells. No template library in this guide
+- Memory: 9 saved labels (text and formatting). Saved text can be inserted into the current label without its formatting
+- Power: Li-ion pack 7.2 V 600 mAh 4.32 Wh. Charge only in the label maker with adapter DSA-6PFG-12 Fc 120050 (12 V / 0.5 A). Full charge ~3 hours; after ~10 minutes of charging you can print. The adapter cannot power the maker. It only charges the pack
+- Auto power off: After 2 minutes idle. Last label text and style are remembered when power returns
+- Computer: USB on the top edge. Standalone, or print from DYMO desktop software (install software before plugging in USB)
+- Item: 1815990 (DYMO product page)
+
+## Brady M210
+Portable Industrial Label Printer. 221 symbols in 9 categories, 11 templates, Brady Fixed Width Condensed typeface, 2 styles, 22 shortcuts, 15 how-to guides. Page: https://labelarium.com/d/brady-m210
+
+### How-to guides
+
+#### Pick a label type (Brady M210)
+https://labelarium.com/d/brady-m210/howto/label-type
+
+1. Press `Label Type`.
+2. Use `▲` / `▼` to the type that matches the job and the cartridge, then `Enter`.
+3. Fill data fields if shown, then `Enter`.
+4. To leave a special type and return to general editing, pick “Banner Portrait”.
+
+Note: Types that the cartridge cannot use are hidden. SelfLam → Banner Landscape, Fixed Length, Wire. Permasleeve → Banner Landscape, Fixed Length.
+
+#### Font size and Bold (Brady M210)
+https://labelarium.com/d/brady-m210/howto/font
+
+1. Press `Font Size`.
+2. Navigate to Auto, a point size, or the Bold variant, then `Enter`.
+
+Note: One typeface. Size applies to the whole label. Autosize shows “A” and shrinks until `Enter` or the minimum. Default 9 pt. Some symbols need 9 pt or larger.
+
+#### Insert a symbol (Brady M210)
+https://labelarium.com/d/brady-m210/howto/symbol
+
+1. Press `Symbol` (`Alt` + `1`).
+2. Pick the category → `Enter`.
+3. Pick the glyph → `Enter`.
+
+Note: Last category is remembered. See the Symbols section for every printed Appendix A cell.
+
+#### Code 39 / Code 128 (Brady M210)
+https://labelarium.com/d/brady-m210/howto/barcode
+
+1. Use Banner Landscape or Flag.
+2. Press `Barcode` (`Alt` + `2`).
+3. Pick “39” or “128” → `Enter`.
+4. Type the data. `Font Size` scales the bars with the human-readable line (always below, cannot be removed).
+5. Move right off the box to stop editing the barcode.
+
+Note: Allowed characters are in Appendix B. No checksum. One serialized set can sit inside a barcode.
+
+#### Datamatrix and QR (Brady M210)
+https://labelarium.com/d/brady-m210/howto/2d
+
+1. Install 0.75" (19.1 mm) media. Set “Banner Landscape”.
+2. Press the 2D key (next to Barcode on the pad).
+3. Pick Datamatrix or QR, small or large → `Enter`.
+4. Type up to 44 characters (Datamatrix) or 50 (QR). Sizes are fixed. Font size does not change them.
+
+Note: Minimum readable diameter for a Brady scanner is 0.59" (15 mm). Multiple lines of text/codes are not supported.
+
+#### Serialization (Brady M210)
+https://labelarium.com/d/brady-m210/howto/serial
+
+1. Press `Serial` (`Alt` + `Menu`).
+2. Enter Start, Increment (not 0; default 1) and End → `Enter`.
+3. Letters A–Z use alphabetic order; increment is still a number. Do not mix letters and digits in one sequence. Up to three letters (AB…BB rolls the left character).
+
+Note: Simple sequences only. One serialized set per file. Edit later with `Serial` from anywhere on the label. `Backspace` on the start value can delete the whole sequence (confirm “Delete Serial?”).
+
+#### Save, open, delete (12 files) (Brady M210)
+https://labelarium.com/d/brady-m210/howto/files
+
+1. Save: `Menu` → “File” → `Enter` → “Save” → `Enter` → empty slot → `Enter` → name (11 chars) → `Enter`.
+2. Overwrite: pick an occupied slot → “Yes” → new name.
+3. Open: `Menu` → “File” → “Open” → slot → `Enter` (unsaved screen data is lost).
+4. Delete: `Menu` → “File” → “Delete” → slot → “Yes”. `Backspace` leaves the list.
+
+Note: Files survive battery removal. Two files may share a name; slots 1–12 distinguish them. No PC connection.
+
+#### Print, Multi-Print and cut (Brady M210)
+https://labelarium.com/d/brady-m210/howto/print
+
+1. Press `Print`. A print icon and remaining-supply gauge show until the job finishes.
+2. Squeeze the cutter levers. Plastic grips hold the label in the chute. Pull it out.
+3. Copies: `Multi-Print` (`Alt` + `Print`) → Copies: → `Enter`. Cut between labels or press `Print` again to keep going.
+4. Job-wide cut behaviour: `Menu` → “Cut Mode” → “Cut Between Labels” / “Cut at End of Job”.
+
+#### Clear vs Backspace (Brady M210)
+https://labelarium.com/d/brady-m210/howto/clear
+
+1. `Backspace` deletes one character to the left and also backs out of menus.
+2. `Clear` (`Alt` + `Backspace`) wipes data but keeps font size and label type.
+
+#### Multiple lines (Brady M210)
+https://labelarium.com/d/brady-m210/howto/lines
+
+1. `Enter` starts a new line (max four).
+2. Do not press `Enter` at the end of a line unless you want another line. A blank line still counts.
+
+Note: Pre-sized labels may allow fewer than four. “Cannot Fit” means shrink the font, delete text, or change type/orientation.
+
+#### Units, clock, zero style, backlight (Brady M210)
+https://labelarium.com/d/brady-m210/howto/units-clock
+
+1. Units: `Menu` → “Units” → inches or mm.
+2. Clock: `Menu` → “Set Clock” → Clock Format (12/24), Date Format (MM/DD/YY or DD/MM/YY, 2- or 4-digit year), Time Format, then Date and Time.
+3. Zero: `Menu` → “Set Zero Style” → open 0 or slashed zero.
+4. Backlight: `Menu` → “Backlight Time” → 5–30 s, Always On (AC), or Always Off. `Alt` + `Space` toggles the lamp.
+
+#### Language (Brady M210)
+https://labelarium.com/d/brady-m210/howto/language
+
+1. On first power-up go to `Menu` → “Language” (6th item; the word is already in the current language).
+2. Pick the language → `Enter`.
+
+Note: If you mash keys during setup and cannot change language, reset language from that same menu (see Troubleshooting).
+
+#### Change the M21 cartridge (Brady M210)
+https://labelarium.com/d/brady-m210/howto/cartridge
+
+1. Turn the lock left to horizontal (unlock).
+2. Press the rear eject button and lift the cartridge out.
+3. Drop a Brady Authentic M21 cartridge in until it snaps. Turn the lock right to vertical.
+4. Unlock when you finish a run so the warm head does not burn a line onto the next label.
+
+#### Batteries and adapter (Brady M210)
+https://labelarium.com/d/brady-m210/howto/power
+
+1. Six new AA alkaline in the back compartment (finger tabs). Do not mix used/new, and do not use rechargeable AA or Ultimate Lithium AA.
+2. Optional M210-BATTERY: label down, elongated end into the bottom slot. Charge only on the M210-AC adapter outside the printer. To print while charging, put AA cells in the printer.
+3. Optional 9 V Brady adapter in the left-side jack powers the printer but does not charge the pack inside.
+
+#### Clean print head, roller and sensor (Brady M210)
+https://labelarium.com/d/brady-m210/howto/clean
+
+1. Power off. Unlock and remove the cartridge.
+2. Blow the sensor with compressed air or a lint-free swab.
+3. Swab the print head and platen with isopropyl alcohol (or Brady PCK-6).
+4. LCD: soft cloth, light isopropyl.
+
+### Error messages
+
+#### “Error” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/error
+
+Meaning: Low battery, wrong media, or motor fault.
+Fix: Fit six new AA cells, or recharge the Li-ion pack on the adapter (use AA in the printer while it charges). Fit a Brady Authentic cartridge. If it stays up, send the printer for repair.
+
+#### “Cannot Fit” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/cannot-fit
+
+Meaning: Font, lines or length will not fit. Some symbols cannot print at 6 pt. A blank line counts. Wrong type/orientation (e.g. WireMarker instead of Banner).
+Fix: Smaller font, delete text, drop extra `Enter`s, switch to Banner Landscape, or lengthen a fixed/custom label. For symbols use 9 pt or larger.
+
+#### “No / Invalid Cartridge” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/no-invalid-cartridge
+
+Meaning: Empty bay, non-Authentic cartridge, or damaged smart cell.
+Fix: Fit a cartridge with the Authentic A logo. `CLEAR/ESC` to dismiss.
+
+#### “Insert labels” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/insert-labels
+
+Meaning: Damaged contacts in the receiver slot.
+Fix: Contact Brady Technical Support.
+
+#### “Check Cartridge / Lever” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/check-cartridge-lever
+
+Meaning: Lock not engaged, cartridge empty, or jam.
+Fix: Lock vertical. New cartridge. Unlock, pull the cartridge, cut off the damaged leader, reinsert.
+
+#### “Cut while printing” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/cut-while-printing
+
+Meaning: Cutter used during a job.
+Fix: Finish the cut through the material. `Clear` the error. Reprint.
+
+#### “Invalid terminal repeat value” (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/invalid-terminal-repeat-value
+
+Meaning: Spacing out of range.
+Fix: Enter 0.2" (5.08 mm) to 40" (1016 mm).
+
+### Problems and fixes
+
+#### Printer does not power up (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/printer-does-not-power-up
+
+Charge or replace the pack, or install six new AA cells. To print while the Li-ion pack charges on the adapter, put AA cells in the printer.
+
+#### Screen freezes (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/screen-freezes
+
+Power off. If Power does nothing, unplug the adapter, pull the pack/cells, reseat, power on.
+
+#### LCD reverts to the previous label (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/lcd-reverts-to-the-previous-label
+
+Battery is low. Replace or recharge.
+
+#### Printer powers off often (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/printer-powers-off-often
+
+Auto-off is 10 minutes idle. Fit fresh AA or the AC adapter. Charge Li-ion outside the printer.
+
+#### Poor print / voids / wrinkles (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/poor-print-voids-wrinkles
+
+Worn cells, dirty head (clean with alcohol), unusable media, crease in the tape (advance past it), or wrinkled ribbon (unlock, turn the take-up spool clockwise 1–2 turns).
+
+#### Black line on the first label of a run (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/black-line-on-the-first-label-of-a-run
+
+Cartridge was left locked, so the warm head sat on the ribbon. Unlock as soon as you finish printing.
+
+#### Will not feed / Print does nothing (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/will-not-feed-print-does-nothing
+
+Cut a straight leader. Confirm the lock is vertical. Clear the exit chute. Try another cartridge.
+
+#### Compressed print / bad registration (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/compressed-print-bad-registration
+
+Remove the last cut label from the tray. Clean the platen.
+
+#### Cutter does not cut (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/cutter-does-not-cut
+
+Tweezers or needle-nose pliers for slivers, never fingers. Sharp cutter parts.
+
+#### Jam, cannot feed (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/jam-cannot-feed
+
+Unlock (force if needed; unlock retracts the platen), remove the cartridge, clear with tweezers. Do not scratch the print head with metal.
+
+#### Keys stuck or dead (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/keys-stuck-or-dead
+
+Find a key jammed down and press it free.
+
+#### Left/right justification does nothing (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/left-right-justification-does-nothing
+
+Not supported. Everything prints centered. No action.
+
+#### Human-readable barcode text cannot move / no checksum (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/human-readable-barcode-text-cannot-move-no-checksum
+
+Fixed below the bars. Checksum is not offered.
+
+#### Menu hides some label types (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/menu-hides-some-label-types
+
+The cartridge decides. Nylon/vinyl/polyester continuous: all types. SelfLam: Banner Landscape, Fixed Length, Wire. Permasleeve: Banner Landscape, Fixed Length. 2D codes: 0.75" only.
+
+#### Datamatrix / QR will not enter (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/datamatrix-qr-will-not-enter
+
+Set Banner Landscape (not Portrait) and 0.75" media.
+
+#### Pre-sized text is shifted (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/pre-sized-text-is-shifted
+
+Debris on the sensor. Remove the cartridge and blow it off.
+
+#### Cannot change language (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/cannot-change-language
+
+Wrong key during setup. `Menu` → “Language” and set it again.
+
+#### Want a PC connection (Brady M210)
+https://labelarium.com/d/brady-m210/trouble/want-a-pc-connection
+
+There is none. The M210 cannot print PC files. Brady sells other printers that can.
+
+### Shortcuts
+
+- `Alt` + `1`: Symbols catalog
+- `Alt` + `2`: Barcode (Code 39 or Code 128)
+- `Alt` + `6`: International / accented characters
+- `Alt` + `Z`: Insert date from the printer clock
+- `Alt` + `Y`: Insert time from the printer clock
+- `Alt` + `Label Type`: Feed media
+- `Alt` + `Menu`: Serialization
+- `Alt` + `Print`: Multi-Print copies
+- `Alt` + `Space`: Backlight
+- `Alt` + `Backspace`: Clear all data (keep format)
+- `Alt` + `Font Size`: Caps Lock
+- `Font Size`: Size and Bold (Auto, 6, 9, 14, 20, 28, 40 pt)
+- `Label Type`: Application templates (banner, vial, wire, flag, …)
+- `Print`: Print the current file
+- `Enter`: Accept a menu item, or start a new line (max four)
+- `Backspace`: Delete left; also cancel menus one screen at a time
+- `Menu` → “File”: Save / Open / Delete one of 12 files
+- `Menu` → “Units”: Inches or millimetres
+- `Menu` → “Language”: Printer language (6th item; the word itself is already localised)
+- `Menu` → “Cut Mode”: Cut between labels, or cut at end of job
+- `Menu` → “Set Zero Style”: Open zero vs slashed zero
+- `Menu` → “Timestamp” → “Insert Date” / “Insert Time”: Stamp date or time without the dedicated keys
+
+### Specs
+
+- Printers: M210 (industrial + lab types) and M210-LAB (laboratory types only). Same hardware; label-type menus differ. A Russian / Cyrillic-keypad M210 also exists.
+- Print: 203 dpi thermal transfer. Max print width 0.75" (19.1 mm). Max alphanumeric length 99.9" (253.7 cm). Max 50 characters. Up to 4 lines.
+- Symbols: Official counts: M210 194 · M210 with Cyrillic keypad 218 · M210-LAB 131. This pack lists every filled cell printed in Appendix A of the shared M210/M210-LAB manual (221 glyphs).
+- Typeface: One typeface: Brady Fixed Width Condensed. Sizes Auto / 6 / 9 / 14 / 20 / 28 / 40 pt, each with a Bold weight. Default 9 pt. No extra fonts, widths or frames.
+- Media: Brady Authentic M21 cartridges, continuous 0.25"–0.75" (6.35–19.1 mm) or pre-sized. Smart-cell sets many format details. No PC port. Cannot print from a computer.
+- Memory: 12 saved files (name up to 11 characters). Files survive battery removal.
+- Barcodes: Code 39 and Code 128 (Banner Landscape or Flag). Datamatrix (max 44 chars) and QR (max 50 chars), small/large; 0.75" media and Banner Landscape only.
+- Power: 6 × AA alkaline (not rechargeable AA, not Ultimate Lithium), optional M210-BATTERY Li-ion pack (charges only on the AC adapter, outside the printer), or optional 9 V Brady AC adapter (M210-AC / 110416 / 110417). Auto-off after 10 minutes idle.
+- Size / weight: 243.84 × 63.5 × 124.46 mm (9.6" × 2.5" × 4.9"), 0.75 kg / 1.66 lb with battery pack
+- Environment: Operating 4–43 °C (40–110 °F), 20–90% RH non-condensing. Direct sunlight not recommended.
+- Languages: M210: 20 (English default, French, Spanish, German, Dutch, Portuguese, Italian, Czech, Danish, Estonian, Finnish, Hungarian, Norwegian, Polish, Romanian, Slovakian, Slovenian, Swedish, Turkish, Croatian). M210-LAB: English, French, Spanish, German, Dutch, Portuguese, Italian. M210 Russian: Russian default + English. Greek letters live under International, not Language.
+
+## Brady M211 Label Printer
+Bluetooth portable printer · Express Labels app. 22 symbols in 4 categories, 10 shortcuts, 11 how-to guides. Page: https://labelarium.com/d/brady-m211
+
+### How-to guides
+
+#### Charge before first use (Brady M211)
+https://labelarium.com/d/brady-m211/howto/charge
+
+1. Plug USB-C into the printer.
+2. Use the supplied AC adapter (at least 15 W) and the regional plug.
+3. Charge about 2.5 hours. The battery light pulses green, then stays solid green.
+
+Note: USB-A ports and weaker adapters charge more slowly.
+Note: If the pack was run completely flat and left unused about four weeks, reconditioning can take 6–8 hours.
+
+#### Power, Bluetooth reset and hard boot (Brady M211)
+https://labelarium.com/d/brady-m211/howto/power
+
+1. Tap `Power` to turn on or off. Bluetooth is on whenever the printer is on.
+2. Hold `Power` 5 seconds until the Bluetooth light pulses to drop the current phone.
+3. Hold `Power` 15 seconds to hard-boot a frozen printer. Battery and Bluetooth lights come on when it has restarted.
+
+#### Connect Express Labels over Bluetooth (Brady M211)
+https://labelarium.com/d/brady-m211/howto/connect
+
+1. Install Brady Express Labels (Android 6.0+ or iOS 10.0+; phone needs Bluetooth 4.2+).
+2. Turn the M211 on.
+3. Open the app. It should detect the printer. Rename if you want, then tap connect.
+
+Note: Only one mobile device at a time. If the printer does not appear, hold `Power` 5 seconds to release the previous pairing.
+Note: Range is about 65 ft (19.8 m).
+
+#### Shutdown time and printer name (Brady M211)
+https://labelarium.com/d/brady-m211/howto/settings
+
+1. Shutdown: open an M211 label file → tap the gear → set idle time (default 30 minutes).
+2. Name: in the app printer list, open the more menu → rename.
+
+Note: These settings live in the app session, not on the printer. The next user starts from defaults. Language and units are app-wide.
+
+#### Load an M21 cartridge (Brady M211)
+https://labelarium.com/d/brady-m211/howto/load
+
+1. Turn the lock lever counter-clockwise to unlock (power may be on or off).
+2. Press `Eject` on the back and lift the cartridge out.
+3. Drop the new Brady Authentic cartridge in until it snaps.
+4. Turn the lever clockwise to lock.
+
+Note: Only cartridges with the Brady Authentic mark. Smart-cell tells the app the media and sets many format details.
+Note: Unlock the cartridge whenever you are not printing. A locked idle printer can transfer a black line onto the first label from residual heat.
+
+#### Print from the app (Brady M211)
+https://labelarium.com/d/brady-m211/howto/print
+
+1. Printer on, cartridge locked.
+2. Open the label file on the phone.
+3. Tap Print. The app sends the job.
+4. If the cartridge runs out mid-job, printing stops and the error light comes on. The app shows the message.
+
+Note: There is no on-printer editor. An SDK exists if you need other software; see Brady’s programming site.
+
+#### Auto-cut and the Cut button (Brady M211)
+https://labelarium.com/d/brady-m211/howto/cut
+
+1. Set cut-between-labels or cut-at-end-of-job in the Express Labels file.
+2. Press `Cut` on the printer for a manual cut.
+
+Note: If cuts are rough, fragments may be in the cutter. Unlock, remove the cartridge, pick fragments with tweezers, never fingers. The cutter is sharp.
+
+#### Fit the magnet accessory (M21-MAGNET) (Brady M211)
+https://labelarium.com/d/brady-m211/howto/magnet
+
+1. Slide the keeper plate off the magnet.
+2. Line the magnet up with the screw holes on the back of the printer.
+3. Fit the two screws that come with the magnet.
+
+Note: Neodymium magnet. Keep away from pacemakers, defibrillators, insulin pumps, cards, drives, and explosive atmospheres. Do not give children strong magnets. Wear eye protection if magnets may snap together.
+
+#### Clean the printhead, platen and sensor (Brady M211)
+https://labelarium.com/d/brady-m211/howto/clean
+
+1. Power off. Unlock and remove the cartridge.
+2. Moisten a lint-free swab with isopropyl alcohol, or use Brady PCK-6 swabs.
+3. Gently swab the printhead, then the platen (you may need to lock the lever to reach the roller).
+4. Blow or swab debris off the position sensor if pre-sized labels print offset.
+
+#### Dismantle a used cartridge for recycling (Brady M211)
+https://labelarium.com/d/brady-m211/howto/recycle
+
+1. Wear safety glasses and gloves. Use a 1/4-inch flathead screwdriver.
+2. Pry the smart cell off the bottom (it is glued).
+3. Twist the screwdriver in the seam to split the housing.
+4. Remove leftover media, shake out parts, unwind the ribbon from its spools.
+5. Bin: housings/retaining arm → #7 PC; springs/washers → #40 metals; smart cell → e-waste; plastic washers/spacers → #1 PETE.
+
+#### Clear a label jam (Brady M211)
+https://labelarium.com/d/brady-m211/howto/jam
+
+1. Unlock the lever (force it if the jam is large; unlocking retracts the platen).
+2. Remove the cartridge.
+3. Pull the jammed label and fragments with tweezers or needle-nose pliers.
+
+Note: Metal tools can scratch the printhead. Never use your fingers in the cutter.
+
+### Error messages
+
+#### “The cutter is jammed” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/the-cutter-is-jammed
+
+Meaning: Error light on; Express Labels reports a cutter jam.
+Fix: Follow the in-app instructions. Unlock, remove the cartridge, pick fragments with tweezers. See “Labels are jammed in the printer” in the manual (p. 25).
+
+#### “The supply cartridge is not loaded correctly, missing, or not a Brady Authentic cartridge.” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/the-supply-cartridge-is-not-loaded-correctly-missing-or-not
+
+Meaning: No cartridge, unlocked, damaged, or a non-Authentic cell.
+Fix: Load a Brady Authentic M21 cartridge and lock the lever. See “Loading Cartridges” (p. 10).
+
+#### “The supply cartridge is empty.” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/the-supply-cartridge-is-empty
+
+Meaning: The smart cell reports no media left.
+Fix: Replace the cartridge. Recycle the empty one per local rules (p. 12).
+
+#### “Battery power is too low to print.” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/battery-power-is-too-low-to-print
+
+Meaning: Pack too flat for a job.
+Fix: Plug into the ≥15 W adapter. See “Power Adapter” (p. 5).
+
+#### “The printer battery is getting low.” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/the-printer-battery-is-getting-low
+
+Meaning: Warning before a hard stop.
+Fix: Finish the job if you can, then charge.
+
+#### “An error occurred while printing.” (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/an-error-occurred-while-printing
+
+Meaning: Generic print fault.
+Fix: See Troubleshooting Scenarios (p. 24): lock, damage, jam, or hard boot (hold `Power` 15 seconds).
+
+### Problems and fixes
+
+#### Cutter does not cut, or cuts are rough (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/cutter-does-not-cut-or-cuts-are-rough
+
+Fragments in the cutter, or the app is not set to cut. Unlock, remove the cartridge, pick fragments with tweezers, never fingers. Check the file’s cut setting.
+
+#### Labels won’t feed (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/labels-wont-feed
+
+Leading edge of the roll is torn or uneven. Cut a straight edge with scissors and reload.
+
+#### Labels are jammed (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/labels-are-jammed
+
+Unlock (force if needed), remove the cartridge, extract the jam with tweezers. Avoid scratching the printhead.
+
+#### Printer does not turn on (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/printer-does-not-turn-on
+
+Charge with the supplied USB cable. If the pack is charged and it still stays off, hold `Power` 15 seconds.
+
+#### Printer turns off by itself (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/printer-turns-off-by-itself
+
+Low battery, or idle shutdown is shorter than you want (default 30 minutes in Express Labels).
+
+#### Print is light, fuzzy, grainy, offset, or has blank lines (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/print-is-light-fuzzy-grainy-offset-or-has-blank-lines
+
+Advance wrinkled ribbon on the take-up spool clockwise, clean the printhead/platen, try another cartridge, or feed past a crease in the app.
+
+#### First label after sitting idle has a black line (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/first-label-after-sitting-idle-has-a-black-line
+
+Cartridge was left locked. Residual heat transferred ink. Reprint, and unlock when you stop printing.
+
+#### Nothing prints (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/nothing-prints
+
+Lock the lever, check the cartridge, clear a jam, or hard-boot (15 seconds).
+
+#### Text is offset on pre-sized labels (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/text-is-offset-on-pre-sized-labels
+
+Debris on the position sensor. Remove the cartridge and blow it off with compressed air.
+
+#### Battery not full after four hours (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/battery-not-full-after-four-hours
+
+A pack that was fully drained and left unused ~four weeks can take 6–8 hours to recondition.
+
+#### Printer not in Express Labels (Brady M211)
+https://labelarium.com/d/brady-m211/trouble/printer-not-in-express-labels
+
+Another phone still holds the pairing. Hold `Power` 5 seconds until Bluetooth pulses, then connect.
+
+### Shortcuts
+
+- tap `Power`: Turn the printer on or off
+- hold `Power` 5 seconds: Reset Bluetooth so a new phone can pair (light pulses)
+- hold `Power` 15 seconds: Hard boot if the printer is unresponsive
+- `Cut`: Manual cut (auto-cut is set in the Express Labels file)
+- lock lever clockwise: Lock the cartridge (required before print)
+- lock lever counter-clockwise: Unlock to load/unload, and whenever the printer sits idle
+- `Eject` after unlock: Pop the cartridge out of the bay
+- Express Labels → Print: Send the open label file to the M211
+- Express Labels → gear: Printer properties including shutdown time (default 30 min)
+- Express Labels → printers → more: Rename this M211 (name is not stored on the printer)
+
+### Specs
+
+- Print: Thermal transfer, 203 dpi, up to 0.6 in/s (15.2 mm/s), single colour
+- Print area: Width 0.63" (16 mm) max · length 36" (914 mm) max · liner 0.875" (22.2 mm) max
+- Labels: M21-series cartridges (ribbon + media in one). Widths 0.235"–0.75" (6.4–19 mm). Min height 0.236" (6 mm)
+- Cartridge in the box: M21-750-499 black-on-white nylon cloth, 3/4". Brady Authentic smart-cell only
+- Cutter: Automatic cutter with label retention; `Cut` also cuts manually. Cut mode is set in the label file
+- Design: Brady Express Labels app (Android 6.0+ or iOS 10.0+, phone Bluetooth 4.2+). No on-printer editor
+- Connection: Bluetooth Low Energy 5.0, one phone at a time, about 65 ft (19.8 m)
+- Power: Internal 1100 mAh Li-ion (not user-replaceable). USB-C; use the ≥15 W adapter that shipped with the printer
+- Charge: About 2.5 h to full (battery LED pulses green, then solid). Deep-discharged packs may need 6–8 h
+- Duty: Up to 300 labels per charge; 100 labels/day recommended
+- Auto power off: Default 30 minutes idle; set in Express Labels. Settings are not stored on the printer
+- Size / weight: 11.0 × 4.5 × 4.6 in (279 × 113 × 116 mm), 1.2 lb (0.54 kg) with cartridge
+- Environment: Operate 40–110 °F (4–43 °C), 20–90% RH non-condensing. Drop 6 ft (1.8 m); crush 250 lb (113.4 kg)
+- Manual: Y5067197 Revision A-3, © 2025 Brady Worldwide, Inc.

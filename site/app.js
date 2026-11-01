@@ -1,5 +1,6 @@
 // Labelarium. Copyright (C) 2026 the Labelarium authors. Licensed under the GNU AGPL v3.0 or later; see LICENSE.
 // Labelarium, vanilla JS, History API router, no build step.
+import { SITE, OG_IMAGE, pad2, norm, plain, clip, plural, normalize, deviceLabel, deviceTab, countSymbols, packSummary, HAS, seoMeta, pageJsonLd } from './pack.js';
 const $ = s => document.querySelector(s);
 const app = $('#app'), topbar = $('#topbar'), sheet = $('#sheet');
 let main = app; // device views render into the main column; home renders into the app root
@@ -15,7 +16,6 @@ const fmt = s => esc(s)
   .replace(/\{([^}]+)\}/g, '<span class="lcd">$1</span>')
   .replace(/→ /g, '→\u00a0').replace(/→/g, '<span class="arrow">→</span>')
   .replace(/(<kbd [^>]*>[^<]*<\/kbd>|<span class="lcd">[^<]*<\/span>)([.,;:!?)]+)/g, '<span class="nowrap">$1$2</span>');
-const pad2 = n => String(n).padStart(2, '0');
 const TAP = matchMedia('(hover: hover) and (pointer: fine)').matches ? 'Click' : 'Tap';
 // One consistent stroke icon set (24px grid, 2px stroke), so controls never fall back to mixed-weight text glyphs.
 const ICONS = {
@@ -58,44 +58,7 @@ async function loadDevice(id) {
   return (loaded[id] = normalize(raw, meta.data.slice(0, meta.data.lastIndexOf('/') + 1)));
 }
 
-// Expand compact arrays into objects and build the search index.
-function normalize(d, base) {
-  if (base && base[0] !== '/') base = '/' + base;
-  d.base = base;
-  d.symbols.categories.forEach(c => {
-    c.items = (c.items || []).map(([name, kw, ch], i) => ({ n: i + 1, name, kw, ch, img: `${base}img/symbols/${c.id}-${pad2(i + 1)}.png`, cat: c }));
-    c.img = `${base}img/symbols/${c.id}.png`;
-  });
-  d.symbols.accented.image = base + d.symbols.accented.image;
-  d.frames.items = d.frames.items.map(([n, name, kw, wide]) => ({ n, name, kw, wide: !!wide, img: `${base}img/frames/${n}.png` }));
-  d.templates.text = d.templates.text.map(([n, name, kw, desc]) => ({ n, name, kw, desc, kind: 'text', img: `${base}img/templates/text-${pad2(n)}.png` }));
-  d.templates.pattern = d.templates.pattern.map(([n, name, kw, desc]) => ({ n, name, kw, desc, kind: 'pattern', img: `${base}img/templates/pattern-${pad2(n)}.png` }));
-  d.fonts = d.fonts.map(([name, img, desc, css, weight, style], i) => ({ n: i + 1, name, desc, css, weight, style, img: `${base}img/fonts/${img}` }));
-  for (const k of ['sizes', 'widths', 'styles', 'alignments']) d[k] = d[k].map(([name, img, factor]) => ({ name, factor, img: `${base}img/fonts/${img}` }));
-  d.keyboard.image = base + d.keyboard.image;
-  d.errors = d.errors.map(([msg, cause, fix]) => ({ msg, cause, fix }));
-  d.problems = d.problems.map(([problem, fix]) => ({ problem, fix }));
 
-  const idx = [];
-  const add = (type, title, kw, extra) => idx.push({ type, title, kw: kw || '', ...extra, _t: norm(title), _k: norm(kw || '') });
-  d.symbols.categories.forEach(c => {
-    add('symbol-category', `${c.name} symbols`, `${c.kw || ''} ${c.chars || ''} ${c.group}`, { cat: c });
-    c.items.forEach(it => add('symbol', it.name, it.kw, { item: it, sub: `${c.name} · #${it.n}` }));
-  });
-  d.frames.items.forEach(f => add('frame', `Frame ${f.n}: ${f.name}`, f.kw + (f.wide ? ' 12mm' : ''), { item: f }));
-  [...d.templates.text, ...d.templates.pattern].forEach(t => add('template', `${t.kind === 'text' ? 'Text' : 'Pattern'} template ${pad2(t.n)}: ${t.name}`, `${t.kw} ${t.desc}`, { item: t }));
-  d.howto.forEach(h => add('howto', h.title, h.kw + ' ' + h.steps.join(' '), { item: h }));
-  d.shortcuts.forEach(s => add('shortcut', s.action, s.kw + ' ' + s.keys, { item: s }));
-  d.fonts.forEach(f => add('font', `${f.name} font`, f.desc, { item: f }));
-  d.styles.forEach(s => add('style', `${s.name} style`, 'style text effect', { item: s }));
-  d.errors.forEach(e => add('error', e.msg, e.cause + ' ' + e.fix, { item: e }));
-  d.problems.forEach(p => add('problem', p.problem, p.fix, { item: p }));
-  d.keyboard.legend.forEach(([n, name, desc]) => add('key', `${name} (key ${n})`, desc, { item: { n, name, desc } }));
-  d.index = idx;
-  return d;
-}
-
-const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 // ponytail: simple scored AND search with prefix + edit-distance-1 fuzz; swap for Fuse.js if it ever falls short
 function search(d, q) {
   const terms = norm(q).split(/[^a-z0-9+&#@°%]+/).filter(Boolean);
@@ -126,8 +89,6 @@ function close(a, b) { // Levenshtein distance <= 1
 }
 
 // ---------- router (History API) ----------
-const SITE = 'https://labelarium.com';
-const OG_IMAGE = SITE + '/icons/og.png';
 const OG_ALT = 'Labelarium, the label maker companion';
 const HOME_TITLE = 'Labelarium · the label maker companion';
 const HOME_DESC = 'Every symbol, frame, template and shortcut of your label maker. Searchable, with pictures, offline.';
@@ -270,26 +231,6 @@ function applySeo(title, desc, path, jsonld, opts = {}) {
   const ld = document.getElementById('jsonld');
   if (ld) ld.textContent = JSON.stringify(jsonld || webPageLd(title, desc, url));
 }
-function countSymbols(d) {
-  return d.symbols.categories.reduce((n, c) => n + (c.items.length || (c.charsNote ? 99 : (c.chars ? c.chars.split(' ').length : 0))), 0);
-}
-function packSummary(d) {
-  const bits = [];
-  const nCat = d.symbols.categories.length;
-  const nSym = countSymbols(d);
-  if (nCat && nSym) bits.push(`${nSym} symbols in ${nCat} categories`);
-  const nFrames = d.frames.items.filter(f => f.n !== 'off').length;
-  if (nFrames) bits.push(`${nFrames} frames`);
-  const nTpl = d.templates.text.length + d.templates.pattern.length;
-  if (nTpl) bits.push(`${nTpl} templates`);
-  if (d.fonts.length > 1) bits.push(`${d.fonts.length} fonts`);
-  else if (d.fonts.length === 1 && d.fonts[0].name && !/app|print master|express labels|p-touch editor|niimbot/i.test(d.fonts[0].name))
-    bits.push(`${d.fonts[0].name} typeface`);
-  if (d.styles.length > 1) bits.push(`${d.styles.length} styles`);
-  if (d.shortcuts.length) bits.push(`${d.shortcuts.length} shortcuts`);
-  if (d.howto.length) bits.push(`${d.howto.length} how-to guides`);
-  return bits.join(', ');
-}
 function webPageLd(title, desc, url, extra = {}) {
   return { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description: desc, url, isPartOf: { '@type': 'WebApplication', name: 'Labelarium', url: SITE + '/' }, image: OG_IMAGE, ...extra };
 }
@@ -357,117 +298,22 @@ function applyHomeSeo() {
   applySeo(HOME_TITLE, HOME_DESC, '/', homeJsonLd());
 }
 function applyDeviceSeo(d, section, rest = [], q = {}) {
-  const label = deviceLabel(d);
-  const tab = deviceTab(d);
-  const hash = routeHash();
-  // Plain WebPage only. Do not emit Product: Google flags it without offers/review/aggregateRating,
-  // and this app must not invent those.
-  // Keep in sync with scripts/prerender.mjs: each device has its own link-preview card.
+  const label = deviceLabel(d), tab = deviceTab(d), hash = routeHash();
+  // Each device has its own link-preview card (site/icons/og/<id>.png).
   const og = { image: `${SITE}/icons/og/${d.id}.png`, imageAlt: `${label} on Labelarium` };
-  const page = (title, desc, path, opts) => applySeo(title, desc, path, webPageLd(title, desc, absUrl(path)), { ...og, ...opts });
-  if (!section || section === 'home') {
-    const sum = packSummary(d);
-    const baseDesc = sum
-      ? `${label}: ${d.tagline}. ${sum}. Searchable, with pictures, offline.`
-      : `${label}: ${d.tagline}. Searchable, with pictures, offline.`;
-    const qtext = String(q.q || '').trim();
-    if (qtext) {
-      return page(`Search “${qtext}” · ${tab} · Labelarium`, `Search results for “${qtext}” on the ${label}.`, `/d/${d.id}?q=${encodeURIComponent(qtext)}`, { noindex: true });
-    }
-    if (hash === 'tips') {
-      const n = (d.tips || []).length;
-      return page(`Tips · ${tab} · Labelarium`, n ? `${n} quick tips for the ${label}.` : `Quick tips for the ${label}.`, `/d/${d.id}`);
-    }
-    if (hash === 'offline') {
-      return page(`Offline · ${tab} · Labelarium`, `Save pictures for the ${label} so this pack works without a network.`, `/d/${d.id}`);
-    }
-    if (hash === 'search') {
-      return page(`Search · ${tab} · Labelarium`, `Search symbols, frames, templates, shortcuts and more on the ${label}.`, `/d/${d.id}`);
-    }
-    if (d.id === 'brady-m210') {
-      return page(
-        'Brady M210 unofficial manual · Labelarium',
-        'Unofficial searchable Brady M210 reference covering manual topics: symbols, how-to guides, and troubleshooting. Not affiliated with Brady.',
-        `/d/${d.id}`
-      );
-    }
-    return page(`${tab} · Labelarium`, baseDesc, `/d/${d.id}`);
-  }
-  if (section === 'keyboard') return page(`Keyboard map · ${tab} · Labelarium`, `Controls on the ${label}: ${d.keyboard.legend.length} callouts, with a tap-to-zoom diagram.`, `/d/${d.id}/keyboard`);
-  if (section === 'symbols') {
-    const catId = rest[0];
-    if (catId === 'accented') return page(`Accented letters · ${tab} · Labelarium`, `Accent key table for the ${label}.`, `/d/${d.id}/symbols/accented`);
-    if (catId) {
-      const c = d.symbols.categories.find(x => x.id === catId);
-      if (c) {
-        const n = c.items.length || (c.chars ? c.chars.split(' ').length : 0);
-        return page(`${c.name} symbols · ${tab} · Labelarium`, `${c.name} (${c.group}) on the ${label}: ${n} symbols, with insert steps.`, `/d/${d.id}/symbols/${c.id}`);
-      }
-    }
-    const nCat = d.symbols.categories.length, nSym = countSymbols(d);
-    return page(`Symbols · ${tab} · Labelarium`, nCat ? `Symbol catalog for the ${label}: ${nSym} entries in ${nCat} categories, with on-device steps.` : `No on-device symbol catalog is published for the ${label} in this pack.`, `/d/${d.id}/symbols`);
-  }
-  if (section === 'frames') {
-    const n = d.frames.items.filter(f => f.n !== 'off').length;
-    const filter = q.f || 'all';
-    const filterTitle = { basic: 'Box and line frames', pictures: 'Picture frames', wide: '12 mm frames' }[filter];
-    const title = `${filterTitle || 'Frames'} · ${tab} · Labelarium`;
-    const desc = n
-      ? (filterTitle ? `${filterTitle} on the ${label}.` : `Frames on the ${label}: ${n} designs, numbered as on the device.`)
-      : `No on-device frame sheet is published for the ${label} in this pack.`;
-    const path = filterTitle ? `/d/${d.id}/frames?f=${encodeURIComponent(filter)}` : `/d/${d.id}/frames`;
-    return page(title, desc, path);
-  }
-  if (section === 'templates') {
-    const nText = d.templates.text.length, nPat = d.templates.pattern.length;
-    return page(`Templates · ${tab} · Labelarium`, (nText + nPat) ? `Templates on the ${label}: ${nText} text, ${nPat} pattern.` : `No on-device template library is published for the ${label} in this pack.`, `/d/${d.id}/templates`);
-  }
-  if (section === 'fonts') {
-    const nF = d.fonts.length, nS = d.styles.length;
-    if (hash === 'styles') {
-      return page(`Styles · ${tab} · Labelarium`, nS ? `${nS} text styles on the ${label}, plus fonts, size, width and alignment.` : `Text style settings for the ${label}.`, `/d/${d.id}/fonts`);
-    }
-    const desc = nF > 1
-      ? `Type on the ${label}: ${nF} fonts, ${nS} styles, plus size, width and alignment.`
-      : `Type settings for the ${label}${d.fontNote ? ': ' + String(d.fontNote).split('.')[0] + '.' : '.'}`;
-    return page(`Fonts & styles · ${tab} · Labelarium`, desc, `/d/${d.id}/fonts`);
-  }
-  if (section === 'shortcuts') return page(`Shortcuts · ${tab} · Labelarium`, `${d.shortcuts.length} key combos and hidden tricks on the ${label}.`, `/d/${d.id}/shortcuts`);
-  if (section === 'howto') {
-    const topic = rest[0];
-    const h = topic && d.howto.find(x => x.id === topic);
-    if (h) return page(`${h.title} · ${tab} · Labelarium`, `${h.title} on the ${label}.`, `/d/${d.id}/howto/${h.id}`);
-    if (d.id === 'brady-m210') {
-      return page(
-        'Brady M210 how-to guides · Labelarium',
-        'Unofficial step-by-step how-to guides for the Brady M210. Not affiliated with Brady.',
-        `/d/${d.id}/howto`
-      );
-    }
-    return page(`How-to guides · ${tab} · Labelarium`, `${d.howto.length} step-by-step guides for the ${label}.`, `/d/${d.id}/howto`);
-  }
-  if (section === 'trouble') {
-    if (hash === 'errors') {
-      return page(`Error messages · ${tab} · Labelarium`, d.errors.length ? `LCD error messages for the ${label}: ${d.errors.length} messages, with causes and fixes.` : `LCD error messages for the ${label}.`, `/d/${d.id}/trouble`);
-    }
-    if (hash === 'problems') {
-      return page(`Problems · ${tab} · Labelarium`, d.problems.length ? `${d.problems.length} problems and fixes for the ${label}.` : `Problems and fixes for the ${label}.`, `/d/${d.id}/trouble`);
-    }
-    if (d.id === 'brady-m210') {
-      return page(
-        'Brady M210 troubleshooting · Labelarium',
-        'Unofficial Brady M210 troubleshooting: LCD error messages, causes, and fixes. Not affiliated with Brady.',
-        `/d/${d.id}/trouble`
-      );
-    }
-    const desc = (d.errors.length || d.problems.length)
-      ? `LCD messages and fixes for the ${label}: ${d.errors.length} messages, ${d.problems.length} problems.`
-      : `Troubleshooting notes for the ${label}.`;
-    return page(`Troubleshooting · ${tab} · Labelarium`, desc, `/d/${d.id}/trouble`);
-  }
-  if (section === 'preview') return page(`Label preview · ${tab} · Labelarium`, `Design a label for the ${label} and get the key-press recipe.`, `/d/${d.id}/preview`);
-  if (section === 'specs') return page(`Specs & tapes · ${tab} · Labelarium`, `Tape widths, limits and official links for the ${label}.`, `/d/${d.id}/specs`);
-  return page(`${tab} · Labelarium`, `${label} in Labelarium.`, `/d/${d.id}`);
+  const sec = section === 'home' ? undefined : section;
+  const qtext = String(q.q || '').trim();
+  if (!sec && qtext) return applySeo(`Search “${qtext}” · ${tab} · Labelarium`, `Search results for “${qtext}” on the ${label}.`, `/d/${d.id}?q=${encodeURIComponent(qtext)}`, null, { ...og, noindex: true });
+  // Title, description, canonical and JSON-LD come from site/pack.js, exactly as scripts/prerender.mjs writes them.
+  const meta = seoMeta(d, sec, rest);
+  if (!meta) return applyNotFoundSeo(location.pathname);
+  // In-page anchors and filters share the canonical page; only the title says where you are.
+  let title = meta.title;
+  const filter = sec === 'frames' && { basic: 'Box and line frames', pictures: 'Picture frames', wide: '12 mm frames' }[q.f];
+  const anchor = !rest.length && { tips: 'Quick tips', offline: 'Offline', search: 'Search', errors: 'Error messages', problems: 'Problems', styles: 'Styles' }[hash];
+  if (filter) title = `${filter} · ${tab} · Labelarium`;
+  else if (anchor) title = `${anchor} · ${tab} · Labelarium`;
+  applySeo(title, meta.desc, meta.path, pageJsonLd(d, sec, rest, meta), og);
 }
 function applyLocationSeo() {
   const { seg, q, path } = route();
@@ -586,22 +432,6 @@ window.addEventListener('scroll', () => {
   topbar.classList.toggle('past-hero', !!h && h.getBoundingClientRect().bottom < topbar.getBoundingClientRect().bottom);
 }, { passive: true });
 
-function deviceLabel(dev) {
-  const brand = dev.brand || '', name = dev.name || '';
-  if (!brand) return name;
-  const n = name.toLowerCase(), b = brand.toLowerCase();
-  if (n === b || n.startsWith(b + ' ')) return name;
-  return `${brand} ${name}`;
-}
-function deviceTab(dev) {
-  const brand = dev.brand || '';
-  const model = dev.model || dev.name || '';
-  if (!brand) return model;
-  if (!model) return brand;
-  const m = model.toLowerCase(), b = brand.toLowerCase();
-  if (m === b || m.startsWith(b + ' ')) return model;
-  return `${brand} ${model}`;
-}
 function deviceTileLabel(dev) {
   const brand = dev.brand || '', model = dev.model || '';
   if (!model || model.toLowerCase() === brand.toLowerCase()) return deviceLabel(dev);
@@ -721,17 +551,7 @@ window.toggleFav = id => {
 };
 
 // ---------- device home + search ----------
-const plural = (n, one, many = one + 's') => `${n} ${n === 1 ? one : many}`;
 // A pack only offers the sections it has content for (no empty "0 templates" tiles).
-const HAS = {
-  keyboard: d => d.keyboard.legend.length > 0,
-  symbols: d => d.symbols.categories.length > 0,
-  frames: d => d.frames.items.some(f => f.n !== 'off'),
-  templates: d => d.templates.text.length + d.templates.pattern.length > 0,
-  shortcuts: d => d.shortcuts.length > 0,
-  howto: d => d.howto.length > 0,
-  trouble: d => d.errors.length + d.problems.length > 0,
-};
 const sectionsFor = d => SECTIONS.filter(([id]) => !HAS[id] || HAS[id](d));
 // Bottom tabs keep fixed slots across every pack: Search · Symbols · Frames · Preview (+ More).
 function tabSlots(d) {
@@ -753,7 +573,7 @@ const SECTIONS = [
   ['preview', 'strip', 'Label preview', 'Design a label, get the recipe'],
   ['specs', 'quarter', 'Specs & tapes', 'Tape widths, limits, links'],
 ];
-function deviceTop(d, section, sub) {
+function deviceTop(d, section, sub, back) {
   const favs = store.get('favs', []);
   const star = iconBtn({ cls: favs.includes(d.id) ? 'fav' : '', label: 'Pin', title: 'Pin to home', extra: `onclick="toggleFav('${d.id}')" aria-pressed="${favs.includes(d.id)}"`, inner: icon(favs.includes(d.id) ? 'pinned' : 'pin', 18) });
   const search = section ? iconBtn({ tag: 'a', href: `/d/${d.id}`, cls: 'top-search', label: 'Search', inner: icon('search', 18) }) : '';
@@ -761,7 +581,7 @@ function deviceTop(d, section, sub) {
   const title = bradyHub ? 'Brady M210' : (section || d.model);
   const subtitle = bradyHub ? 'Unofficial reference' : (section ? d.model : d.brand);
   // Install lives in the rail (tablet/desktop) and the More sheet (phone), so the app bar stays one row.
-  setTop(title, { back: section ? `/d/${d.id}` : '/', sub: subtitle, deviceId: d.id, right: search + star });
+  setTop(title, { back: back || (section ? `/d/${d.id}` : '/'), sub: subtitle, deviceId: d.id, right: search + star });
   store.set('last', d.id);
   const cur = route().seg[2] || 'home';
   const all = [['home', 'ring', 'Search'], ...sectionsFor(d).map(([id, ico, name]) => [id, ico, name])];
@@ -877,8 +697,8 @@ function renderResults(d, q, firstPaint) {
     else if (type === 'shortcut') html += g.map(r => `<div class="card"><div>${fmt(r.item.keys)}</div><div style="margin-top:6px"><b>${hi(r.item.action)}</b></div></div>`).join('');
     else if (type === 'font') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${esc(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
     else if (type === 'style') html += g.map(r => `<a class="card link" href="/d/${d.id}/fonts"><img class="font-img" src="${r.item.img}" alt=""><div><b>${hi(r.item.name)}</b><div class="muted small">${fmt('[Font] → {Style} → [OK]')}</div></div></a>`).join('');
-    else if (type === 'error') html += g.map(r => `<div class="card"><b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div><div class="note">${fmt(r.item.fix)}</div></div>`).join('');
-    else if (type === 'problem') html += g.map(r => `<div class="card"><b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${fmt(r.item.fix)}</div></div>`).join('');
+    else if (type === 'error') html += g.map(r => chevRow(`/d/${d.id}/trouble/${r.item.slug}`, `<b class="lcd">${hi(r.item.msg)}</b><div class="small" style="margin-top:6px">${hi(r.item.cause)}</div>`)).join('');
+    else if (type === 'problem') html += g.map(r => chevRow(`/d/${d.id}/trouble/${r.item.slug}`, `<b>${hi(r.item.problem)}</b><div class="small muted" style="margin-top:4px">${esc(clip(r.item.fix, 120))}</div>`)).join('');
     else if (type === 'key') html += g.map(r => `<a class="card link" href="/d/${d.id}/keyboard"><div><b>${hi(r.item.name)}</b> <span class="pill">key ${r.item.n}</span><div class="muted small">${fmt(r.item.desc)}</div></div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`).join('');
   }
   box.innerHTML = html;
@@ -1063,14 +883,14 @@ function viewSymbols(d, [catId]) {
 function viewCategory(d, catId) {
   if (catId === 'accented') {
     const a = d.symbols.accented;
-    deviceTop(d, 'Accented letters');
+    deviceTop(d, 'Accented letters', undefined, `/d/${d.id}/symbols`);
     main.innerHTML = `<div class="card"><h3>How to type them</h3>${steps(a.howto)}</div><h2>All variants</h2>${zoomable(a.image, "Accented characters table", "card img-card")}
       <div class="card acc-table" style="margin-top:10px">${Object.entries(a.table).map(([k, v]) => `<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="min-width:20px">${k}</b><span style="letter-spacing:.15em">${v}</span></div>`).join('')}</div>`;
     return;
   }
   const c = d.symbols.categories.find(x => x.id === catId);
   if (!c) return viewSymbols(d, []);
-  deviceTop(d, c.name);
+  deviceTop(d, c.name, undefined, `/d/${d.id}/symbols`);
   const how = steps(['Press [Symbol].', `[◀] / [▶] to {${c.group}} → [OK].`, `Press [${c.key}] to jump straight to {${c.name}} (or [◀] / [▶] to it) → [OK].`, '[◀] / [▶] to the symbol (numbers below = position) → [OK].']);
   let body;
   if (c.items.length) body = `<div class="symgrid">${c.items.map(it => glyphTile(d, it, true)).join('')}</div><h2>As printed in the manual</h2>${zoomable(c.img, c.name + " as printed in the manual", "card img-card")}`;
@@ -1131,21 +951,44 @@ function viewKeyboard(d) {
   main.innerHTML = `${zoomable(d.keyboard.image, 'Diagram', photo ? 'card kbd-card kbd-photo' : 'card kbd-card')}
     ${band(low, 'Callouts')}${band(high, 'Callouts')}`;
 }
+const chevRow = (href, inner) => `<a class="card link" href="${href}"><div style="min-width:0">${inner}</div><span class="chev" aria-hidden="true">${icon('chev', 18)}</span></a>`;
 function viewHowto(d, [topic]) {
-  deviceTop(d, d.id === 'brady-m210' ? 'M210 how-to guides' : 'How-to guides');
-  const intro = d.id === 'brady-m210'
-    ? `<p class="hint pack-intro">Unofficial how-to guides for the Brady M210. Not affiliated with Brady.</p>`
-    : '';
-  main.innerHTML = `${intro}<div class="card">${d.howto.map(h => `<details id="h-${h.id}" ${h.id === topic ? 'open' : ''}><summary>${esc(h.title)}</summary><div class="body">${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}</div></details>`).join('')}</div>`;
-  if (topic) setTimeout(() => document.getElementById('h-' + topic)?.scrollIntoView({ block: 'start', behavior: reduceMotion() ? 'auto' : 'smooth' }), 50);
+  const brady = d.id === 'brady-m210';
+  const h = topic && d.howto.find(x => x.id === topic);
+  if (h) {
+    deviceTop(d, plain(h.title), undefined, `/d/${d.id}/howto`);
+    const at = d.howto.indexOf(h);
+    const more = [...d.howto.slice(at + 1), ...d.howto.slice(0, at)].slice(0, 6);
+    main.innerHTML = `<div class="card"><h3>Step by step</h3>${steps(h.steps)}${h.notes ? `<div class="note">${h.notes.map(fmt).join('<br>')}</div>` : ''}
+      <div class="btn-row"><button type="button" class="btn ghost" onclick="sharePage()">${shareIcon()} Share this guide</button></div></div>
+      <h2>More guides</h2><div class="list plate">${more.map(x => chevRow(`/d/${d.id}/howto/${x.id}`, `<b>${esc(x.title)}</b><div class="muted small">${plural(x.steps.length, 'step')}</div>`)).join('')}</div>
+      <p class="hint"><a href="/d/${d.id}/howto">All ${d.howto.length} ${esc(d.model)} guides</a></p>`;
+    return;
+  }
+  deviceTop(d, brady ? 'M210 how-to guides' : 'How-to guides');
+  const intro = brady ? `<p class="hint pack-intro">Unofficial how-to guides for the Brady M210. Not affiliated with Brady.</p>` : '';
+  main.innerHTML = `${intro}<div class="list plate">${d.howto.map(x => chevRow(`/d/${d.id}/howto/${x.id}`, `<b>${esc(x.title)}</b><div class="muted small">${esc(clip(plain(x.steps.join(' ')), 96))}</div>`)).join('')}</div>`;
 }
-function viewTrouble(d) {
-  deviceTop(d, d.id === 'brady-m210' ? 'M210 troubleshooting' : 'Troubleshooting');
-  const intro = d.id === 'brady-m210'
-    ? `<p class="hint pack-intro">Unofficial LCD error messages and fixes for the Brady M210. Not affiliated with Brady.</p>`
-    : '';
-  main.innerHTML = `${intro}<h2 id="errors">Error messages on the LCD</h2><div class="card">${d.errors.map(e => `<details><summary><span class="lcd">${esc(e.msg)}</span></summary><div class="body small"><p>${esc(e.cause)}</p><div class="note">${fmt(e.fix)}</div></div></details>`).join('')}</div>
-    <h2 id="problems">What to do when…</h2><div class="card">${d.problems.map(p => `<details><summary>${esc(p.problem)}</summary><div class="body small">${fmt(p.fix)}</div></details>`).join('')}</div>`;
+function viewTrouble(d, [slug]) {
+  const brady = d.id === 'brady-m210';
+  const t = slug && d.trouble.find(x => x.slug === slug);
+  const errRow = e => chevRow(`/d/${d.id}/trouble/${e.slug}`, `<span class="lcd">${esc(e.msg)}</span><div class="muted small" style="margin-top:6px">${esc(clip(e.cause, 110))}</div>`);
+  const probRow = p => chevRow(`/d/${d.id}/trouble/${p.slug}`, `<b>${esc(p.problem)}</b><div class="muted small">${esc(clip(p.fix, 110))}</div>`);
+  if (t) {
+    deviceTop(d, t.kind === 'error' ? plain(t.msg) : plain(t.problem), undefined, `/d/${d.id}/trouble`);
+    const others = (t.kind === 'error' ? d.errors : d.problems).filter(x => x !== t);
+    main.innerHTML = `<div class="card trouble-detail">${t.kind === 'error'
+        ? `<p class="small muted" style="margin:0 0 8px">The ${esc(d.model)} shows:</p><div class="lcd lcd-big">${esc(t.msg)}</div><h3>What it means</h3><p>${fmt(t.cause)}</p><h3>How to fix it</h3><div class="note">${fmt(t.fix)}</div>`
+        : `<h3>How to fix it</h3><div class="note">${fmt(t.fix)}</div>`}
+      <div class="btn-row"><button type="button" class="btn ghost" onclick="sharePage()">${shareIcon()} Share this fix</button></div></div>
+      ${others.length ? `<h2>${t.kind === 'error' ? 'Other error messages' : 'Other problems'}</h2><div class="list plate">${others.map(t.kind === 'error' ? errRow : probRow).join('')}</div>` : ''}
+      <p class="hint"><a href="/d/${d.id}/trouble">All ${esc(d.model)} troubleshooting</a></p>`;
+    return;
+  }
+  deviceTop(d, brady ? 'M210 troubleshooting' : 'Troubleshooting');
+  const intro = brady ? `<p class="hint pack-intro">Unofficial LCD error messages and fixes for the Brady M210. Not affiliated with Brady.</p>` : '';
+  main.innerHTML = `${intro}${d.errors.length ? `<h2 id="errors">Error messages on the LCD</h2><div class="list plate">${d.errors.map(errRow).join('')}</div>` : ''}
+    ${d.problems.length ? `<h2 id="problems">What to do when…</h2><div class="list plate">${d.problems.map(probRow).join('')}</div>` : ''}`;
 }
 function viewSpecs(d) {
   deviceTop(d, 'Specs & tapes');
@@ -1541,7 +1384,6 @@ async function shareLink({ title, text, path }) {
   try { await navigator.clipboard.writeText(data.url); toast('Link copied. Paste it anywhere.'); haptic(); }
   catch { openSheet(`<h2 class="t">Share</h2><p class="muted small">Copy this link:</p><input class="share-url" readonly value="${esc(data.url)}" onfocus="this.select()">`); }
 }
-const plain = s => String(s).replace(/[[\]{}]/g, '');
 window.shareApp = () => shareLink({ title: 'Labelarium', text: 'Every symbol, frame and key press for your label maker, with pictures. Free, works offline:', path: '/' });
 window.shareDevice = id => {
   const d = loaded[id] || devices.find(x => x.id === id);
@@ -1611,7 +1453,7 @@ async function syncSavedFlags() {
     catch { store.set('offline:' + x.id, false); }
   }
 }
-const BUILD = 'v41'; // must equal sw.js VERSION suffix
+const BUILD = 'v42'; // must equal sw.js VERSION suffix
 window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
 
 window.addEventListener('resize', () => {
@@ -1639,4 +1481,5 @@ if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
   sw.addEventListener('controllerchange', () => sw.controller?.postMessage({ type: 'version' }));
   sw.controller?.postMessage({ type: 'version' });
 }
+document.documentElement.classList.add('app-ready');
 render();
