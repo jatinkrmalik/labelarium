@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Side rail: the Share, Appearance and Install buttons at the bottom no longer spill out of the rail. They wrap (two and one on desktop, stacked on tablets) at full 44 px size.
+
 ## [0.2.0]
 
 - Label preview, rebuilt around real tapes: frames print in the ink colour on the tape (they used to paint white scans over coloured and black tapes, hiding white text), and each brand offers its own media: Brother TZe (16 colours, including gold, silver, fluorescent and clear), DYMO D1, Brady M21 and thermal label rolls for NIIMBOT and Phomemo. Tapes have their real finish: laminate gloss, frosted clear, metallic, matte die-cut paper. Colours are picked from tape swatches.

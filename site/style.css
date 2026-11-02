@@ -149,7 +149,8 @@ a.tile, a.card.link, a.iconbtn, a.devtile-hit { text-decoration: none; color: in
   .rail a:not(.brand) { padding: 10px 4px; border-radius: 12px; font-size: 11.5px; transition: background .15s; }
   .rail a:not(.brand):hover { background: var(--sunk); color: var(--ink); }
   .rail a.on { background: var(--plate); box-shadow: inset 0 0 0 1px var(--line), var(--shadow); }
-  .rail .rail-foot { margin-top: auto; padding-top: 10px; display: flex; justify-content: center; }
+  /* Share, Appearance and Install: wrap onto a second row rather than spill out of the rail. */
+  .rail .rail-foot { margin-top: auto; padding-top: 10px; display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
   .rail .rail-foot .iconbtn.labeled { padding: 0; width: 44px; }
   .rail .rail-foot .iconbtn.labeled .lbl { display: none; }
   :root:has(.app.device) .topbar, .app.device { padding-left: var(--rail); }
