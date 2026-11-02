@@ -4,7 +4,7 @@
 // - Images and fonts: cache first.
 // - "Save offline" puts each label maker in its own cache (labelarium-saved-<id>) that releases never delete.
 // Bump VERSION on every app-shell change; it must match BUILD in app.js (CI checks).
-const VERSION = 'labelarium-v44';
+const VERSION = 'labelarium-v45';
 const IMG_CACHE = 'labelarium-img';   // runtime images: survives releases, trimmed to IMG_MAX entries
 const SAVED = 'labelarium-saved-';    // + device id
 const IMG_MAX = 600;
