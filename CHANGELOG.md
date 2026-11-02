@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.2.1]
+
 - Side rail: the Share, Appearance and Install buttons at the bottom no longer spill out of the rail. They wrap (two and one on desktop, stacked on tablets) at full 44 px size.
 
 ## [0.2.0]
