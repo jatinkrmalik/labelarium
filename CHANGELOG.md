@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- Structured data: the home page's WebApplication and WebSite now name their author and creator as Jatin K Malik (`https://jatinkrmalik.com/about/#person`, the same Person as on jatinkrmalik.com, linked to Wikidata), and the app links to its Wikidata item. The WebSite's publisher is that Person too (it was the WebApplication, which schema.org does not accept as a publisher). `meta name="author"` reads "Jatin K Malik". Service worker v46.
+
 ## [0.2.1]
 
 - Side rail: the Share, Appearance and Install buttons at the bottom no longer spill out of the rail. They wrap (two and one on desktop, stacked on tablets) at full 44 px size.
