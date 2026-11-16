@@ -237,6 +237,12 @@ function applySeo(title, desc, path, jsonld, opts = {}) {
 function webPageLd(title, desc, url, extra = {}) {
   return { '@context': 'https://schema.org', '@type': 'WebPage', name: title, description: desc, url, isPartOf: { '@type': 'WebApplication', name: 'Labelarium', url: SITE + '/' }, image: OG_IMAGE, ...extra };
 }
+// The author, described once per page (the app's author) and referenced by @id elsewhere. Same @id as on jatinkrmalik.com.
+const AUTHOR_ID = 'https://jatinkrmalik.com/about/#person';
+const AUTHOR = {
+  '@type': 'Person', '@id': AUTHOR_ID, name: 'Jatin K Malik', alternateName: 'Jatin Kumar Malik', url: 'https://jatinkrmalik.com/',
+  sameAs: ['https://www.wikidata.org/wiki/Q142178778', 'https://jatinkrmalik.com/about/', 'https://github.com/jatinkrmalik', 'https://x.com/jatinkrmalik', 'https://www.linkedin.com/in/jatinkrmalik/'],
+};
 function homeJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -247,9 +253,10 @@ function homeJsonLd() {
         isAccessibleForFree: true, offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
         license: 'https://www.gnu.org/licenses/agpl-3.0.html', image: OG_IMAGE,
         screenshot: SITE + '/docs/screenshots/phone-home.png',
-        author: { '@type': 'Person', name: 'Jatin Malik', url: 'https://x.com/jatinkrmalik' },
+        sameAs: ['https://www.wikidata.org/wiki/Q142179087'],
+        author: AUTHOR, creator: { '@id': AUTHOR_ID },
       },
-      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'Labelarium', url: SITE + '/', publisher: { '@id': SITE + '/#app' } },
+      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'Labelarium', url: SITE + '/', publisher: { '@id': SITE + '/#app' }, author: { '@id': AUTHOR_ID }, creator: { '@id': AUTHOR_ID } },
       {
         '@type': 'ItemList', '@id': SITE + '/#makers', name: 'Supported label makers', numberOfItems: devices.length,
         itemListElement: devices.map((d, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/d/' + d.id, name: deviceLabel(d) })),
@@ -1670,7 +1677,7 @@ async function syncSavedFlags() {
     catch { store.set('offline:' + x.id, false); }
   }
 }
-const BUILD = 'v45'; // must equal sw.js VERSION suffix
+const BUILD = 'v46'; // must equal sw.js VERSION suffix
 window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
 
 window.addEventListener('resize', () => {
