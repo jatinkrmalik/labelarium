@@ -256,7 +256,7 @@ function homeJsonLd() {
         sameAs: ['https://www.wikidata.org/wiki/Q142179087'],
         author: AUTHOR, creator: { '@id': AUTHOR_ID },
       },
-      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'Labelarium', url: SITE + '/', publisher: { '@id': SITE + '/#app' }, author: { '@id': AUTHOR_ID }, creator: { '@id': AUTHOR_ID } },
+      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'Labelarium', url: SITE + '/', publisher: { '@id': AUTHOR_ID }, author: { '@id': AUTHOR_ID }, creator: { '@id': AUTHOR_ID } },
       {
         '@type': 'ItemList', '@id': SITE + '/#makers', name: 'Supported label makers', numberOfItems: devices.length,
         itemListElement: devices.map((d, i) => ({ '@type': 'ListItem', position: i + 1, url: SITE + '/d/' + d.id, name: deviceLabel(d) })),
