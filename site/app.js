@@ -39,6 +39,7 @@ const ICONS = {
   'theme-auto': '<circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/>',
   'theme-light': '<circle cx="12" cy="12" r="3.8"/><path d="M12 2.8v2.1M12 19.1v2.1M2.8 12h2.1M19.1 12h2.1M5.5 5.5 7 7M17 17l1.5 1.5M5.5 18.5 7 17M17 7l1.5-1.5"/>',
   'theme-dark': '<path d="M19.5 14.6A8 8 0 0 1 9.4 4.5a8 8 0 1 0 10.1 10.1z"/>',
+  heart: '<path d="M10 17s-6-3.7-7.7-7.2C1 7.1 2.5 4 5.5 4c1.8 0 2.9 1 3.6 2.2C9.8 5 11 4 12.7 4c3 0 4.5 3.1 3.2 5.8C14.2 13.3 10 17 10 17z"/>',
   cup: '<path d="M4 8.5h12v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2M12 3.5v2"/>',
   more: '<circle cx="5.5" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="18.5" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
 };
@@ -465,7 +466,8 @@ function siteFooter() {
     <div class="foot-mark">${TAPE_MARK}<span>Labelarium</span></div>
     <nav class="footer" aria-label="About Labelarium">
       <a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener"><svg class="f-gh" viewBox="0 0 16 16" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8"/></svg><span>Open source</span></a>
-      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">${icon('cup', 16)}<span>Buy me a coffee</span></a>
+      <a href="https://buymeacoffee.com/jk" target="_blank" rel="noopener">${icon('cup', 16)}<span>Buy me a coffee</span></a>
+      <a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">${icon('heart', 16)}<span>Sponsor</span></a>
       <button type="button" onclick="shareApp()">${shareIcon()}<span>Share</span></button>
     </nav>
     <p class="foot-by"><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener" data-made-by="b">${MADE_BY}</a></p>
@@ -629,7 +631,7 @@ window.openMore = id => {
   const inTabs = tabSlots(d).slice(1);
   const rest = sectionsFor(d).filter(([sid]) => !inTabs.includes(sid));
   const install = `<div class="more-actions"><button type="button" class="btn ghost" onclick="shareDevice('${id}')">${shareIcon()} Share</button>${shouldShowInstallControls() ? `<button type="button" class="btn ghost js-install" onclick="requestInstall()">${installIconSvg()} ${esc(installActionLabel())}</button>` : ''}<a class="btn ghost" href="/">All label makers</a></div>
-    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
+    <div class="more-about"><a href="https://github.com/jatinkrmalik/labelarium" target="_blank" rel="noopener">Open source on GitHub${icon('ext', 16)}</a><a href="https://buymeacoffee.com/jk" target="_blank" rel="noopener">Buy me a coffee${icon('ext', 16)}</a><a href="https://github.com/sponsors/jatinkrmalik" target="_blank" rel="noopener">Sponsor on GitHub${icon('ext', 16)}</a><a href="https://x.com/jatinkrmalik" target="_blank" rel="noopener">${MADE_BY}${icon('ext', 16)}</a></div>`;
   const look = `<div class="more-appearance"><span>Appearance</span>${appearanceControl()}</div>`;
   openSheet(`<h2 class="t">${esc(d.model)} <span class="muted">Everything in this pack</span></h2><div class="more">${rest.map(([sid, ico, name, sub]) => `<a href="/d/${id}/${sid}" class="${cur === sid ? 'on' : ''}" onclick="document.getElementById('sheet').close()">${appIcon(sid)}<span><b>${name}</b><small>${typeof sub === 'function' ? sub(d) : sub}</small></span></a>`).join('')}</div>${look}${install}`);
 };
@@ -1677,7 +1679,7 @@ async function syncSavedFlags() {
     catch { store.set('offline:' + x.id, false); }
   }
 }
-const BUILD = 'v46'; // must equal sw.js VERSION suffix
+const BUILD = 'v47'; // must equal sw.js VERSION suffix
 window.addEventListener('online', () => { if (document.querySelector('.offline-state')) render(); });
 
 window.addEventListener('resize', () => {
