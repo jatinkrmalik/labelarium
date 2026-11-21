@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 
+- Support links: "Buy me a coffee" now goes to [Buy Me a Coffee](https://buymeacoffee.com/jk), and a separate "Sponsor" link (footer pill with a heart icon, and "Sponsor on GitHub" in the More sheet) goes to GitHub Sponsors. README and FUNDING.yml list both. Service worker v47.
 - Structured data: the home page's WebApplication and WebSite now name their author and creator as Jatin K Malik (`https://jatinkrmalik.com/about/#person`, the same Person as on jatinkrmalik.com, linked to Wikidata), and the app links to its Wikidata item. The WebSite's publisher is that Person too (it was the WebApplication, which schema.org does not accept as a publisher). `meta name="author"` reads "Jatin K Malik". Service worker v46.
 
 ## [0.2.1]

@@ -128,7 +128,8 @@ and is not assumed to be switched yet.
 
 ## Support
 
-If Labelarium is useful, [buy me a coffee on GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
+If Labelarium is useful, [buy me a coffee](https://buymeacoffee.com/jk) or
+[sponsor it on GitHub](https://github.com/sponsors/jatinkrmalik).
 
 ## Community
 
@@ -137,8 +138,8 @@ PRs for app fixes are welcome; start with [CONTRIBUTING](CONTRIBUTING.md).
 We follow a
 [code of conduct](CODE_OF_CONDUCT.md). Vulnerabilities go to
 [SECURITY](SECURITY.md), not a public issue. Everyday bugs and requests live in
-[Issues](https://github.com/jatinkrmalik/labelarium/issues). Coffee still lives
-on [Sponsors](https://github.com/sponsors/jatinkrmalik).
+[Issues](https://github.com/jatinkrmalik/labelarium/issues). Coffee lives on
+[Buy Me a Coffee](https://buymeacoffee.com/jk) and sponsorships on [GitHub Sponsors](https://github.com/sponsors/jatinkrmalik).
 
 ## Trademarks
 
